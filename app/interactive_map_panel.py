@@ -2,6 +2,9 @@ from pathlib import Path
 import sys
 from scipy.stats import gaussian_kde
 
+import hvplot.pandas
+import hvplot.xarray
+
 import holoviews as hv
 import numpy as np
 import pandas as pd
@@ -15,6 +18,8 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+import config
+from data import *
 
 
 pn.extension()
