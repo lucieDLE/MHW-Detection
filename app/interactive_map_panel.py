@@ -115,7 +115,8 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray):
     ).opts(active_tools=["pan"])
 
     return (anomaly_time_plot * trend_plot * rolling_avg_plot).opts(
-        shared_axes=False, legend_position="top_right", show_grid=True
+        shared_axes=False, legend_position="top_left", legend_cols=3, show_grid=True,
+            legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,}
     )
 
 
@@ -154,7 +155,9 @@ def compute_extreme_events_plot(df: pd.DataFrame):
     )
 
     return (anomaly_curve * thr_line * extreme_event).opts(
-        active_tools=["pan"], legend_position="top_right", legend_cols=3, show_grid=True
+        active_tools=["pan"], legend_position="top_left", legend_cols=3, show_grid=True,
+        legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,}
+
     )
 
 
@@ -182,7 +185,8 @@ def compute_barplot(df: pd.DataFrame):
         color="#74a9cf",
         xlabel="Time (years)",
         ylabel="Number of extreme events",
-    ).opts(active_tools=["pan"], show_grid=True)
+    ).opts(active_tools=["pan"], show_grid=True
+)
 
     # Expand years by count for KDE fit
     expanded_years = np.repeat(df_bar["year"].values, df_bar["number of extreme events"].values)
@@ -202,9 +206,10 @@ def compute_barplot(df: pd.DataFrame):
             label='kde').opts(
             color="#74a9cf", line_width=2.5
         )
-        return (bar_plot * kde_curve).opts(show_grid=True,legend_position="top_right")
+        bar_plot *= kde_curve
 
-    return bar_plot
+    return bar_plot.opts(show_grid=True,legend_position="top_left", 
+                         legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,})
 
 def build_app():
     initial_map, tos_anom = load_analysis_data()
