@@ -26,8 +26,8 @@ The dashboard provides a spatial-to-temporal workflow:
     - Computing the standard deviation of anomalies for each month
     - Averaging these values across months
 
-    > [!IMPORTANT]
-    >This map highlights where SST fluctuates most from year to year and should not be interpreted as an ‘extreme’ or ‘heatwave’ map.
+      >**Warning:**
+      >This map highlights where SST fluctuates most from year to year and should not be interpreted as an ‘extreme’ or ‘heatwave’ map.
 
 
 - **Interactive Location Analysis** (Right Panel):
@@ -36,7 +36,7 @@ The dashboard provides a spatial-to-temporal workflow:
     
     - Rolling Mean Visualization: A 3-year rolling mean is computed to visualize long-term SST evolution. This helps smooth short-term variability and makes long-term changes easier to observe.
 
-        > [!NOTE]
+        > **Note**:
         > The rolling mean is a visualization aid, not a statistical estimator.
 
     - Extreme Event Detection: 
@@ -48,4 +48,4 @@ The dashboard provides a spatial-to-temporal workflow:
 
 ## References
 
-    Reynolds, R.W., N.A. Rayner, T.M. Smith, D.C. Stokes, and W. Wang, 2002: An improved in situ and satellite SST analysis for climate. J. Climate, 15, 1609-1625.
+- Reynolds, R.W., N.A. Rayner, T.M. Smith, D.C. Stokes, and W. Wang, 2002: An improved in situ and satellite SST analysis for climate. J. Climate, 15, 1609-1625.
