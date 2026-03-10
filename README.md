@@ -56,6 +56,10 @@ The dashboard provides a spatial-to-temporal workflow:
     This allows the analysis of whether warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves over time
 
 
+Below an example of the current dashboard
+
+<img src="assets/images/dashboard_ssta_analysis.png">
+
 ## References
 
 - Reynolds, R.W., N.A. Rayner, T.M. Smith, D.C. Stokes, and W. Wang, 2002: An improved in situ and satellite SST analysis for climate. J. Climate, 15, 1609-1625.
