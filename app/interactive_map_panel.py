@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SRC_DIR = ROOT_DIR / "src"
+SRC_DIR = ROOT_DIR
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
@@ -31,7 +31,7 @@ def _resolve_data_path(path_from_config):
     # config paths are relative to src/, so resolve from that base.
     return (SRC_DIR / path_from_config).resolve()
 
-
+@pn.cache
 def load_analysis_data():
     data_path = _resolve_data_path(config.DATA_PATH)
     ref_path = _resolve_data_path(config.DATA_REF)
