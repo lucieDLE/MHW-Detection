@@ -14,7 +14,17 @@ The project uses the NOAA Optimum Interpolation (OI) SST V2 [dataset](https://ww
 
 
 ## Running the Dashboard
-coming soon
+You will need to run the Dasboard inside a conda environment.
+```
+cd MHW-Detection
+conda env create -f environment.yml
+conda activate mhw-detection
+```
+Once the installation done you can run the dasboard with the following:
+```
+cd MHW-Detection
+panel serve app/interactive_map_panel.py --show
+```
 
 ## Features
 
