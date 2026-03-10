@@ -12,6 +12,9 @@ Tracking SST anomalies over time helps identify long-term warming trends and unu
 ## Dataset
 The project uses the NOAA Optimum Interpolation (OI) SST V2 [dataset](https://www.psl.noaa.gov/data/gridded/data.noaa.oisst.v2.html). The dataset covers Sea Surface Temperature from 1990 to 2022 with weekly and biweekly resolution.
 
+Yoo will need to download the following datasets and place them in the parent directory inside a `data` folder:
+- wkmean.1990-present.nc
+- sst.oisst.mon.ltm.1991-2020.nc
 
 ## Running the Dashboard
 You will need to run the Dasboard inside a conda environment.
