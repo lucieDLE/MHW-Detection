@@ -1,7 +1,7 @@
 # MHW-Detection
 
 ## Overview
-Interactive exploration of **Sea Surface Temperature (SST)**  anomalies in the Mediterranean Sea.
+Interactive exploration of **Sea Surface Temperature (SST)**  anomalies.
 
 This project provides an interactive dashboard to explore long-term SST anomaly patterns using xarray, hvPlot, Holoviews, and Panel. Users can click anywhere on a spatial SST anomaly map and instantly generate detailed time-series analyses for that location.
 The goal is to enable intuitive spatial-to-temporal climate exploration, allowing users to identify warming trends, variability patterns, and the frequency of extreme temperature events.
@@ -20,7 +20,7 @@ coming soon
 
 The dashboard provides a spatial-to-temporal workflow:
 - **Variability Map** (Left Panel):
-    The map displays regions of high or low SST variability across the Mediterranean Sea.
+    The map displays regions of high or low SST variability across years.
     This map is computed by:
     - Calculating SST anomalies
     - Computing the standard deviation of anomalies for each month
