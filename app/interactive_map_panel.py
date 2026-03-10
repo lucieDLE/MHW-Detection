@@ -261,16 +261,24 @@ def build_app():
             width=config.RIGHT_PANEL_WIDTH,
         )
 
+    text = """
+    The above **worldmap** highlights where Sea Surface Temperature (SST) fluctuates most from year to year (red). Clicking on a location generates several analyses: 
+
+    - **Linear trend estimation**: An Ordinary Least Squares (OLS) regression is applied to estimate the long-term SST anomaly trend.
+    - **Extreme event detection**: defined as SST anomalies exceeding a 95th percentile threshold
+    - **Histogram of the number of extreme event** with Kernel Density Estimation (KDE): detects if warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves over time.
+    """ 
+    caption_text = pn.pane.Markdown(text)
     right_panel = pn.bind(select_point, x=posxy.param.x, y=posxy.param.y)
     dashboard = pn.Row(
-        pn.Column(initial_plot, sizing_mode="stretch_width"),
+        pn.Column(initial_plot, caption_text, sizing_mode="stretch_width"),
         pn.Spacer(width=12),
         right_panel,
         sizing_mode="stretch_width",
     )
 
     return pn.template.FastListTemplate(
-        title="Mediterranean SST Anomaly Explorer",
+        title="SST Anomaly Explorer",
         main=[dashboard],
         accent_base_color="#0d6e6e",
         header_background="#0d6e6e",
@@ -282,4 +290,4 @@ app.servable()
 
 
 if __name__ == "__main__":
-    pn.serve(app, show=True, title="Mediterranean SST Anomaly Explorer")
+    pn.serve(app, show=True, title="SST Anomaly Explorer")
