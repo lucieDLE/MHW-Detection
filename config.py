@@ -1,5 +1,5 @@
-DATA_PATH = "../data/sst.wkmean.1990-present.nc"
-DATA_REF = "../data/sst.oisst.mon.ltm.1991-2020.nc"
+DATA_PATH = "data/sst.wkmean.1990-present.nc"
+DATA_REF = "data/sst.oisst.mon.ltm.1991-2020.nc"
 
 
 MED_BOUNDS = {
