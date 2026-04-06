@@ -4,7 +4,7 @@ from scipy.stats import gaussian_kde
 
 import hvplot.pandas
 import hvplot.xarray
-
+import os 
 import holoviews as hv
 import numpy as np
 import pandas as pd
@@ -32,33 +32,51 @@ def _resolve_data_path(path_from_config):
     return (SRC_DIR / path_from_config).resolve()
 
 @pn.cache
-def load_analysis_data():
+def load_masked_dataset():
     data_path = _resolve_data_path(config.DATA_PATH)
-    ref_path = _resolve_data_path(config.DATA_REF)
 
-    ds = xr.open_dataset(data_path, engine="netcdf4")
-    ds_ref = xr.open_dataset(ref_path, engine="netcdf4")
-
-    ds = remove_countries_data(ds, ds_ref)
+    ds = xr.open_dataset(
+        data_path,
+        engine="netcdf4",
+        chunks=config.CHUNKS,
+    )
     ds["time"] = xr.decode_cf(ds).time
+    return ds
 
-    sst_med_sea = ds.sst
-    sst_grouped = sst_med_sea.groupby("time.month")
-    tos_clim = sst_grouped.mean(dim="time")
+
+@pn.cache
+def load_initial_map():
+    cache_path = _resolve_data_path(config.INITIAL_MAP_CACHE)
+    if cache_path.exists():
+        try:
+            return xr.open_dataarray(cache_path)
+        except Exception:
+            pass
+
+    ds = load_masked_dataset()
+    sst = ds.sst
+    sst = sst.sel(time=slice(config.MIN_DATE, config.MAX_DATE))
+    if config.MAP_COARSEN and config.MAP_COARSEN > 1:
+        sst = sst[::config.TIME_COARSEN, ::config.MAP_COARSEN, ::config.MAP_COARSEN]
+    sst_grouped = sst.groupby("time.month")
     tos_std = sst_grouped.std(dim="time")
-
     initial_map = tos_std.mean(dim="month")
-    tos_anom = sst_grouped - tos_clim
 
-    return initial_map, tos_anom
+    try:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        initial_map.astype("float32").to_netcdf(cache_path)
+    except Exception:
+        pass
+
+    return initial_map
 
 
-def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray):
+def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:float, lat:float):
     rolling_year_num = config.ROLLING_YEARS
     sme_step = config.FREQ_PER_YEAR_MIN
 
-    anom_resampled = tos_anom_selected.resample(time="SME").mean("time")
-    rolling_year_avg = anom_resampled.rolling(
+    anom_resampled = tos_anom_selected# tos_anom_selected.resample(time="SME").mean("time")
+    rolling_year_avg = tos_anom_selected.rolling(
         time=sme_step * rolling_year_num, center=True
     ).mean()
 
@@ -82,8 +100,8 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray):
         y="sst",
         title=(
             f"Anomaly at selected location "
-            f"({float(tos_anom_selected.lat.values):.2f}, {float(tos_anom_selected.lon.values):.2f}) "
-            f"| Trend: {trend} ˚C/decade"
+            f"({lon:.2f}, {lat:.2f}) "
+            f"| Trend: {trend:.3f} ˚C/decade"
         ),
         width=config.RIGHT_PANEL_WIDTH,
         height=config.RIGHT_PLOT_HEIGHT,
@@ -135,7 +153,7 @@ def compute_extreme_events_plot(df: pd.DataFrame):
         height=config.RIGHT_PLOT_HEIGHT,
         ylabel="SST anomaly (˚C)",
         xlabel="Time (months)",
-        title=f"Extreme events above {int(quantile_val * 100)}th quantile threshold",
+        title=f"Extreme events above {int(quantile_val * 100)}th percentile threshold",
         label="Anomaly",
     )
 
@@ -211,8 +229,43 @@ def compute_barplot(df: pd.DataFrame):
     return bar_plot.opts(show_grid=True,legend_position="top_left", 
                          legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,})
 
-def build_app():
-    initial_map, tos_anom = load_analysis_data()
+def build_raw_timeseries_view():
+    ds = load_masked_dataset()
+    sst = ds.sst
+    if config.RAW_COARSEN and config.RAW_COARSEN > 1:
+        sst = sst.coarsen(
+            lat=config.RAW_COARSEN, lon=config.RAW_COARSEN, boundary="trim"
+        ).mean()
+    min_temp, max_temp = sst.attrs.get("actual_range", (None, None))
+
+    raw_map = sst.hvplot(
+        x="lon",
+        y="lat",
+        cmap="coolwarm",
+        groupby="time",
+        width=config.TIME_SERIE_WIDTH,
+        height=config.TIME_SERIE_HEIGHT,
+        clim=(min_temp, max_temp) if min_temp is not None else None,
+        xlabel="Longitude (degrees_east)",
+        ylabel="Latitude (degrees_north)",
+        widget_location="bottom",
+        widget_type='scrubber'
+    )
+
+    note = pn.pane.Markdown(
+        """
+        Use the slider to scan through weekly SST frames.
+        The slider is synced to the dataset time coordinate.
+        """,
+        sizing_mode="stretch_width",
+    )
+
+    return pn.Column(raw_map, note, sizing_mode="stretch_both")
+
+
+def build_anomaly_view():
+    ds = load_masked_dataset()
+    initial_map = load_initial_map()
 
     initial_plot = initial_map.hvplot(
         x="lon",
@@ -230,7 +283,10 @@ def build_app():
     )
 
     def select_point(x, y):
-        tos_anom_selected = tos_anom.sel(lon=x, lat=y, method="nearest")
+        sst_point = ds.sst.sel(lon=x, lat=y, method="nearest")
+        sst_grouped = sst_point.groupby("time.month")
+        tos_clim = sst_grouped.mean(dim="time")
+        tos_anom_selected = sst_grouped - tos_clim
 
         df = pd.DataFrame(
             {
@@ -244,12 +300,12 @@ def build_app():
             + (tos_anom_selected.time.dt.dayofyear - 1) / 365.25
         ).values
 
-        df = df.loc[(df["year"]>= config.MIN_YEAR ) & (df["year"]<= config.MAX_YEAR)]        
+        # df = df.loc[(df["year"]>= config.MIN_YEAR ) & (df["year"]<= config.MAX_YEAR)]        
 
         q95 = np.quantile(df["anomalies"], q=config.EXTREME_QUANTILE)
         df["q95"] = (df["anomalies"] > q95).astype(int)
 
-        anomaly_time_plot = compute_anomaly_plot(df, tos_anom_selected)
+        anomaly_time_plot = compute_anomaly_plot(df, tos_anom_selected, x, y)
         extreme_event_plot = compute_extreme_events_plot(df)
         bar_plot = compute_barplot(df)
 
@@ -277,9 +333,20 @@ def build_app():
         sizing_mode="stretch_width",
     )
 
+    return dashboard
+
+def build_app():
+    tabs = pn.Tabs(
+        ("Raw SST (Time Slider)", build_raw_timeseries_view()),
+        ("Anomaly Explorer", build_anomaly_view()),
+        tabs_location="left",
+        sizing_mode="stretch_both",
+        dynamic=True,
+    )
+
     return pn.template.FastListTemplate(
-        title="SST Anomaly Explorer",
-        main=[dashboard],
+        title="SST Dashboard",
+        main=[tabs],
         accent_base_color="#0d6e6e",
         header_background="#0d6e6e",
     )
