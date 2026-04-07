@@ -73,7 +73,7 @@ def load_initial_map():
 
 def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:float, lat:float):
     rolling_year_num = config.ROLLING_YEARS
-    sme_step = config.FREQ_PER_YEAR_MIN
+    sme_step = int(config.FREQ_PER_YEAR_MIN)
 
     anom_resampled = tos_anom_selected# tos_anom_selected.resample(time="SME").mean("time")
     rolling_year_avg = tos_anom_selected.rolling(
