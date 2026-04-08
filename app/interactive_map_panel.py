@@ -270,7 +270,7 @@ def build_anomaly_view():
     initial_plot = initial_map.hvplot(
         x="lon",
         y="lat",
-        cmap="coolwarm",
+        cmap="OrRd",
         title="Sea Surface Temperature Variability across years",
         width=config.MAP_WIDTH,
         height=config.MAP_HEIGHT,
