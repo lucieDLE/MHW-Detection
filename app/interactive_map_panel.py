@@ -32,15 +32,14 @@ def _resolve_data_path(path_from_config):
     return (SRC_DIR / path_from_config).resolve()
 
 @pn.cache
-def load_masked_dataset():
-    data_path = _resolve_data_path(config.DATA_PATH)
+def load_masked_dataset(filename):
+    data_path = _resolve_data_path(filename)
 
     ds = xr.open_dataset(
         data_path,
         engine="netcdf4",
         chunks=config.CHUNKS,
     )
-    ds["time"] = xr.decode_cf(ds).time
     return ds
 
 
@@ -53,7 +52,8 @@ def load_initial_map():
         except Exception:
             pass
 
-    ds = load_masked_dataset()
+    ds = load_masked_dataset(config.DATA_PATH)
+    ds["time"] = xr.decode_cf(ds).time
     sst = ds.sst
     sst = sst.sel(time=slice(config.MIN_DATE, config.MAX_DATE))
     if config.MAP_COARSEN and config.MAP_COARSEN > 1:
@@ -230,26 +230,23 @@ def compute_barplot(df: pd.DataFrame):
                          legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,})
 
 def build_raw_timeseries_view():
-    ds = load_masked_dataset()
-    sst = ds.sst
+    ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH)
+    ssta = ds_ssta.sst
     if config.RAW_COARSEN and config.RAW_COARSEN > 1:
-        sst = sst.coarsen(
-            lat=config.RAW_COARSEN, lon=config.RAW_COARSEN, boundary="trim"
-        ).mean()
-    min_temp, max_temp = sst.attrs.get("actual_range", (None, None))
+        ssta[::config.TIME_COARSEN, ::config.RAW_COARSEN,::config.RAW_COARSEN]
 
-    raw_map = sst.hvplot(
+    raw_map = ssta.hvplot(
         x="lon",
         y="lat",
-        cmap="coolwarm",
+        cmap="RdBu_r",
         groupby="time",
         width=config.TIME_SERIE_WIDTH,
         height=config.TIME_SERIE_HEIGHT,
-        clim=(min_temp, max_temp) if min_temp is not None else None,
+        clim=(config.p001, config.p099),
         xlabel="Longitude (degrees_east)",
         ylabel="Latitude (degrees_north)",
         widget_location="bottom",
-        widget_type='scrubber'
+        # widget_type='scrubber'
     )
 
     note = pn.pane.Markdown(
@@ -264,7 +261,7 @@ def build_raw_timeseries_view():
 
 
 def build_anomaly_view():
-    ds = load_masked_dataset()
+    ds = load_masked_dataset(config.DATA_PATH)
     initial_map = load_initial_map()
 
     initial_plot = initial_map.hvplot(
