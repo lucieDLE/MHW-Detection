@@ -25,6 +25,9 @@ ROLLING_YEARS = 3
 FREQ_PER_YEAR_MIN = 52 / TIME_COARSEN
 EXTREME_QUANTILE = 0.95
 
+p001=-2.0892258
+p099=2.215498
+
 WIDTH_PLOT=500
 HEIGHT_RIGHT_PLOT = int(WIDTH_PLOT / 3)
 
@@ -41,3 +44,6 @@ TIME_SERIE_HEIGHT = 760
 
 # Cache outputs
 INITIAL_MAP_CACHE = "data/cache/initial_map.nc"
+ANOMALY_MAP_PATH = 'data/cache/ssta_high_res.nc'
+# Video output
+RAW_VIDEO_PATH = "assets/sst_weekly.mp4"
