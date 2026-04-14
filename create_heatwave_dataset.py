@@ -38,15 +38,16 @@ def count_events_1d(arr, min_len=5):
 
 
 
-# MIN_DURATION = 5
+MIN_DURATION = 5
 
 ds = xr.open_zarr('data/sst_daily.zarr',
-                    # chunks={"time": 365, "lat": 180,"lon": 360}
+                    chunks={"time": 365, "lat": 180,"lon": 360}
                 )
 
 ds = ds.coarsen(lat=4, lon=4).mean()
 
 da = ds.sst
+da = da.resample(time="1D").mean()
 
 # Compute threshold using a +/-5 day window across all years
 rolling_window = 11  # 5 days before + current + 5 days after
@@ -124,12 +125,11 @@ land_mask = da.isnull().all('time')
 mhw_days_per_year = mhw_mask.groupby("time.year").sum("time")
 mhw_days_per_year = mhw_days_per_year.where(~land_mask)
 mhw_days_per_year_ds = mhw_days_per_year.compute()
-mhw_days_per_year_ds.to_zarr(
-    "data/cache/mhw_days_per_year.zarr",
-    mode="w",
-    consolidated=True,
-)
-
+# mhw_days_per_year_ds.to_zarr(
+#     "data/cache/mhw_days_per_year.zarr",
+#     mode="w",
+#     consolidated=True,
+# )
 
 
 mhw_events_per_year = xr.apply_ufunc(
@@ -146,8 +146,22 @@ mhw_events_per_year = mhw_events_per_year.transpose('year', 'lat', 'lon')
 mhw_events_per_year = mhw_events_per_year.where(~land_mask)
 
 mhw_events_per_year_ds = mhw_events_per_year.compute()
-mhw_events_per_year_ds.to_zarr(
-    "data/cache/mhw_events_per_year.zarr",
+# mhw_events_per_year_ds.to_zarr(
+#     "data/cache/mhw_events_per_year.zarr",
+#     mode="w",
+#     consolidated=True,
+# )
+
+
+mhw_ds = mhw_days_per_year_ds.assign(
+    day_per_year=(("year", "lat", "lon"), mhw_days_per_year_ds.sst.data),
+    event_per_year=(("year", "lat", "lon"), mhw_events_per_year_ds.sst.data),
+)
+
+mhw_ds = mhw_ds.drop_vars(['sst','quantile'])
+
+mhw_ds.to_zarr(
+    "data/cache/mhw_per_year.zarr",
     mode="w",
     consolidated=True,
 )
