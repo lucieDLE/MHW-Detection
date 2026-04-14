@@ -42,6 +42,15 @@ def load_masked_dataset(filename):
     )
     return ds
 
+@pn.cache
+def load_masked_zarr_dataset(filename):
+    data_path = _resolve_data_path(filename)
+
+    ds = xr.open_zarr(
+        data_path,
+    )
+    return ds
+
 
 @pn.cache
 def load_initial_map():
@@ -334,38 +343,22 @@ def build_anomaly_view():
 
 
 def build_mhw_view():
-    # Placeholder dataset until mhw.zarr is available
-    years = np.arange(1982, 1982 + 41)
-    lats = np.linspace(-90, 90, 180)
-    lons = np.linspace(0, 360, 360, endpoint=False)
-
-    rng = np.random.default_rng(42)
-    day_per_year = rng.integers(0, 120, size=(41, 180, 360))
-    event_per_year = rng.integers(0, 20, size=(41, 180, 360))
-
-    ds = xr.Dataset(
-        {
-            "day_per_year": (("year", "lat", "lon"), day_per_year),
-            "event_per_year": (("year", "lat", "lon"), event_per_year),
-        },
-        coords={"year": years, "lat": lats, "lon": lons},
-    )
-    ###############
-
+    ds = load_masked_zarr_dataset(config.MHW_MAP_PATH)
+    max_days = np.nanmax(ds.day_per_year.values)
+    max_event = np.nanmax(ds.event_per_year.values)
+    
     selector = pn.widgets.Select(
         name="Metric",
         options={"Days per year": "day_per_year", "Events per year": "event_per_year"},
         value="day_per_year",
         width=220,
     )
+    allowed_values = list(np.array(ds.year))
 
-    year_slider = pn.widgets.IntSlider(
-        name="Year",
-        start=int(ds.year.min()),
-        end=int(ds.year.max()),
-        value=int(ds.year.max()),
-        step=1,
-        width=220,
+    year_slider = pn.widgets.DiscreteSlider(
+        name='Year (1986 excluded)',
+        options=allowed_values,
+        value=allowed_values[0]
     )
 
     note = pn.pane.Markdown(
@@ -376,12 +369,16 @@ def build_mhw_view():
     )
 
     def _plot(metric, year):
+        if metric == 'event_per_year': max_val = max_event
+        else: max_val=max_days
+
         da = ds[metric].sel(year=year)
         return da.hvplot(
             x="lon",
             y="lat",
             width=config.MAP_WIDTH,
             height=config.MAP_HEIGHT,
+            clim=(0,max_val),
             cmap="inferno",
             title=f"MHW {metric.replace('_', ' ')} ({year})",
         ).opts(active_tools=["pan"])
