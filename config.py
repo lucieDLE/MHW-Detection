@@ -45,5 +45,6 @@ TIME_SERIE_HEIGHT = 760
 # Cache outputs
 INITIAL_MAP_CACHE = "data/cache/initial_map.nc"
 ANOMALY_MAP_PATH = 'data/cache/ssta_high_res.nc'
+MHW_MAP_PATH = 'data/cache/mhw.zarr'
 # Video output
 RAW_VIDEO_PATH = "assets/sst_weekly.mp4"
