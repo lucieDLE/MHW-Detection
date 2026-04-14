@@ -332,10 +332,68 @@ def build_anomaly_view():
 
     return dashboard
 
+
+def build_mhw_view():
+    # Placeholder dataset until mhw.zarr is available
+    years = np.arange(1982, 1982 + 41)
+    lats = np.linspace(-90, 90, 180)
+    lons = np.linspace(0, 360, 360, endpoint=False)
+
+    rng = np.random.default_rng(42)
+    day_per_year = rng.integers(0, 120, size=(41, 180, 360))
+    event_per_year = rng.integers(0, 20, size=(41, 180, 360))
+
+    ds = xr.Dataset(
+        {
+            "day_per_year": (("year", "lat", "lon"), day_per_year),
+            "event_per_year": (("year", "lat", "lon"), event_per_year),
+        },
+        coords={"year": years, "lat": lats, "lon": lons},
+    )
+    ###############
+
+    selector = pn.widgets.Select(
+        name="Metric",
+        options={"Days per year": "day_per_year", "Events per year": "event_per_year"},
+        value="day_per_year",
+        width=220,
+    )
+
+    year_slider = pn.widgets.IntSlider(
+        name="Year",
+        start=int(ds.year.min()),
+        end=int(ds.year.max()),
+        value=int(ds.year.max()),
+        step=1,
+        width=220,
+    )
+
+    note = pn.pane.Markdown(
+        """
+        Marine HeatWave Description
+        """,
+        sizing_mode="stretch_width",
+    )
+
+    def _plot(metric, year):
+        da = ds[metric].sel(year=year)
+        return da.hvplot(
+            x="lon",
+            y="lat",
+            width=config.MAP_WIDTH,
+            height=config.MAP_HEIGHT,
+            cmap="inferno",
+            title=f"MHW {metric.replace('_', ' ')} ({year})",
+        ).opts(active_tools=["pan"])
+
+    plot = pn.bind(_plot, metric=selector, year=year_slider)
+    controls = pn.Column(selector, year_slider, note, sizing_mode="stretch_width")
+    return pn.Row(controls, plot, sizing_mode="stretch_width")
 def build_app():
     tabs = pn.Tabs(
-        ("Raw SST (Time Slider)", build_raw_timeseries_view()),
+        ("SST Anomalies (Time Slider)", build_raw_timeseries_view()),
         ("Anomaly Explorer", build_anomaly_view()),
+        ("Marine HeatWave Visualization", build_mhw_view()),
         tabs_location="left",
         sizing_mode="stretch_both",
         dynamic=True,
