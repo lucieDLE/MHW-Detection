@@ -32,12 +32,12 @@ def _resolve_data_path(path_from_config):
     return (SRC_DIR / path_from_config).resolve()
 
 @pn.cache
-def load_masked_dataset(filename):
+def load_masked_dataset(filename,engine="netcdf4"):
     data_path = _resolve_data_path(filename)
 
     ds = xr.open_dataset(
         data_path,
-        engine="netcdf4",
+        engine=engine,
         chunks=config.CHUNKS,
     )
     return ds
@@ -84,7 +84,7 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
     rolling_year_num = config.ROLLING_YEARS
     sme_step = int(config.FREQ_PER_YEAR_MIN)
 
-    anom_resampled = tos_anom_selected# tos_anom_selected.resample(time="SME").mean("time")
+    # anom_resampled = tos_anom_selected# tos_anom_selected.resample(time="SME").mean("time")
     rolling_year_avg = tos_anom_selected.rolling(
         time=sme_step * rolling_year_num, center=True
     ).mean()
@@ -99,7 +99,7 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
 
     resampled_df = pd.DataFrame(
         {
-            "rolled_time": anom_resampled.time.values,
+            "rolled_time": tos_anom_selected.time.values,
             "anomalies_rolled_avg": rolling_year_avg.values,
         }
     )
@@ -239,10 +239,10 @@ def compute_barplot(df: pd.DataFrame):
                          legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,})
 
 def build_raw_timeseries_view():
-    ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH)
+    ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH, engine='zarr')
     ssta = ds_ssta.sst
-    if config.RAW_COARSEN and config.RAW_COARSEN > 1:
-        ssta[::config.TIME_COARSEN, ::config.RAW_COARSEN,::config.RAW_COARSEN]
+    # if config.RAW_COARSEN and config.RAW_COARSEN > 1:
+    #     ssta = ssta[::config.TIME_COARSEN, ::config.RAW_COARSEN, ::config.RAW_COARSEN]
 
     raw_map = ssta.hvplot(
         x="lon",
@@ -251,26 +251,28 @@ def build_raw_timeseries_view():
         groupby="time",
         width=config.TIME_SERIE_WIDTH,
         height=config.TIME_SERIE_HEIGHT,
-        clim=(config.p001, config.p099),
+        clim=(-5, 5),
+        clabel="SST anomaly (˚C)",
+        title="Weekly SST anomaly",
         xlabel="Longitude (degrees_east)",
         ylabel="Latitude (degrees_north)",
         widget_location="bottom",
-        # widget_type='scrubber'
     )
 
-    note = pn.pane.Markdown(
-        """
-        Use the slider to scan through weekly SST frames.
-        The slider is synced to the dataset time coordinate.
-        """,
-        sizing_mode="stretch_width",
-    )
+    text = """
+        The **worldmap** shows weekly sea surface temperature (SST) **anomalies** — deviations from the monthly climatology — across the global ocean. The diverging colormap is centered on zero: **red** indicates warmer-than-usual water, **blue** cooler-than-usual, and **white** near-normal conditions. The color scale is clipped to ±5 ˚C.
+
+        - **Time slider**: drag to scan through weekly frames; synced to the dataset time coordinate.
+        - **Pan & zoom**: use the Bokeh toolbar to inspect regional structure.
+        - **Grid**: 0.25˚ × 0.25˚ (coarsened for interactive performance).
+    """
+    note = pn.pane.Markdown(text, sizing_mode="stretch_width")
 
     return pn.Column(raw_map, note, sizing_mode="stretch_both")
 
 
 def build_anomaly_view():
-    ds = load_masked_dataset(config.DATA_PATH)
+    ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH, engine="zarr")
     initial_map = load_initial_map()
 
     initial_plot = initial_map.hvplot(
@@ -289,10 +291,7 @@ def build_anomaly_view():
     )
 
     def select_point(x, y):
-        sst_point = ds.sst.sel(lon=x, lat=y, method="nearest")
-        sst_grouped = sst_point.groupby("time.month")
-        tos_clim = sst_grouped.mean(dim="time")
-        tos_anom_selected = sst_grouped - tos_clim
+        tos_anom_selected = ds_ssta.sst.sel(lon=x, lat=y, method="nearest")
 
         df = pd.DataFrame(
             {
@@ -306,9 +305,7 @@ def build_anomaly_view():
             + (tos_anom_selected.time.dt.dayofyear - 1) / 365.25
         ).values
 
-        # df = df.loc[(df["year"]>= config.MIN_YEAR ) & (df["year"]<= config.MAX_YEAR)]        
-
-        q95 = np.quantile(df["anomalies"], q=config.EXTREME_QUANTILE)
+        q95 = np.quantile(df["anomalies"].dropna(), q=config.EXTREME_QUANTILE)
         df["q95"] = (df["anomalies"] > q95).astype(int)
 
         anomaly_time_plot = compute_anomaly_plot(df, tos_anom_selected, x, y)
