@@ -371,9 +371,8 @@ def build_mhw_view():
         sizing_mode="stretch_width",
     )
 
-    def _plot(metric, year):
-        if metric == 'event_per_year': max_val = max_event
-        else: max_val=max_days
+    # Reactive store for the Tap stream — updated whenever the map redraws
+    tap_stream = hv.streams.Tap(x=config.DEFAULT_TAP_LON, y=config.DEFAULT_TAP_LAT)
 
     def _map(metric, year):
         max_val = max_event if metric == "event_per_year" else max_days
@@ -387,10 +386,61 @@ def build_mhw_view():
             cmap="inferno",
             title=f"MHW {metric.replace('_', ' ')} ({year})",
         ).opts(active_tools=["pan"])
+        tap_stream.source = plot
+        return plot
 
-    plot = pn.bind(_plot, metric=selector, year=year_slider)
-    controls = pn.Column(selector, year_slider, note, sizing_mode="stretch_width")
-    return pn.Row(controls, plot, sizing_mode="stretch_width")
+    def _timeseries(metric, x, y):
+        ylabel = "Days per year" if metric == "day_per_year" else "Events per year"
+        da_point = ds[metric].sel(lon=x, lat=y, method="nearest")
+        actual_lon = float(da_point.lon)
+        actual_lat = float(da_point.lat)
+        df_ts = pd.DataFrame({
+            "year": [int(yr) for yr in da_point.year.values],
+            ylabel: da_point.values,
+        }).dropna()
+
+        year_min, year_max = df_ts["year"].min(), df_ts["year"].max()
+
+        bar_plot = df_ts.hvplot.bar(
+            x="year",
+            y=ylabel,
+            alpha=0.5,
+            line_alpha=0.5,
+            bar_width=0.8,
+            title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
+            width=config.MAP_WIDTH,
+            height=config.RIGHT_PLOT_HEIGHT,
+            color="#74a9cf",
+            xlabel="Year",
+            ylabel=ylabel,
+        ).opts(active_tools=["pan"], show_grid=True)
+
+        expanded = np.repeat(df_ts["year"].values, df_ts[ylabel].values.astype(int).clip(0))
+        if expanded.size >= 2:
+            kde = gaussian_kde(expanded, bw_method=0.35)
+            x_grid = np.linspace(year_min, year_max, 400)
+            y_kde = kde(x_grid)
+            y_kde_scaled = y_kde * (df_ts[ylabel].max() / y_kde.max())
+            kde_curve = hv.Curve(
+                (x_grid, y_kde_scaled), "year", "kde_scaled", label="kde",
+            ).opts(color="#74a9cf", line_width=2.5)
+            bar_plot *= kde_curve
+
+        return bar_plot.opts(
+            show_grid=True, legend_position="top_left",
+            legend_opts={"border_line_alpha": 0.0, "label_text_font_size": "10px", "margin": 0},
+        )
+
+    map_panel = pn.bind(_map, metric=selector, year=year_slider)
+    ts_panel = pn.bind(_timeseries, metric=selector, x=tap_stream.param.x, y=tap_stream.param.y)
+
+    controls = pn.Column(selector, year_slider, note, sizing_mode="stretch_width", width=260)
+    return pn.Row(
+        controls,
+        pn.Column(map_panel, ts_panel, sizing_mode="stretch_width"),
+        sizing_mode="stretch_width",
+    )
+
 def build_app():
     tabs = pn.Tabs(
         ("SST Anomalies (Time Slider)", build_raw_timeseries_view()),
