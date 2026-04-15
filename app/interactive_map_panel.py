@@ -4,7 +4,6 @@ from scipy.stats import gaussian_kde
 
 import hvplot.pandas
 import hvplot.xarray
-import os 
 import holoviews as hv
 import numpy as np
 import pandas as pd
@@ -19,7 +18,6 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 import config
-from data import *
 
 
 pn.extension()
@@ -39,15 +37,6 @@ def load_masked_dataset(filename,engine="netcdf4"):
         data_path,
         engine=engine,
         chunks=config.CHUNKS,
-    )
-    return ds
-
-@pn.cache
-def load_masked_zarr_dataset(filename):
-    data_path = _resolve_data_path(filename)
-
-    ds = xr.open_zarr(
-        data_path,
     )
     return ds
 
@@ -83,7 +72,6 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
     rolling_year_num = config.ROLLING_YEARS
     sme_step = int(config.FREQ_PER_YEAR_MIN)
 
-    # anom_resampled = tos_anom_selected# tos_anom_selected.resample(time="SME").mean("time")
     rolling_year_avg = tos_anom_selected.rolling(
         time=sme_step * rolling_year_num, center=True
     ).mean()
@@ -196,9 +184,6 @@ def compute_barplot(df: pd.DataFrame):
     counts = df_sel.groupby("year")["q95"].sum().reindex(full_years, fill_value=0)
     df_bar = counts.rename("number of extreme events").reset_index()
 
-    tick_step = 5
-    tick_values = np.arange(year_min, year_max + 1, tick_step)
-
     bar_plot = df_bar.hvplot.bar(
         x="year",
         y="number of extreme events",
@@ -211,8 +196,7 @@ def compute_barplot(df: pd.DataFrame):
         color="#74a9cf",
         xlabel="Time (years)",
         ylabel="Number of extreme events",
-    ).opts(active_tools=["pan"], show_grid=True
-)
+    ).opts(active_tools=["pan"], show_grid=True)
 
     # Expand years by count for KDE fit
     expanded_years = np.repeat(df_bar["year"].values, df_bar["number of extreme events"].values)
@@ -240,8 +224,6 @@ def compute_barplot(df: pd.DataFrame):
 def build_raw_timeseries_view():
     ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH, engine='zarr')
     ssta = ds_ssta.sst
-    # if config.RAW_COARSEN and config.RAW_COARSEN > 1:
-    #     ssta = ssta[::config.TIME_COARSEN, ::config.RAW_COARSEN, ::config.RAW_COARSEN]
 
     raw_map = ssta.hvplot(
         x="lon",
