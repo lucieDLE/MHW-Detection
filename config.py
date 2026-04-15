@@ -1,5 +1,5 @@
+# Data
 DATA_PATH = "data/sst.week.mean.nc"
-DATA_REF = "data/sst.oisst.mon.ltm.1991-2020.nc"
 
 
 # Performance tuning for high-res data
@@ -8,13 +8,6 @@ MAP_COARSEN = 2
 RAW_COARSEN = 2
 TIME_COARSEN = 3
 
-MED_BOUNDS = {
-    "lat_min": 20.5,
-    "lat_max": 50.5,
-    "lon_min": 0.5,
-    "lon_max": 40.5
-}
-
 MIN_YEAR = 1990
 MAX_YEAR = 2022
 
@@ -22,12 +15,12 @@ MIN_DATE="1982-01-01"
 MAX_DATE="2025-12-31"
 
 ROLLING_YEARS = 3
-FREQ_PER_YEAR_MIN = 52 / TIME_COARSEN
+FREQ_PER_YEAR_MIN = 52
 EXTREME_QUANTILE = 0.95
+MIN_DURATION = 5 # 5 days 
 
-p001=-2.0892258
-p099=2.215498
 
+# Display
 WIDTH_PLOT=500
 HEIGHT_RIGHT_PLOT = int(WIDTH_PLOT / 3)
 
