@@ -1,68 +1,95 @@
 # MHW-Detection
 
 ## Overview
-Interactive exploration of **Sea Surface Temperature (SST)**  anomalies.
 
-This project provides an interactive dashboard to explore long-term SST anomaly patterns using xarray, hvPlot, Holoviews, and Panel. Users can click anywhere on a spatial SST anomaly map and instantly generate detailed time-series analyses for that location.
-The goal is to enable intuitive spatial-to-temporal climate exploration, allowing users to identify warming trends, variability patterns, and the frequency of extreme temperature events.
+An interactive dashboard for exploring **Sea Surface Temperature (SST)** anomalies and **Marine Heatwave (MHW)** events from global ocean data spanning 1881–2026.
 
-**Sea Surface Temperature (SST)** refers to the temperature of the upper layer of the ocean, typically measured within the top 1 mm to 10 meters.
-Tracking SST anomalies over time helps identify long-term warming trends and unusual ocean temperature events.
+**Sea Surface Temperature (SST)** is the temperature of the uppermost layer of the ocean (top 1 mm to 10 m). Tracking SST anomalies — deviations from a long-term climatological baseline — reveals warming trends, regional variability, and the growing frequency of extreme ocean heat events.
+
+**Marine Heatwaves (MHW)** are prolonged periods of anomalously warm ocean temperatures. They are formally defined (Hobday et al., 2016) as ≥5 consecutive days where SST exceeds the local 90th-percentile climatological threshold. MHWs have significant ecological and economic impacts, affecting coral reefs, fisheries, and coastal ecosystems.
+
+The dashboard enables intuitive spatial-to-temporal climate exploration: users can scan global SST anomaly maps through time, detect long-term warming trends and extreme events at any location, and visualise MHW frequency and intensity year by year.
+
+### Tools
+
+| Layer | Libraries |
+|---|---|
+| Data & computation | `xarray`, `numpy`, `pandas`, `dask`, `scipy` |
+| Storage | `zarr`, `netCDF4` |
+| Visualisation | `hvPlot`, `HoloViews`, `Bokeh` |
+| Dashboard | `Panel` |
+| ML | `scikit-learn` |
 
 ## Dataset
-The project uses the NOAA Optimum Interpolation (OI) SST V2 [dataset](https://www.psl.noaa.gov/data/gridded/data.noaa.oisst.v2.html). The dataset covers Sea Surface Temperature from 1990 to 2022 with weekly and biweekly resolution.
+The project uses the NOAA Optimum Interpolation (OI) SST V2 High Resolution [dataset](https://www.psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html). The dataset covers Sea Surface Temperature from 1881 to 2026 with weekly and biweekly resolution.
 
-Yoo will need to download the following datasets and place them in the parent directory inside a `data` folder:
-- wkmean.1990-present.nc
-- sst.oisst.mon.ltm.1991-2020.nc
+You will need to [download](https://www.psl.noaa.gov/thredds/catalog/Datasets/noaa.oisst.v2.highres/catalog.html) the following datasets and place them in the parent directory inside a `data` folder:
+- sst.week.mean.nc
+- all daily data named as followed: sst.day.mean.{year}.nc
 
-## Running the Dashboard
-You will need to run the Dasboard inside a conda environment.
+
+## Requirements
+The app uses a conda environment where all the librairies are installed. To create the environment, run the following commands:
 ```
 cd MHW-Detection
 conda env create -f environment.yml
 conda activate mhw-detection
 ```
-Once the installation done you can run the dasboard with the following:
+
+## Running the Dashboard
+
+#### 1. Preprocess (done only once)
+Once the installation done you will first preprocess the daily data to create one singular zarr file using `this script.py` (coming).
 ```
 cd MHW-Detection
+(some code)
+```
+
+Then you can run the `preprocess.py` script that will automatically create all the files needed to run the Dashboard. 
+```
+(some code)
+```
+
+#### 2. Launch the Dashboard
+
+```
 panel serve app/interactive_map_panel.py --show
 ```
 
 ## Features
 
-The dashboard provides a spatial-to-temporal workflow:
-- **Variability Map** (Left Panel):
-    The map displays regions of high or low SST variability across years.
-    This map is computed by:
-    - Calculating SST anomalies
-    - Computing the standard deviation of anomalies for each month
-    - Averaging these values across months
+The dashboard has three tabs, each providing a different view of SST data.
 
-      >**Warning:**
-      >This map highlights where SST fluctuates most from year to year and should not be interpreted as an ‘extreme’ or ‘heatwave’ map.
+### Tab 1 — SST Anomalies (Time Slider)
 
+A full-resolution weekly SST anomaly world map with a time slider. The diverging colormap (blue = cooler, red = warmer) is centered on zero and clipped to ±5 °C, making it easy to scan regional warming and cooling events through time.
 
-- **Interactive Location Analysis** (Right Panel):
-    Clicking on a location generates several analyses:
-    - Linear Trend Estimation: An Ordinary Least Squares (OLS) regression is applied to estimate the long-term SST anomaly trend. This provides a simple statistical estimate of local ocean warming or cooling.
-    
-    - Rolling Mean Visualization: A 3-year rolling mean is computed to visualize long-term SST evolution. This helps smooth short-term variability and makes long-term changes easier to observe.
+### Tab 2 — Anomaly Explorer
 
-        > **Note**:
-        > The rolling mean is a visualization aid, not a statistical estimator.
+A spatial-to-temporal click-to-inspect workflow:
 
-    - Extreme Event Detection: 
-    The project initially aimed to detect Marine Heatwaves (MHW).
-    However, standard marine heatwave detection requires daily SST data, while the dataset used here is weekly or biweekly.
-    Instead, the dashboard detects Extreme Events, defined as SST anomalies exceeding a 95th percentile threshold:
-    This allows the analysis of whether warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves over time
+- **Variability Map** (left): displays the mean monthly standard deviation of SST anomalies across years, highlighting where the ocean fluctuates most. Clicking any location triggers the right panel.
 
+  > **Note:** this map shows interannual variability, not heatwave intensity.
 
-Below an example of the current dashboard
+- **Interactive analyses** (right): clicking a grid cell generates three stacked plots:
+  - **OLS trend**: long-term linear trend in °C/decade estimated by Ordinary Least Squares regression.
+  - **Extreme events**: time series of SST anomalies with points above the 95th-percentile threshold highlighted in red.
+  - **Event count histogram + KDE**: number of extreme events per year with a kernel-density curve to reveal multi-decadal shifts in frequency.
+
+Below an example of the Anomaly Explorer Tab
 
 <img src="assets/images/dashboard_ssta_analysis.png">
+
+### Tab 3 — Marine HeatWave Visualization
+
+ Marine Heatwave (MHW) detection of 5 or more consecutive days where SST exceeds the local 90th-percentile climatological threshold.
+
+- **Metric selector**: switch between *days per year* and *events per year*.
+- **Year slider**: pan through annual MHW maps to inspect spatial patterns.
+- **Click-to-inspect**: clicking the map plots a bar chart + KDE of the selected metric at that location across all available years.
 
 ## References
 
 - Reynolds, R.W., N.A. Rayner, T.M. Smith, D.C. Stokes, and W. Wang, 2002: An improved in situ and satellite SST analysis for climate. J. Climate, 15, 1609-1625.
+- Hobday, Alistair J., et al. "A hierarchical approach to defining marine heatwaves." Progress in oceanography 141 (2016): 227-238.
