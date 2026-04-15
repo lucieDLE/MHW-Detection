@@ -340,27 +340,33 @@ def build_anomaly_view():
 
 
 def build_mhw_view():
-    ds = load_masked_zarr_dataset(config.MHW_MAP_PATH)
-    max_days = np.nanmax(ds.day_per_year.values)
-    max_event = np.nanmax(ds.event_per_year.values)
-    
+    ds = load_masked_dataset(config.MHW_MAP_PATH, engine='zarr')
+    max_days = float(np.nanmax(ds.day_per_year.values))
+    max_event = float(np.nanmax(ds.event_per_year.values))
+
     selector = pn.widgets.Select(
         name="Metric",
         options={"Days per year": "day_per_year", "Events per year": "event_per_year"},
         value="day_per_year",
         width=220,
     )
-    allowed_values = list(np.array(ds.year))
+    allowed_values = [int(y) for y in ds.year.values]  # avoid numpy int64 in widget
 
     year_slider = pn.widgets.DiscreteSlider(
-        name='Year (1986 excluded)',
+        name="Year",
         options=allowed_values,
-        value=allowed_values[0]
+        value=allowed_values[0],
     )
 
     note = pn.pane.Markdown(
         """
-        Marine HeatWave Description
+        **Marine Heatwave (MHW)** events are defined as periods of ≥5 consecutive days where
+        sea surface temperature exceeds the 90th-percentile climatological threshold for that
+        calendar day (±5-day window). The map shows either the total number of MHW **days** or
+        discrete MHW **events** per year at each grid cell.
+
+        - Click anywhere on the map to see the full year-by-year time series at that location.
+        - Use the metric selector and year slider to explore spatial patterns.
         """,
         sizing_mode="stretch_width",
     )
@@ -369,13 +375,15 @@ def build_mhw_view():
         if metric == 'event_per_year': max_val = max_event
         else: max_val=max_days
 
+    def _map(metric, year):
+        max_val = max_event if metric == "event_per_year" else max_days
         da = ds[metric].sel(year=year)
-        return da.hvplot(
+        plot = da.hvplot(
             x="lon",
             y="lat",
             width=config.MAP_WIDTH,
             height=config.MAP_HEIGHT,
-            clim=(0,max_val),
+            clim=(0, max_val),
             cmap="inferno",
             title=f"MHW {metric.replace('_', ' ')} ({year})",
         ).opts(active_tools=["pan"])
