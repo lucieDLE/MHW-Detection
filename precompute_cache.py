@@ -12,7 +12,7 @@ def main():
 
     initial_map = load_initial_map()
     # Ensure it is computed and written once
-    initial_map.astype("float32").to_netcdf(cache_path)
+    initial_map.astype("float32").to_zarr(cache_path, mode='w', consolidated=True)
     print(f"Saved initial map cache to {cache_path}")
 
 
