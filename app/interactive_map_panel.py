@@ -63,8 +63,7 @@ def load_initial_map():
 
     ds = load_masked_dataset(config.DATA_PATH)
     ds["time"] = xr.decode_cf(ds).time
-    sst = ds.sst
-    sst = sst.sel(time=slice(config.MIN_DATE, config.MAX_DATE))
+    sst = ds.sst.sel(time=slice(config.MIN_DATE, config.MAX_DATE))
     if config.MAP_COARSEN and config.MAP_COARSEN > 1:
         sst = sst[::config.TIME_COARSEN, ::config.MAP_COARSEN, ::config.MAP_COARSEN]
     sst_grouped = sst.groupby("time.month")
@@ -262,9 +261,8 @@ def build_raw_timeseries_view():
     text = """
         The **worldmap** shows weekly sea surface temperature (SST) **anomalies** — deviations from the monthly climatology — across the global ocean. The diverging colormap is centered on zero: **red** indicates warmer-than-usual water, **blue** cooler-than-usual, and **white** near-normal conditions. The color scale is clipped to ±5 ˚C.
 
-        - **Time slider**: drag to scan through weekly frames; synced to the dataset time coordinate.
+        - **Time slider**: drag to scan through weekly frames.
         - **Pan & zoom**: use the Bokeh toolbar to inspect regional structure.
-        - **Grid**: 0.25˚ × 0.25˚ (coarsened for interactive performance).
     """
     note = pn.pane.Markdown(text, sizing_mode="stretch_width")
 
@@ -348,14 +346,15 @@ def build_mhw_view():
         name="Metric",
         options={"Days per year": "day_per_year", "Events per year": "event_per_year"},
         value="day_per_year",
-        width=220,
+        width=config.MHW_SLIDER_WIDTH,
     )
-    allowed_values = [int(y) for y in ds.year.values]  # avoid numpy int64 in widget
+    allowed_values = [int(y) for y in ds.year.values]
 
     year_slider = pn.widgets.DiscreteSlider(
         name="Year",
         options=allowed_values,
         value=allowed_values[0],
+        width=config.MHW_SLIDER_WIDTH,
     )
 
     note = pn.pane.Markdown(
@@ -369,6 +368,7 @@ def build_mhw_view():
         - Use the metric selector and year slider to explore spatial patterns.
         """,
         sizing_mode="stretch_width",
+        width=config.MHW_SLIDER_WIDTH
     )
 
     # Reactive store for the Tap stream — updated whenever the map redraws
@@ -434,7 +434,7 @@ def build_mhw_view():
     map_panel = pn.bind(_map, metric=selector, year=year_slider)
     ts_panel = pn.bind(_timeseries, metric=selector, x=tap_stream.param.x, y=tap_stream.param.y)
 
-    controls = pn.Column(selector, year_slider, note, sizing_mode="stretch_width", width=260)
+    controls = pn.Column(selector, year_slider, note, width=config.RIGHT_PANEL_WIDTH)
     return pn.Row(
         controls,
         pn.Column(map_panel, ts_panel, sizing_mode="stretch_width"),
