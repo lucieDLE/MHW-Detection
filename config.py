@@ -34,6 +34,7 @@ RIGHT_PLOT_HEIGHT = 335
 
 TIME_SERIE_WIDTH = 1440
 TIME_SERIE_HEIGHT = 760
+MHW_SLIDER_WIDTH = 200
 
 # Cache outputs
 INITIAL_MAP_CACHE = "data/cache/initial_map.zarr"
