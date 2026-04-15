@@ -73,7 +73,7 @@ def load_initial_map():
 
     try:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        initial_map.astype("float32").to_netcdf(cache_path)
+        initial_map.astype("float32").to_zarr(cache_path, mode='w', consolidated=True)
     except Exception:
         pass
 
