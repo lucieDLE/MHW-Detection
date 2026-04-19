@@ -8,12 +8,17 @@ Produces every cache file the app reads at startup:
     data/cache/initial_map.zarr     SST variability map   (anomaly tab background)
     data/cache/mhw_threshold.zarr   Climatological threshold (intermediate, reusable)
     data/cache/mhw.zarr             MHW days + events/year  (MHW tab)
+    data/cache/clim_daily.zarr      Daily Climatology  (Forecast tab)
+    data/cache/landmask_daily.zarr  Landmask
+    data/cache/ssta_daily.zarr      Daily SST Anomalies (Forecast tab)
+
 
 Usage
 -----
     python preprocess.py                  # run all steps
     python preprocess.py --skip-weekly    # skip SSTA + initial-map
     python preprocess.py --skip-mhw       # skip MHW pipeline
+    python preprocess.py --skip-forecast  # skip forecast pipeline
     python preprocess.py --force          # overwrite existing caches
     python preprocess.py --coarsen 2      # spatial coarsening factor for daily data (default 4)
 """
@@ -44,6 +49,11 @@ THRESHOLD_PATH = ROOT / "data" / "cache" / "mhw_threshold.zarr"
 MHW_MASK_PATH  = ROOT / "data" / "cache" / "mhw_mask.zarr"
 MHW_PATH       = ROOT / config.MHW_MAP_PATH
 
+# Forecasting pipeline outputs
+SSTA_DAILY_PATH = ROOT / config.DL_SSTA_DAILY_PATH
+CLIM_DAILY_PATH = ROOT / config.DL_CLIM_PATH
+LANDMASK_PATH   = ROOT / config.DL_LANDMASK_PATH
+
 
 # ── Step 1 — Weekly SSTA ─────────────────────────────────────────────────────
 
@@ -60,9 +70,8 @@ def build_ssta(force: bool) -> None:
     ssta     = (sst_gb - tos_clim).astype("float32")
 
     SSTA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    print(f"\n   Writing {SSTA_PATH} … \n")
     ssta.to_dataset(name="sst").to_zarr(str(SSTA_PATH), mode="w", consolidated=True)
-    print(f"\n   ✓ SSTA saved \n")
+    print(f"\n  SSTA saved \n")
 
 
 # ── Step 2 — Initial variability map ─────────────────────────────────────────
@@ -84,9 +93,8 @@ def build_initial_map(force: bool) -> None:
     initial_map = tos_std.mean(dim="month").astype("float32").compute()
 
     INIT_MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
-    print(f"\n   Writing {INIT_MAP_PATH} … \n")
     initial_map.to_zarr(str(INIT_MAP_PATH), mode="w", consolidated=True)
-    print(f"\n   ✓ Initial map saved \n")
+    print(f"\n  Initial map saved \n")
 
 
 # ── Step 3a — Build daily zarr from individual NetCDF files ──────────────────
@@ -157,9 +165,8 @@ def build_threshold(da: xr.DataArray, tile: int, force: bool) -> xr.DataArray:
     )
 
     THRESHOLD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    print(f"\n   Writing {THRESHOLD_PATH} … \n")
     threshold.to_dataset(name="threshold").to_zarr(str(THRESHOLD_PATH), mode="w", consolidated=True)
-    print(f"\n   ✓ Threshold saved \n")
+    print(f"\n  Threshold saved \n")
     return xr.open_zarr(str(THRESHOLD_PATH)).threshold
 
 
@@ -299,8 +306,6 @@ def build_mhw_dataset(force: bool, coarsen: int) -> None:
     ds = xr.open_zarr(str(DAILY_SST_PATH), chunks={"time": 365, "lat": 180, "lon": 360})
     da = ds.sst
 
-    print(da.shape)
-
     _, unique_idx = np.unique(da.time.values, return_index=True)
     if len(unique_idx) < len(da.time):
         print(f"\n   Dropped {len(da.time) - len(unique_idx)} duplicate timestamps \n")
@@ -371,14 +376,55 @@ def build_mhw_dataset(force: bool, coarsen: int) -> None:
     print(f"\n   ✓ MHW dataset saved in {time.time() - t0:.0f}s \n")
 
 
+# ── Step 4 — Daily SSTA cache for DL forecasting ─────────────────────────────
+
+def build_daily_ssta(force: bool, coarsen_factor: int) -> None:
+    """Build the daily SSTA cube used by the DL forecaster"""
+    if SSTA_DAILY_PATH.exists() and not force:
+        print(f"\n {SSTA_DAILY_PATH} already exists \n")
+        return
+
+    ds = xr.open_zarr(str(DAILY_SST_PATH), chunks={"time": 365, "lat": 180, "lon": 360})
+    da = ds.sst
+
+    _, unique_idx = np.unique(da.time.values, return_index=True)
+    if len(unique_idx) < len(da.time):
+        print(f"   Dropped {len(da.time) - len(unique_idx)} duplicate timestamps")
+        da = da.isel(time=unique_idx)
+
+    if coarsen_factor and coarsen_factor > 1:
+        da = da.coarsen(lat=coarsen_factor, lon=coarsen_factor, boundary="trim").mean()
+
+    da = da.chunk({"time": 365, "lat": -1, "lon": -1}).astype("float32")
+
+    clim = (
+        da.groupby("time.dayofyear")
+        .mean("time")
+        .chunk({"dayofyear": -1, "lat": -1, "lon": -1})
+    )
+    clim = clim.rolling(dayofyear=11, center=True, min_periods=1).mean().astype("float32")
+
+    ssta = (da.groupby("time.dayofyear") - clim).chunk({"time": 365, "lat": -1, "lon": -1}).astype("float32")
+
+    land_mask = da.isnull().all("time")
+
+    SSTA_DAILY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    clim.to_dataset(name="clim").to_zarr(str(CLIM_DAILY_PATH), mode="w", consolidated=True)
+    land_mask.to_dataset(name="land_mask").to_zarr(str(LANDMASK_PATH), mode="w", consolidated=True)
+    ssta.to_dataset(name="ssta").to_zarr(str(SSTA_DAILY_PATH), mode="w", consolidated=True)
+
+    print(f"\n   ✓ Daily SSTA cache written ({ssta.shape}) \n")
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--skip-weekly", action="store_true", help="Skip SSTA + initial-map")
     p.add_argument("--skip-mhw",   action="store_true", help="Skip MHW pipeline")
-    p.add_argument("--force",      action="store_true", help="Overwrite existing caches")
-    p.add_argument("--coarsen",    type=int, default=2, help="Spatial coarsening factor (default: 4)")
+    p.add_argument("--skip-forecast", action="store_true", help="Skip daily SSTA cache for DL forecasting")
+    p.add_argument("--force", action="store_true", help="Overwrite existing caches")
+    p.add_argument("--coarsen", type=int, default=2, help="Spatial coarsening factor (default: 4)")
     return p.parse_args()
 
 
@@ -389,6 +435,9 @@ def main():
     print("SST Dashboard — preprocessing")
     print("=" * 60)
 
+    cluster = LocalCluster(n_workers=6, threads_per_worker=2, memory_limit="16GB")
+    client  = Client(cluster)
+    print(f"\n   You can follow the process with the following Dashboard: {client.dashboard_link} \n")
     if not args.skip_weekly:
         print("\n[Step 1] Weekly SST anomalies")
         build_ssta(args.force)
@@ -399,30 +448,32 @@ def main():
         print("\n[Step 1 + 2] Skipped (--skip-weekly)")
 
     if not args.skip_mhw:
-        cluster = LocalCluster(n_workers=6, threads_per_worker=2, memory_limit="16GB")
-        client  = Client(cluster)
-        print(f"\n   You can follow the process with the following Dashboard: {client.dashboard_link} \n")
 
         print("\n[Step 3a] Daily SST zarr - can take up to 10mins")
         build_initial_daily_file(args.force, args.coarsen)
 
 
         print(f"\n \n[Step 3b–e] MHW pipeline  (coarsen={args.coarsen}×) \n")
-        try:
-            t0 = time.time()
-            build_mhw_dataset(args.force, args.coarsen)
-            print(f"\n   Total MHW elapsed: {time.time() - t0:.0f}s \n")
-        finally:
-            client.close()
-            cluster.close()
+        t0 = time.time()
+        build_mhw_dataset(args.force, args.coarsen)
+        print(f"\n   Total MHW elapsed: {time.time() - t0:.0f}s \n")
     else:
         print("\n[Step 3] Skipped (--skip-mhw)")
 
+    if not args.skip_forecast:
+        print(f"\n[Step 4] Daily SSTA cache for DL forecasting (coarsen={config.DL_COARSEN}×)")
+        t0 = time.time()
+        build_daily_ssta(args.force, config.DL_COARSEN)
+        print(f"\n   Daily SSTA elapsed: {time.time() - t0:.0f}s \n")
+    else:
+        print("\n[Step 4] Skipped (--skip-forecast)")
+
+    client.close()
+    cluster.close()
     print("\n" + "=" * 60)
     print("Done. Run the app with:")
     print("  panel serve app/interactive_map_panel.py --show")
     print("=" * 60)
-
 
 if __name__ == "__main__":
     main()
