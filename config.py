@@ -54,7 +54,10 @@ DL_TEST_RANGE  = ("2020-01-01", "2025-12-31")
 # Model / training hyperparameters
 DL_N_IN          = 14         # input window length (days)
 DL_N_OUT         = 1          # one-step model; multi-day done via rollout
-DL_BATCH_SIZE    = 8
-DL_LR            = 1e-3
-DL_EPOCHS        = 30
-DL_NUM_WORKERS   = 4
+DL_COARSEN_FACTOR = 2         # coarsen the map to avoid OOM
+BATCH_SIZE    = 8
+LR            = 1e-3
+EPOCHS        = 30
+NUM_WORKERS   = 4
+CHECKPOINT_DIR = "forecast/checkpoints"
+LOG_DIR        = "forecast/runs"
