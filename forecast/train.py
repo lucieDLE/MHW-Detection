@@ -60,6 +60,8 @@ def main():
     p.add_argument("--n_workers", type=int, default=config.NUM_WORKERS)
     p.add_argument("--patience", type=int, default=5, help="Early-stopping patience on val loss")
     p.add_argument("--tag", type=str, default=None, help="Run tag (defaults to timestamp)")
+    p.add_argument("--resume", type=Path, default=None, metavar="CKPT",
+                   help="Resume training from a checkpoint saved by this script")
     args = p.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -83,6 +85,24 @@ def main():
     sched = CosineAnnealingLR(optim, T_max=args.epochs)
     scaler = torch.amp.GradScaler(enabled=device == "cuda")
 
+    start_epoch = 0
+    best_val = float("inf")
+    epochs_no_improve = 0
+
+    if args.resume:
+        ckpt = torch.load(args.resume, map_location=device, weights_only=False)
+        model.load_state_dict(ckpt["state_dict"])
+        if "optim" in ckpt:
+            optim.load_state_dict(ckpt["optim"])
+        if "sched" in ckpt:
+            sched.load_state_dict(ckpt["sched"])
+        if "scaler" in ckpt:
+            scaler.load_state_dict(ckpt["scaler"])
+        start_epoch        = ckpt.get("epoch", 0) + 1
+        best_val           = ckpt.get("best_val", float("inf"))
+        epochs_no_improve  = ckpt.get("epochs_no_improve", 0)
+        print(f"Resumed from {args.resume}  (epoch {start_epoch}, best_val={best_val:.5f})")
+
     tag = args.tag or time.strftime("%Y%m%d-%H%M%S")
     ckpt_dir = ROOT / config.CHECKPOINT_DIR
     ckpt_dir.mkdir(parents=True, exist_ok=True)
@@ -91,10 +111,7 @@ def main():
 
     writer = SummaryWriter(log_dir=str(ROOT / config.LOG_DIR / f"{args.model}_{tag}"))
 
-    best_val = float("inf")
-    epochs_no_improve = 0
-
-    for epoch in range(args.epochs):
+    for epoch in range(start_epoch, args.epochs):
         model.train()
         epoch_loss, n = 0.0, 0
         pbar = tqdm(train_loader, desc=f"epoch {epoch+1}/{args.epochs}")
@@ -121,12 +138,20 @@ def main():
         writer.add_scalar("lr", sched.get_last_lr()[0], epoch)
         print(f"epoch {epoch+1}: train={train_loss:.5f}  val={val_loss:.5f}")
 
+        def _state():
+            return {
+                "model": args.model, "state_dict": model.state_dict(),
+                "n_in": args.n_in, "n_out": args.n_out,
+                "epoch": epoch, "val_loss": val_loss, "best_val": best_val,
+                "epochs_no_improve": epochs_no_improve,
+                "optim": optim.state_dict(), "sched": sched.state_dict(),
+                "scaler": scaler.state_dict(),
+            }
+
         if val_loss < best_val - 1e-6:
             best_val = val_loss
             epochs_no_improve = 0
-            torch.save({"model": args.model, "state_dict": model.state_dict(),
-                        "n_in": args.n_in, "n_out": args.n_out, "val_loss": val_loss},
-                       best_path)
+            torch.save(_state(), best_path)
             print(f"new best, saved: {best_path}")
         else:
             epochs_no_improve += 1
@@ -134,9 +159,7 @@ def main():
                 print(f"Early stopping at epoch {epoch+1}")
                 break
 
-    torch.save({"model": args.model, "state_dict": model.state_dict(),
-                "n_in": args.n_in, "n_out": args.n_out, "val_loss": val_loss},
-               ckpt_path)
+    torch.save(_state(), ckpt_path)
     writer.close()
     print(f"Done. Best val loss = {best_val:.5f}. Checkpoints in {ckpt_dir}")
 
