@@ -40,5 +40,21 @@ MHW_SLIDER_WIDTH = 200
 INITIAL_MAP_CACHE = "data/cache/initial_map.zarr"
 ANOMALY_MAP_PATH = 'data/cache/ssta_high_res.zarr'
 MHW_MAP_PATH = 'data/cache/mhw.zarr'
+SSTA_DAILY_PATH = "data/cache/ssta_daily.zarr"        # daily SST anomaly
+CLIM_PATH       = "data/cache/clim_daily.zarr"        # day-of-year climatology
+LANDMASK_PATH   = "data/cache/landmask_daily.zarr"    # land mask (180×180)
 # Video output
 RAW_VIDEO_PATH = "assets/sst_weekly.mp4"
+
+# Chronological splits — strict, no shuffling
+DL_TRAIN_RANGE = ("1982-01-01", "2014-12-31")
+DL_VAL_RANGE   = ("2015-01-01", "2019-12-31")
+DL_TEST_RANGE  = ("2020-01-01", "2025-12-31")
+
+# Model / training hyperparameters
+DL_N_IN          = 14         # input window length (days)
+DL_N_OUT         = 1          # one-step model; multi-day done via rollout
+DL_BATCH_SIZE    = 8
+DL_LR            = 1e-3
+DL_EPOCHS        = 30
+DL_NUM_WORKERS   = 4
