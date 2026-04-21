@@ -44,7 +44,7 @@ SSTA_DAILY_PATH = "data/cache/ssta_daily.zarr"        # daily SST anomaly
 CLIM_PATH       = "data/cache/clim_daily.zarr"        # day-of-year climatology
 LANDMASK_PATH   = "data/cache/landmask_daily.zarr"    # land mask (180×180)
 # Video output
-RAW_VIDEO_PATH = "assets/sst_weekly.mp4"
+SSTA_VIDEO_PATH = "assets/videos/sst_weekly_combined.mp4"
 
 # Chronological splits — strict, no shuffling
 DL_TRAIN_RANGE = ("1982-01-01", "2014-12-31")
