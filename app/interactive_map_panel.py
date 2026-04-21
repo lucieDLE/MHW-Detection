@@ -222,33 +222,27 @@ def compute_barplot(df: pd.DataFrame):
                          legend_opts={"border_line_alpha": 0.0, "label_text_font_size": '10px',"margin": 0,})
 
 def build_raw_timeseries_view():
-    ds_ssta = load_masked_dataset(config.ANOMALY_MAP_PATH, engine='zarr')
-    ssta = ds_ssta.sst
+    video_path = _resolve_data_path(config.SSTA_VIDEO_PATH)
 
-    raw_map = ssta.hvplot(
-        x="lon",
-        y="lat",
-        cmap="RdBu_r",
-        groupby="time",
-        width=config.TIME_SERIE_WIDTH,
+    video = pn.pane.Video(
+        str(video_path),
+        loop=True,
+        sizing_mode="stretch_width",
         height=config.TIME_SERIE_HEIGHT,
-        clim=(-5, 5),
-        clabel="SST anomaly (˚C)",
-        title="Weekly SST anomaly",
-        xlabel="Longitude (degrees_east)",
-        ylabel="Latitude (degrees_north)",
-        widget_location="bottom",
     )
 
     text = """
-        The **worldmap** shows weekly sea surface temperature (SST) **anomalies** — deviations from the monthly climatology — across the global ocean. The diverging colormap is centered on zero: **red** indicates warmer-than-usual water, **blue** cooler-than-usual, and **white** near-normal conditions. The color scale is clipped to ±5 ˚C.
+        The **video** shows weekly sea surface temperature **anomalies** (SSTA). 
+        They are deviations from the monthly climatology across the global ocean. The diverging colormap is centered on zero: 
+        **red** indicates warmer-than-usual water, **blue** cooler-than-usual, and **white** near-normal conditions. 
+        The color scale is clipped to ±5 ˚C.
 
-        - **Time slider**: drag to scan through weekly frames.
-        - **Pan & zoom**: use the Bokeh toolbar to inspect regional structure.
+        - **Play/Pause**: use the video controls to start or stop playback.
+        - Frames between real weekly timesteps are linearly interpolated for smooth motion.
     """
     note = pn.pane.Markdown(text, sizing_mode="stretch_width")
 
-    return pn.Column(raw_map, note, sizing_mode="stretch_both")
+    return pn.Column(video, note, sizing_mode="stretch_both")
 
 
 def build_anomaly_view():
@@ -425,7 +419,7 @@ def build_mhw_view():
 
 def build_app():
     tabs = pn.Tabs(
-        ("SST Anomalies (Time Slider)", build_raw_timeseries_view()),
+        ("SST Anomalies (Video)", build_raw_timeseries_view()),
         ("Anomaly Explorer", build_anomaly_view()),
         ("Marine HeatWave Visualization", build_mhw_view()),
         tabs_location="left",
