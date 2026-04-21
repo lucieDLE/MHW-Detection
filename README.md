@@ -39,15 +39,9 @@ conda activate mhw-detection
 ## Running the Dashboard
 
 #### 1. Preprocess (done only once)
-Once the installation done you will first preprocess the daily data to create one singular zarr file using `this script.py` (coming).
+Once the installation done you will first run the `preprocess.py` to create all the files needed to run the Dashboard. 
 ```
-cd MHW-Detection
-(some code)
-```
-
-Then you can run the `preprocess.py` script that will automatically create all the files needed to run the Dashboard. 
-```
-(some code)
+python preprocess.py
 ```
 
 #### 2. Launch the Dashboard
@@ -88,6 +82,18 @@ Below an example of the Anomaly Explorer Tab
 - **Metric selector**: switch between *days per year* and *events per year*.
 - **Year slider**: pan through annual MHW maps to inspect spatial patterns.
 - **Click-to-inspect**: clicking the map plots a bar chart + KDE of the selected metric at that location across all available years.
+
+
+## Training a model
+
+```
+(some code)
+
+# to visualize the training 
+tensorboard --logdir forecast/runs
+```
+
+
 
 ## References
 
