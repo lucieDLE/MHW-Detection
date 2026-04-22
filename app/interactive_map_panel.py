@@ -359,7 +359,7 @@ def build_mhw_view():
             width=config.MAP_WIDTH,
             height=config.MAP_HEIGHT,
             clim=(0, max_val),
-            cmap="inferno",
+            cmap="afmhot",
             title=f"MHW {metric.replace('_', ' ')} ({year})",
         ).opts(active_tools=["pan"])
         tap_stream.source = plot
