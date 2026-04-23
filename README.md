@@ -56,7 +56,9 @@ The dashboard has three tabs, each providing a different view of SST data.
 
 ### Tab 1 — SST Anomalies (Time Slider)
 
-A full-resolution weekly SST anomaly world map with a time slider. The diverging colormap (blue = cooler, red = warmer) is centered on zero and clipped to ±5 °C, making it easy to scan regional warming and cooling events through time.
+A video of the changes of SST anomalies in the world across time. The diverging colormap (blue = cooler, red = warmer) is centered on zero and clipped to ±5 °C, making it easy to scan regional warming and cooling events through time.
+
+<img src="assets/images/dashboard_timeserie.png">
 
 ### Tab 2 — Anomaly Explorer
 
@@ -82,6 +84,10 @@ Below an example of the Anomaly Explorer Tab
 - **Metric selector**: switch between *days per year* and *events per year*.
 - **Year slider**: pan through annual MHW maps to inspect spatial patterns.
 - **Click-to-inspect**: clicking the map plots a bar chart + KDE of the selected metric at that location across all available years.
+
+Below an example of the Marine HeatWave Tab
+
+<img src="assets/images/mhw_analysis.png">
 
 
 ## Training a model
