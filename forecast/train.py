@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import config
 from forecast.data import make_loaders
-from forecast.model import PixelLSTM
+from forecast.model import build_model
 
 
 def masked_mse(pred: torch.Tensor, target: torch.Tensor, ocean_mask: torch.Tensor) -> torch.Tensor:
@@ -26,12 +26,6 @@ def masked_mse(pred: torch.Tensor, target: torch.Tensor, ocean_mask: torch.Tenso
     diff2 = (pred - target) ** 2 * ocean_mask
     denom = ocean_mask.sum() * pred.shape[0] * pred.shape[1]
     return diff2.sum() / denom.clamp(min=1.0)
-
-
-def build_model(name: str, n_in: int, n_out: int) -> nn.Module:
-    if name == "lstm":
-        return PixelLSTM(n_in=n_in, n_out=n_out)
-    raise ValueError(f"Unknown model: {name}")
 
 
 @torch.no_grad()
@@ -51,7 +45,7 @@ def evaluate_loss(model: nn.Module, loader, ocean_mask: torch.Tensor, device: st
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--model", choices=["lstm"], default="lstm")
+    p.add_argument("--model", choices=["lstm", "conv_lstm"], default="lstm")
     p.add_argument("--epochs", type=int, default=config.EPOCHS)
     p.add_argument("--batchsize", type=int, default=config.BATCH_SIZE)
     p.add_argument("--lr", type=float, default=config.LR)
