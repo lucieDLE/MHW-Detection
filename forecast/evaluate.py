@@ -20,31 +20,6 @@ import matplotlib.pyplot as plt
 import os
 LEAD_TIMES = (1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 28)
 
-def plot_confusion_matrix(cm, classes, normalize=False, cmap=plt.cm.Blues):
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix, avg:", np.trace(cm)/len(classes))
-    else:
-        print('Confusion matrix, without normalization')
-
-    plt.imshow(cm, interpolation='nearest', cmap=cmap, aspect='auto')
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    fmt = '.3f' if normalize else 'd'
-    thresh = .5 if normalize else np.sum(cm)/4
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, format(cm[i, j], fmt),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.xlabel('Predicted label')
-    plt.ylabel('True label')
-    plt.tight_layout()
-
-    return cm
 
 def reduce_factor(ds, target_shape):
     if ds.dims['lat'] != target_shape[1]:
