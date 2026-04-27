@@ -18,7 +18,7 @@ from forecast.model import build_model
 from forecast.rollout import autoregressive_rollout
 import matplotlib.pyplot as plt
 import os
-LEAD_TIMES = (1, 3, 7, 14)
+LEAD_TIMES = (1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 28)
 
 def plot_confusion_matrix(cm, classes, normalize=False, cmap=plt.cm.Blues):
     if normalize:
@@ -116,7 +116,6 @@ def rank_models(rows: list, lead_times=LEAD_TIMES) -> str:
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--checkpoint", required=True, type=Path)
-    p.add_argument("--horizon", type=int, default=config.DL_HORIZON)
     p.add_argument("--batchsize", type=int, default=1)
     p.add_argument("--out", type=Path, default=ROOT / "forecast" / "eval_results.csv")
     args = p.parse_args()
@@ -126,13 +125,14 @@ def main():
 
     model, n_in, n_out = load_model(args.checkpoint, device)
     print(f"Loaded {args.checkpoint.name}  n_in={n_in}  n_out={n_out}")
+    horizon = max(LEAD_TIMES)
 
     test_ds = SSTADataset(
         config.SSTA_DAILY_PATH,
         config.LANDMASK_PATH,
         config.DL_TEST_RANGE,
         n_in=n_in,
-        n_out=args.horizon, # the number of prediction days we want, not the days the model was trained with
+        n_out=horizon, # the number of prediction days we want, not the days the model was trained with
     )
     ocean = ~test_ds.land_mask   # (H, W) bool
 
@@ -160,9 +160,9 @@ def main():
         y = y.to(device)
 
         preds = {
-            "model":       autoregressive_rollout(model, x, args.horizon, n_out=n_out),
-            "persistence": persistence_forecast(x, args.horizon),
-            "ridge":       ridge.predict_all_leads(x.cpu(), args.horizon).to(device),
+            "model":       autoregressive_rollout(model, x, horizon, n_out=n_out),
+            "persistence": persistence_forecast(x, horizon),
+            "ridge":       ridge.predict_all_leads(x.cpu(), horizon).to(device),
         }
         for m, pred in preds.items():
             for k in LEAD_TIMES:
