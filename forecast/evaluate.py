@@ -73,12 +73,44 @@ def spatial_acc_batch(pred_ocean: np.ndarray, truth_ocean: np.ndarray) -> np.nda
 
     pred_ocean, truth_ocean: (B, n_ocean)
     returns: (B,) per-sample spatial correlations
+
+    see https://en.wikipedia.org/wiki/Lee%27s_L
     """
     p = pred_ocean  - pred_ocean.mean( axis=1, keepdims=True)
     t = truth_ocean - truth_ocean.mean(axis=1, keepdims=True)
     num = (p * t).sum(axis=1)
     den = np.sqrt((p ** 2).sum(axis=1) * (t ** 2).sum(axis=1)) + 1e-12
     return num / den
+
+
+def rank_models(rows: list, lead_times=LEAD_TIMES) -> str:
+    """Rank methods by skill score relative to persistence (ref).
+    see: https://en.wikipedia.org/wiki/Forecast_skill
+    """
+
+    metrics = {(method, k): (rmse, acc) for method, k, rmse, acc in rows}
+    non_baseline = ["model", "ridge"]
+
+    scores = {}
+    for m in non_baseline:
+        lead_scores = []
+        for k in lead_times:
+            rmse_m, acc_m = metrics[(m, k)]
+            rmse_pers, _ = metrics[("persistence", k)]
+            skill_rmse = 1.0 - rmse_m / max(rmse_pers, 1e-12)
+            lead_scores.append(0.5 * skill_rmse + 0.5 * acc_m)
+        scores[m] = float(np.mean(lead_scores))
+
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    best   = ranked[0][0]
+
+    print(f"\n{'--- Model ranking (skill vs persistence) ---':}")
+    print(f"{'method':<14}{'score':>10}")
+    for m, s in ranked:
+        marker = " best model" if m == best else ""
+        print(f"{m:<14}{s:>10.4f}{marker}")
+
+    return best
 
 
 def main():
@@ -167,6 +199,7 @@ def main():
         for m, k, r, a in rows:
             f.write(f"{m},{k},{r:.6f},{a:.6f}\n")
     print(f"\nResults saved {args.out}")
+    best = rank_models(rows)
 
     if args.mhw:
         evaluate_mhw_detection(model, test_ds, ocean, args, device, n_in, n_out)
