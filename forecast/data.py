@@ -36,6 +36,7 @@ class SSTADataset(Dataset):
         ds = ds.coarsen(lat=coarsen_factor, lon=coarsen_factor, boundary="trim").mean()
         
         ssta = ds.ssta.sel(time=slice(*time_range))
+        self.xarray_ds = ssta
 
         self.ssta = ssta.load().astype("float32").values
         self.times = ssta.time.values
