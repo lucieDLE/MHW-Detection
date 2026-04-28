@@ -35,7 +35,7 @@ def pixel_rmse_map(pred: np.ndarray, truth: np.ndarray) -> np.ndarray:
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--checkpoint", help="best model", required=True, type=Path)
-    p.add_argument("--out", type=Path, default=ROOT / "forecast" / "eval_results.csv")
+    p.add_argument("--out", type=Path, default=ROOT / "data" /"cache")
     args = p.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -63,21 +63,7 @@ def main():
     )
 
 
-
-
-
-
-    ocean = ~test_ds.land_mask   # (H, W) bool
-
     loader = torch.utils.data.DataLoader(test_ds, batch_size=1, shuffle=False, num_workers=2)
-    ocean_t = torch.from_numpy(ocean).to(device)
-
-    methods = ["model", "persistence"]
-    accum = {
-        m: {k: {"sse": 0.0, "n": 0, "acc_sum": 0.0, "acc_n": 0}
-            for k in config.LEAD_TIMES}
-        for m in methods
-    }
 
     spatial_preds_model  = {k: [] for k in config.LEAD_TIMES}
     spatial_preds_persistence  = {k: [] for k in config.LEAD_TIMES}
@@ -109,8 +95,6 @@ def main():
     rmse_persistence_worldmap = []
 
     for k in config.LEAD_TIMES:
-        a = accum[m][k]
-
         all_preds_model  = np.concatenate(spatial_preds_model[k],  axis=0)
         all_preds_persistence  = np.concatenate(spatial_preds_persistence[k],  axis=0)
         all_truth = np.concatenate(spatial_truths[k], axis=0)
@@ -165,7 +149,10 @@ def main():
             input_window=n_in)
     )
 
-    ds.to_zarr(f'{ds.model}_n_in{ds.input_window}_{ds.metric}.zarr')
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    outfile = args.out.with_name(f'{ds.model}_n_in{ds.input_window}_{ds.metric}.zarr')
+    ds.to_zarr(outfile, mode="w")
+    print(f"Saved forecast ACC/RMSE dataset {outfile}")
 
 
 if __name__ == "__main__":
