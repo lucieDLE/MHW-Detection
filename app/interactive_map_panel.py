@@ -417,11 +417,87 @@ def build_mhw_view():
         sizing_mode="stretch_width",
     )
 
+def build_forecast_view():
+    forecast_path = _resolve_data_path(config.FORECAST_ACC_PATH)
+
+    if not forecast_path.exists():
+        return pn.pane.Markdown(
+            """
+            **Forecast dataset not found** \n
+            Please see [the README.md](https://github.com/lucieDLE/MHW-Detection?tab=readme-ov-file#training-a-model) for more information on how to generate this file.
+            """,
+            sizing_mode="stretch_width", renderer='markdown'
+        )
+
+    ds = xr.open_zarr(str(forecast_path))
+    model_name   = ds.attrs.get("model", "model")
+    input_window = ds.attrs.get("input_window", "?")
+    rmse_max     = float(ds.attrs.get("rmse_max", 2.0))
+    lead_times   = [int(v) for v in ds.lead_time.values]
+
+    metric_options = {
+        f"{model_name} ACC": "model_acc",
+        "Persistence ACC": "persistence_acc",
+        "ACC Difference": "acc_diff",
+        f"{model_name} RMSE": "model_rmse",
+        "Persistence RMSE": "persistence_rmse",
+        "RMSE Difference": "rmse_diff",
+    }
+
+    metric_selector = pn.widgets.Select(
+        name="Metric", options=metric_options, value="model_acc",
+        width=280,
+    )
+    lead_slider = pn.widgets.DiscreteSlider(
+        name="Lead time (days)", options=lead_times, value=lead_times[0],
+        width=280,
+    )
+
+    note = pn.pane.Markdown(
+        f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n"
+        "- **ACC** (Anomaly Correlation Coefficient): spatial Pearson correlation between predicted "
+        "and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.\n"
+        "- **RMSE**: per-pixel Root Mean Square Error between predicted and observed SSTA; lower is better.\n"
+        "- **Difference** maps show where and how much the model and persistence disagre; 0 being no difference between their ACC an RMSE scores.",
+        sizing_mode="stretch_width",
+    )
+
+    def _plot(metric_key, lead):
+        if metric_key in ("acc_diff", "rmse_diff"):
+            prefix = "acc" if metric_key == "acc_diff" else "rmse"
+            da = ds[f"model_{prefix}"].sel(lead_time=lead) - ds[f"persistence_{prefix}"].sel(lead_time=lead)
+        else:
+            da = ds[metric_key].sel(lead_time=lead)
+
+        is_acc  = "acc"  in metric_key
+        is_diff = "diff" in metric_key
+
+        if is_acc:
+            cmap, clim = ("RdYlBu_r", (-1, 1)) if not is_diff else ("RdBu_r", (-0.5, 0.5))
+        else:
+            cmap, clim = ("YlOrRd", (0, rmse_max)) if not is_diff else ("RdBu_r", (-rmse_max / 2, rmse_max / 2))
+
+        label = [k for k, v in metric_options.items() if v == metric_key][0]
+        return da.hvplot(
+            x="lon", y="lat",
+            cmap=cmap, clim=clim,
+            width=config.MAP_WIDTH,
+            height=config.MAP_HEIGHT,
+            title=f"{label}  —  lead time = {lead} days",
+            xlabel="Longitude", ylabel="Latitude",
+        ).opts(active_tools=["pan"])
+
+    map_panel = pn.bind(_plot, metric_key=metric_selector, lead=lead_slider)
+    controls = pn.Column(metric_selector, lead_slider, note, width=config.RIGHT_PANEL_WIDTH)
+    return pn.Row(controls, pn.Column(map_panel, sizing_mode="stretch_width"), sizing_mode="stretch_width")
+
+
 def build_app():
     tabs = pn.Tabs(
         ("SST Anomalies (Video)", build_raw_timeseries_view()),
         ("Anomaly Explorer", build_anomaly_view()),
         ("Marine HeatWave Visualization", build_mhw_view()),
+        ("SST Forecasting", build_forecast_view()),
         tabs_location="left",
         sizing_mode="stretch_both",
         dynamic=True,
