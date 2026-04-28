@@ -62,3 +62,4 @@ EPOCHS        = 30
 NUM_WORKERS   = 4
 CHECKPOINT_DIR = "forecast/checkpoints"
 LOG_DIR        = "forecast/runs"
+LEAD_TIMES = (1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 28)
