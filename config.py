@@ -43,6 +43,9 @@ MHW_MAP_PATH = 'data/cache/mhw.zarr'
 SSTA_DAILY_PATH = "data/cache/ssta_daily.zarr"        # daily SST anomaly
 CLIM_PATH       = "data/cache/clim_daily.zarr"        # day-of-year climatology
 LANDMASK_PATH   = "data/cache/landmask_daily.zarr"    # land mask (180×180)
+
+FORECAST_ACC_PATH = "data/cache/conv_lstm_n_in14_ACC_RMSE.zarr"     # best model trained exported
+
 # Video output
 SSTA_VIDEO_PATH = "assets/videos/sst_weekly_combined.mp4"
 
