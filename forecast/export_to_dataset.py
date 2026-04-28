@@ -70,14 +70,16 @@ def main():
     spatial_truths = {k: [] for k in config.LEAD_TIMES}
 
     for x, y in tqdm(loader, desc="evaluating"):
+        x = x.to(device)
+        y = y.to(device)
         preds_model = autoregressive_rollout(model, x, horizon, n_out=n_out)
         preds_persistence = persistence_forecast(x, horizon)
 
         for k in config.LEAD_TIMES:
             if k <= preds_model.shape[1]:            
-                pred_m_k = preds_model[:, k - 1]
-                pred_p_k = preds_persistence[:, k - 1]
-                target_k = y[:, k - 1]
+                pred_m_k = preds_model[:, k - 1].cpu().detach()
+                pred_p_k = preds_persistence[:, k - 1].cpu().detach()
+                target_k = y[:, k - 1].cpu().detach()
 
                 # set all land at 0 insteak of masking to preserve shape
                 pred_m_k[:, test_ds.land_mask] = 0
