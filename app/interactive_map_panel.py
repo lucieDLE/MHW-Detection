@@ -452,7 +452,6 @@ def build_forecast_view():
     metric_selector = pn.widgets.Select(name="Metric", options=metric_options, value="model_acc", width=280,)
     lead_slider = pn.widgets.DiscreteSlider(name="Lead time (days)", options=lead_times, value=lead_times[0], width=280)
     anchor_slider = pn.widgets.DiscreteSlider(name="Forecast start date", options=anchor_dates, value=anchor_dates[len(anchor_dates) // 2], width=280)
-    #TODO: put the anchor slider above the timeserie predicted values
 
     note = pn.pane.Markdown(
         f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n"
@@ -482,10 +481,9 @@ def build_forecast_view():
         elif 'rmse' in metric_key:
             cmap, clim = ("YlOrRd", (0, rmse_max)) if not is_diff else ("RdBu_r", (-rmse_max / 2, rmse_max / 2))
         else:
-            vmin = -5
-            vmax = 1 
             ncolors=256
-            normalized_mid_point = (0 - vmin) / (vmax - vmin)
+            clim = (-5, 1)
+            normalized_mid_point = (0 - clim[0]) / (clim[1] - clim[0])
             cmap = bokeh.palettes.diverging_palette(bokeh.palettes.Blues[ncolors], 
                                                       bokeh.palettes.Reds[ncolors], 
                                                       n=ncolors, 
@@ -494,7 +492,7 @@ def build_forecast_view():
         label = [k for k, v in metric_options.items() if v == metric_key][0]
         plot = da.hvplot(
             x="lon", y="lat",
-            cmap=cmap,
+            cmap=cmap,clim=clim,
             width=config.MAP_WIDTH,
             height=config.MAP_HEIGHT,
             title=f"{label}  —  lead time = {lead} days",
@@ -573,8 +571,9 @@ def build_forecast_view():
     map_panel = pn.bind(_plot, metric_key=metric_selector, lead=lead_slider)
     forecast_panel = pn.bind(_forecast_chart, x=tap_stream.param.x, y=tap_stream.param.y, anchor_date=anchor_slider)
     
+    centered_slider = pn.Row(pn.HSpacer(), anchor_slider, pn.HSpacer())
     controls = pn.Column(metric_selector, lead_slider, note, width=config.RIGHT_PANEL_WIDTH)
-    return pn.Row(controls, pn.Column(map_panel, forecast_panel, anchor_slider,  sizing_mode="stretch_width"), sizing_mode="stretch_width")
+    return pn.Row(controls, pn.Column(map_panel, forecast_panel,centered_slider, sizing_mode="stretch_width"), sizing_mode="stretch_width")
 
 
 def build_app():
