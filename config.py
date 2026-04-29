@@ -35,6 +35,7 @@ RIGHT_PLOT_HEIGHT = 335
 TIME_SERIE_WIDTH = 1440
 TIME_SERIE_HEIGHT = 760
 MHW_SLIDER_WIDTH = 200
+FORECAST_CHART_FREQUENCY = 1
 
 # Cache outputs
 INITIAL_MAP_CACHE = "data/cache/initial_map.zarr"
@@ -45,6 +46,7 @@ CLIM_PATH       = "data/cache/clim_daily.zarr"        # day-of-year climatology
 LANDMASK_PATH   = "data/cache/landmask_daily.zarr"    # land mask (180×180)
 
 FORECAST_ACC_PATH = "data/cache/conv_lstm_n_in14_ACC_RMSE.zarr"     # best model trained exported
+FORECAST_CHART_PATH = "data/cache/conv_lstm_n_in14_forecast_fan.zarr" # sampled trajectories
 
 # Video output
 SSTA_VIDEO_PATH = "assets/videos/sst_weekly_combined.mp4"
