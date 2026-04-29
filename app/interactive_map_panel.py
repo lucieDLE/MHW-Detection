@@ -418,9 +418,10 @@ def build_mhw_view():
     )
 
 def build_forecast_view():
-    forecast_path = _resolve_data_path(config.FORECAST_ACC_PATH)
+    metric_path = _resolve_data_path(config.FORECAST_ACC_PATH)
+    forecast_path = _resolve_data_path(config.FORECAST_CHART_PATH)
 
-    if not forecast_path.exists():
+    if not metric_path.exists() or not forecast_path.exists():
         return pn.pane.Markdown(
             """
             **Forecast dataset not found** \n
@@ -429,11 +430,15 @@ def build_forecast_view():
             sizing_mode="stretch_width", renderer='markdown'
         )
 
-    ds = xr.open_zarr(str(forecast_path))
-    model_name   = ds.attrs.get("model", "model")
-    input_window = ds.attrs.get("input_window", "?")
-    rmse_max     = float(ds.attrs.get("rmse_max", 2.0))
-    lead_times   = [int(v) for v in ds.lead_time.values]
+    metric_ds = xr.open_zarr(str(metric_path))
+    forecast_ds = xr.open_zarr(str(forecast_path))
+
+    model_name   = metric_ds.model
+    input_window = metric_ds.input_window
+    rmse_max     = float(metric_ds["rmse_range"].values[1]) if "rmse_range" in metric_ds else 2.0
+    lead_times   = [int(v) for v in np.array(config.LEAD_TIMES)]
+    anchor_dates = [str(t)[:10] for t in forecast_ds.anchor_time.values]
+
 
     metric_options = {
         f"{model_name} ACC": "model_acc",
@@ -441,44 +446,46 @@ def build_forecast_view():
         "ACC Difference": "acc_diff",
         f"{model_name} RMSE": "model_rmse",
         "Persistence RMSE": "persistence_rmse",
-        "RMSE Difference": "rmse_diff",
+        "Forecasting skill": "forecast_skill",
     }
 
-    metric_selector = pn.widgets.Select(
-        name="Metric", options=metric_options, value="model_acc",
-        width=280,
-    )
-    lead_slider = pn.widgets.DiscreteSlider(
-        name="Lead time (days)", options=lead_times, value=lead_times[0],
-        width=280,
-    )
+    metric_selector = pn.widgets.Select(name="Metric", options=metric_options, value="model_acc", width=280,)
+    lead_slider = pn.widgets.DiscreteSlider(name="Lead time (days)", options=lead_times, value=lead_times[0], width=280)
+    anchor_slider = pn.widgets.DiscreteSlider(name="Forecast start date", options=anchor_dates, value=anchor_dates[len(anchor_dates) // 2], width=280)
+
 
     note = pn.pane.Markdown(
         f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n"
         "- **ACC** (Anomaly Correlation Coefficient): spatial Pearson correlation between predicted "
         "and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.\n"
-        "- **RMSE**: per-pixel Root Mean Square Error between predicted and observed SSTA; lower is better.\n"
-        "- **Difference** maps show where and how much the model and persistence disagre; 0 being no difference between their ACC an RMSE scores.",
+        "- **RMSE**: per-pixel Root Mean Square Error between predicted and observed SSTA; lower is better. \n The RMSE map shows where the model struggles and identify high-error regions. \n"
+        "- **Difference** maps show where and how much the model and persistence disagre; 0 being no difference between their ACC an RMSE scores.\n\n"
+        "**Click anywhere on the map** to see the forecast trajectory and skill profile at that location.",
         sizing_mode="stretch_width",
     )
 
+    tap_stream = hv.streams.Tap(x=config.DEFAULT_TAP_LON, y=config.DEFAULT_TAP_LAT)
+
     def _plot(metric_key, lead):
-        if metric_key in ("acc_diff", "rmse_diff"):
-            prefix = "acc" if metric_key == "acc_diff" else "rmse"
-            da = ds[f"model_{prefix}"].sel(lead_time=lead) - ds[f"persistence_{prefix}"].sel(lead_time=lead)
+        if metric_key == "acc_diff": # build the ACC difference
+            da = metric_ds[f"model_acc"].sel(lead_time=lead) - metric_ds[f"persistence_acc"].sel(lead_time=lead)
+        elif metric_key == "forecast_skill": # build the skill metric
+            da = 1 - (metric_ds[f"model_rmse"].sel(lead_time=lead) / metric_ds[f"persistence_rmse"].sel(lead_time=lead))
         else:
-            da = ds[metric_key].sel(lead_time=lead)
+            da = metric_ds[metric_key].sel(lead_time=lead)
 
         is_acc  = "acc"  in metric_key
         is_diff = "diff" in metric_key
 
-        if is_acc:
+        if "acc" in metric_key:
             cmap, clim = ("RdYlBu_r", (-1, 1)) if not is_diff else ("RdBu_r", (-0.5, 0.5))
-        else:
+        elif 'diff' in metric_key:
             cmap, clim = ("YlOrRd", (0, rmse_max)) if not is_diff else ("RdBu_r", (-rmse_max / 2, rmse_max / 2))
+        else:
+            cmap, clim = ("RdBu_r", (-5, 1)) # for the forecast skill. #TODO: fix colorscale to center the white value on zero
 
         label = [k for k, v in metric_options.items() if v == metric_key][0]
-        return da.hvplot(
+        plot = da.hvplot(
             x="lon", y="lat",
             cmap=cmap, clim=clim,
             width=config.MAP_WIDTH,
@@ -486,10 +493,81 @@ def build_forecast_view():
             title=f"{label}  —  lead time = {lead} days",
             xlabel="Longitude", ylabel="Latitude",
         ).opts(active_tools=["pan"])
+        tap_stream.source = plot
+        return plot
+
+    def _forecast_chart(x, y, anchor_date):
+        if forecast_ds is None:
+            return pn.pane.Markdown("*Fan chart not available — re-run `export_to_dataset.py` to generate.*")
+
+        # select the curve from anchor data to -14 to +28 days for the selected locations
+        anchor_t = np.datetime64(anchor_date)
+        context_window  = forecast_ds.input_context.sel(anchor_time=anchor_t, lon=x, lat=y, method="nearest").values  # (n_in,)
+        pred = forecast_ds.model_pred.sel(anchor_time=anchor_t, lon=x, lat=y, method="nearest").values     # (horizon,)
+        truth = forecast_ds.truth.sel(anchor_time=anchor_t, lon=x, lat=y, method="nearest").values         # (horizon,)
+
+        n_in_v    = int(forecast_ds.input_window)
+        horizon_v = int(forecast_ds.horizon)
+
+        input_dates    = [anchor_t + np.timedelta64(d, 'D') for d in range(-n_in_v + 1, 1)] # t-14 to t
+        forecast_dates = [anchor_t + np.timedelta64(d, 'D') for d in range(1, horizon_v + 1)] # t to t+28
+
+        persistence_val = float(context_window[-1])
+        persistence = np.full(horizon_v, persistence_val)
+
+        df_obs = pd.DataFrame({"date": input_dates,    "ssta": context_window,         "series": "observed (input)"})
+        df_truth = pd.DataFrame({"date": forecast_dates, "ssta": truth,     "series": "observed (truth)"})
+        df_model = pd.DataFrame({"date": forecast_dates, "ssta": pred,      "series": f"{model_name} forecast"})
+        df_pers  = pd.DataFrame({"date": forecast_dates, "ssta": persistence,"series": "persistence"})
+
+        df = pd.concat([df_obs, df_truth, df_model, df_pers], ignore_index=True)
+
+        color_map = {
+            "observed (input)":       "#2b8cbe",
+            "observed (truth)":       "#2b8cbe",
+            f"{model_name} forecast": "#d7301f",
+            "persistence":            "#ff8c00",
+        }
+        dash_map = {
+            "observed (input)":       "solid",
+            "observed (truth)":       "dashed",
+            f"{model_name} forecast": "dashed",
+            "persistence":            "dotted",
+        }
+
+        actual_lon = float(forecast_ds.model_pred.sel(anchor_time=anchor_t, lon=x, lat=y, method="nearest").lon)
+        actual_lat = float(forecast_ds.model_pred.sel(anchor_time=anchor_t, lon=x, lat=y, method="nearest").lat)
+
+        plots = []
+        for label, grp in df.groupby("series", sort=False):
+            plots.append(
+                grp.hvplot.line(
+                    x="date", y="ssta",
+                    label=label,
+                    color=color_map[label],
+                    line_dash=dash_map[label],
+                    line_width=2.2,
+                    width=config.MAP_WIDTH,
+                    height=config.RIGHT_PLOT_HEIGHT,
+                )
+            )
+
+        anchor_line = hv.VLine(anchor_t).opts(color="gray", line_dash="dashed", line_width=1.2)
+
+        return (hv.Overlay(plots) * anchor_line).opts(
+            title=f"Forecast trajectories at ({actual_lon:.1f}°, {actual_lat:.1f}°)  —  start: {anchor_date}",
+            xlabel="Date", ylabel="SSTA (°C)",
+            legend_position="top_left",
+            show_grid=True,
+            active_tools=["pan"],
+        )
+
 
     map_panel = pn.bind(_plot, metric_key=metric_selector, lead=lead_slider)
+    forecast_panel = pn.bind(_forecast_chart, x=tap_stream.param.x, y=tap_stream.param.y, anchor_date=anchor_slider)
+    
     controls = pn.Column(metric_selector, lead_slider, note, width=config.RIGHT_PANEL_WIDTH)
-    return pn.Row(controls, pn.Column(map_panel, sizing_mode="stretch_width"), sizing_mode="stretch_width")
+    return pn.Row(controls, pn.Column(map_panel, forecast_panel, anchor_slider,  sizing_mode="stretch_width"), sizing_mode="stretch_width")
 
 
 def build_app():
