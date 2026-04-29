@@ -10,7 +10,7 @@ import pandas as pd
 import panel as pn
 import xarray as xr
 from sklearn.linear_model import LinearRegression
-
+import bokeh.palettes
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = ROOT_DIR
@@ -452,7 +452,7 @@ def build_forecast_view():
     metric_selector = pn.widgets.Select(name="Metric", options=metric_options, value="model_acc", width=280,)
     lead_slider = pn.widgets.DiscreteSlider(name="Lead time (days)", options=lead_times, value=lead_times[0], width=280)
     anchor_slider = pn.widgets.DiscreteSlider(name="Forecast start date", options=anchor_dates, value=anchor_dates[len(anchor_dates) // 2], width=280)
-
+    #TODO: put the anchor slider above the timeserie predicted values
 
     note = pn.pane.Markdown(
         f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n"
@@ -479,15 +479,22 @@ def build_forecast_view():
 
         if "acc" in metric_key:
             cmap, clim = ("RdYlBu_r", (-1, 1)) if not is_diff else ("RdBu_r", (-0.5, 0.5))
-        elif 'diff' in metric_key:
+        elif 'rmse' in metric_key:
             cmap, clim = ("YlOrRd", (0, rmse_max)) if not is_diff else ("RdBu_r", (-rmse_max / 2, rmse_max / 2))
         else:
-            cmap, clim = ("RdBu_r", (-5, 1)) # for the forecast skill. #TODO: fix colorscale to center the white value on zero
+            vmin = -5
+            vmax = 1 
+            ncolors=256
+            normalized_mid_point = (0 - vmin) / (vmax - vmin)
+            cmap = bokeh.palettes.diverging_palette(bokeh.palettes.Blues[ncolors], 
+                                                      bokeh.palettes.Reds[ncolors], 
+                                                      n=ncolors, 
+                                                      midpoint=normalized_mid_point)
 
         label = [k for k, v in metric_options.items() if v == metric_key][0]
         plot = da.hvplot(
             x="lon", y="lat",
-            cmap=cmap, clim=clim,
+            cmap=cmap,
             width=config.MAP_WIDTH,
             height=config.MAP_HEIGHT,
             title=f"{label}  —  lead time = {lead} days",
