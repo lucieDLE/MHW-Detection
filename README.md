@@ -18,7 +18,7 @@ The dashboard enables intuitive spatial-to-temporal climate exploration: users c
 | Storage | `zarr`, `netCDF4` |
 | Visualisation | `hvPlot`, `HoloViews`, `Bokeh` |
 | Dashboard | `Panel` |
-| ML | `scikit-learn` |
+| ML/DL | `scikit-learn` , `pytorch` |
 
 ## Dataset
 The project uses the NOAA Optimum Interpolation (OI) SST V2 High Resolution [dataset](https://www.psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html). The dataset covers Sea Surface Temperature from 1881 to 2026 with weekly and biweekly resolution.
@@ -90,15 +90,72 @@ Below an example of the Marine HeatWave Tab
 <img src="assets/images/mhw_analysis.png">
 
 
-## Training a model
 
-```
-(some code)
+## SST Forecasting
 
-# to visualize the training 
+A deep-learning forecasting pipeline (`forecast/`) predicts daily SST anomalies up to 28 days ahead (called `lead times`). The pipeline is trained on 1982–2014 data, validated on 2015–2019, and evaluated on 2020–2025.
+
+### Models and Baselines
+
+
+| Method | Baseline | Description |
+|---|---|---|
+| Baseline | `Persistence` | Assumes today's SST anomaly persists unchanged across all future lead times. Considered a hard-to-beat baseline for short-term ocean forecasting. |
+| Baseline | `Ridge` | One Ridge regression model trained independently per lead time, pooled across over all ocean pixels |
+| Model | `PixelLSTM` | simple LSTM model applied independently to each pixel using a temporal input window of `n_in` days. Captures temporal dynamics but ignores spatial context. |
+| Model | `ConvLSTMForecast` | Extends PixelLSTM with convolutional layers to incorporate neighboring spatial information.  Combines temporal and spatial modeling. |
+
+Both `PixelLSTM` and `ConvLSTMForecast` models are **autoregressive models trained with a rollout strategy**: they are trained to predict a single day ahead (`n_out=1`), and then predictions are fed back as inputs to forecast the next step, repeating up to 28 times. This means **errors accumulate** at each step: a small mistake at day 2 becomes an input for day 3, and continue up to day 28.
+Future models should be trained to be **Direct Models** and predict directly `n_out=28` days for example.
+
+### Training a Model
+
+```bash
+python forecast/train.py --model conv_lstm --epochs 30 --n_in 14 --batchsize 2
+
+# resuming a training
+python forecast/train.py --model conv_lstm --epochs 30 --n_in 14 --batchsize 2 --resume checkpoint.ckpt
+
+# monitor training
 tensorboard --logdir forecast/runs
 ```
 
+Checkpoints are saved to `forecast/checkpoints/`.
+> **Note:** All models are intentionally lightweight — trained for fewer than 100 epochs with small batch sizes due to hardware constraints. More expressive architectures and longer training runs would likely yield significant performance gains.
+
+
+### Evaluating Performance
+
+```bash
+python forecast/evaluate.py --checkpoint forecast/checkpoints/conv_lstm_best.pt --horizon 28
+```
+
+Outputs a CSV (`eval_results.csv`) with RMSE and ACC for each method × lead time, ranks models by composite skill score relative to the persistence baseline.
+- **RMSE** (Root Mean Square Error): Measures the average magnitude of forecast errors, in the same unit as the anomaly (°C). Lower is better.
+- **ACC** (Anomaly Correlation Coefficient): Measures the spatial or temporal correlation between predicted and observed anomalies. Ranges from −1 to 1, where 1 indicates a perfect forecast and values above 0.6 are generally considered skillful in climate forecasting.
+- Forecasting **Skill Score**: Measures improvement over the persistence baseline. A score of 0 means the model performs no better than persistence; a score of 1 means perfect forecasting; a negative score means the model performs worse than persistence.
+
+An analysis of model architectures, lead times, and input window lengths is available in `results_analysis.ipynb`. 
+
+Below is a summary of RMSE and ACC across lead times for an input window of `n_in=14` days:
+
+<img src="assets/performances/fig1_rmse_acc_vs_lead.png">
+
+As expected, all methods degrade with increasing lead time due to the ocean state becomes less predictable:
+  * At `lead_time=1`, all four methods have almost the same performances since the signal from the previous day still dominates. 
+  * By `lead_time=14` or `lead_time=10`, the persistence and ridge baselines match or slightly outperform the learned models on both metrics.  This observed degradation curve is driven primarily by the autoregressive nature of the models but can be also due to model’s size and training strategies. 
+  * All methods nonetheless maintain ACC > 0.6 at 28 days, which is generally considered the lower bound of a skillful forecast in climate applications.
+
+### Export Spatial Maps
+After training, you can export per-pixel predicted STTA, RMSE, and ACC maps for visualization:
+ 
+```bash
+# --metrics will export the RMSE and ACC
+# --forecast will export the predicted SSTA
+python forecast/export_to_dataset.py --checkpoint forecast/checkpoints/conv_lstm_best.pt --forecast 1 --metrics 1 --out data/cache
+```
+
+This generates `{model_name}_{n_in}_ACC_RMSE.zarr` and `{model_name}_{n_in}_forecast.zarr`, containing per-pixel ACC and RMSE world maps for every lead time, for both the trained model and the persistence baseline. Once the output paths are set via the `FORECAST_ACC_PATH` and `FORECAST_CHART_PATH` variables in the config file, it is loaded automatically by the SST Forecasting tab of the dashboard.
 
 
 ## References
