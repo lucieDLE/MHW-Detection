@@ -233,12 +233,13 @@ def build_raw_timeseries_view():
 
     text = """
         The **video** shows weekly sea surface temperature **anomalies** (SSTA). 
-        They are deviations from the monthly climatology across the global ocean. The diverging colormap is centered on zero: 
+        SSTA are deviations from the monthly climatology across the global ocean. The diverging colormap is centered on zero: 
         **red** indicates warmer-than-usual water, **blue** cooler-than-usual, and **white** near-normal conditions. 
-        The color scale is clipped to ±5 ˚C.
+        The color scale is clipped to ±5 ˚C. We can see a clear increase in appearance of hot events with higher probabilities, spread, strength.
 
         - **Play/Pause**: use the video controls to start or stop playback.
         - Frames between real weekly timesteps are linearly interpolated for smooth motion.
+        - Speed can also be adjusted.
     """
     note = pn.pane.Markdown(text, sizing_mode="stretch_width")
 
@@ -295,12 +296,35 @@ def build_anomaly_view():
         )
 
     text = """
-    The above **worldmap** highlights where Sea Surface Temperature (SST) fluctuates most from year to year (red). Clicking on a location generates several analyses: 
+        The above **worldmap** highlights where Sea Surface Temperature (SST) fluctuates most 
+        from year to year (red). Clicking on a location generates several analyses: 
 
-    - **Linear trend estimation**: An Ordinary Least Squares (OLS) regression is applied to estimate the long-term SST anomaly trend.
-    - **Extreme event detection**: defined as SST anomalies exceeding a 95th percentile threshold
-    - **Histogram of the number of extreme event** with Kernel Density Estimation (KDE): detects if warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves over time.
-    """ 
+        - **Linear trend estimation**: An Ordinary Least Squares (OLS) regression is applied 
+            to estimate the long-term SST anomaly trend.
+        - **Extreme event detection**: defined as SST anomalies exceeding a 95th percentile threshold
+        - **Histogram of the number of extreme event** with Kernel Density Estimation (KDE): 
+            detects if warm anomalies are becoming more frequent and how the distribution of
+            SST anomalies evolves over time.
+
+        **Analysis**:
+        Areas showing strong variability independently of seasonality are:
+        - **El Niño-Southern Oscillation (ENSO):** Recurring climate pattern (3 to 7 years) 
+            warming (El Niño) or cooling (La Niña) the water by ~1 to 3 C compared to normal SST.
+            ENSO is one of the most important climate phenomena on Eart as it changes temperatures, 
+            precipitation around the globe.
+        - **Gulf Stream (GS):** A strong ocean current bringing warm water from the Gulf of Mexico 
+            into the Atlantic ocean. Hence this location has more variability than normal. 
+            The cold water from the Labrador current goes down and the warmer than normal SSTs stick around. 
+            Anomalies are computed relative to the mean, a small displacement of the current can 
+            produces a larger deviation from the mean.
+        - **Kuroshio Extension (KE):** Similar to the GS, the KE is a powerful current in the Pacific 
+            from the East Coast of the Japan and meanders east towards North America. 
+        - **Agulhas current (AC):** Strong ocean current bringing also warm water from the southeast 
+            coast of Mozambique to South Africa and then meanders east toward Australia.
+        - **Brazil-Malvinas (or Falkland) Confluence (BMC):** Confluence of 2 currents off the coast of 
+            Argentina and Uruguay where the warm Brazil Current and the cold Falkland current converge.
+
+        """ 
     caption_text = pn.pane.Markdown(text)
     right_panel = pn.bind(select_point, x=posxy.param.x, y=posxy.param.y)
     dashboard = pn.Row(
@@ -335,13 +359,38 @@ def build_mhw_view():
 
     note = pn.pane.Markdown(
         """
-        **Marine Heatwave (MHW)** events are defined as periods of ≥5 consecutive days where
-        sea surface temperature exceeds the 90th-percentile climatological threshold for that
-        calendar day (±5-day window). The map shows either the total number of MHW **days** or
-        discrete MHW **events** per year at each grid cell.
+        This panel detects **Marine HeatWave (MHW)** events defined as periods of **≥5 consecutive days** 
+        where SST exceeds the 90th-percentile climatological threshold. The map shows either the total 
+        number of MHW **days** or discrete MHW **events** per year at each grid cell.
 
-        - Click anywhere on the map to see the full year-by-year time series at that location.
+        - Click anywhere on the map to see the full time series per year at that location.
         - Use the metric selector and year slider to explore spatial patterns.
+
+
+        **Analysis**: 
+        Several recurring patterns emerge across the maps, intensifying from the 1980s to the 2020s:
+        - **1983, 1997-1998, 2015-2016, and 2023-2024** correspond to major El Niño events and appear as the brightest, 
+            most spatially extensive maps. El Niño also indirectly warms the Indian and Atlantic Oceans later by 
+            reorganizing global wind patterns. 2016 combines a strong El Niño with the long-term warming trend, 
+            making it the most intense map in the series. 
+        - **Long-term background warming:** Comparing **1987** and  **2022** two quiet years without any ENSO 
+            phenomenon reveals a critical shift: the 2022 map is considerably brighter almost everywhere. 
+            This illustrates the human impact on ocean warming, gradually raising the baseline temperature of the ocean. 
+            As a result, even ordinary years now produce more MHW days (2022) than exceptional years did 40 ago (1983).
+        - **1992**: A localized MHW signal appears in the Southern Ocean between Australia and South America. 
+            The 1992 anomaly is likely linked to the **1991 Mount Pinatubo volcanic eruption**, which disrupted 
+            global wind patterns and may have caused regional warming in this area.
+        - **2005, 2011-2012**: The Arctic is the fastest-warming region on the planet because melting white ice 
+            (reflective) is replaced with dark, heat-absorbing ocean water, which accelerates further melting. 
+            This makes the Arctic particularly sensitive to MHW conditions. Whether these specific years were 
+            triggered by discrete events or by the long-term warming trend remains unclear.
+        \n
+
+        The 1982-2025 period shows that **MHWs that were once rare, confined, and tied to El Niño** events are **now 
+        longer, more widespread and frequent** even in the absence of any specific climate phenomenon. 
+        
+        **This highlights an ongoing and accelerating warming of the global ocean.**
+
         """,
         sizing_mode="stretch_width",
         width=config.MHW_SLIDER_WIDTH
@@ -410,7 +459,7 @@ def build_mhw_view():
     map_panel = pn.bind(_map, metric=selector, year=year_slider)
     ts_panel = pn.bind(_timeseries, metric=selector, x=tap_stream.param.x, y=tap_stream.param.y)
 
-    controls = pn.Column(selector, year_slider, note, width=config.RIGHT_PANEL_WIDTH)
+    controls = pn.Column( pn.Row(selector, year_slider), note, width=config.RIGHT_PANEL_WIDTH)
     return pn.Row(
         controls,
         pn.Column(map_panel, ts_panel, sizing_mode="stretch_width"),
