@@ -227,7 +227,6 @@ def build_raw_timeseries_view():
     video = pn.pane.Video(
         str(video_path),
         loop=True,
-        sizing_mode="stretch_width",
         height=config.TIME_SERIE_HEIGHT,
     )
 
@@ -241,9 +240,11 @@ def build_raw_timeseries_view():
         - Frames between real weekly timesteps are linearly interpolated for smooth motion.
         - Speed can also be adjusted.
     """
-    note = pn.pane.Markdown(text, sizing_mode="stretch_width")
+    note = pn.pane.Markdown(text, width=config.TIME_SERIE_WIDTH)
+    video_panel = pn.Column(video, note)
+    centered_panel = pn.Row(pn.HSpacer(), video_panel, pn.HSpacer())
 
-    return pn.Column(video, note, sizing_mode="stretch_both")
+    return centered_panel
 
 
 def build_anomaly_view():
