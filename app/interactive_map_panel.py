@@ -488,6 +488,88 @@ def build_forecast_view():
     lead_times   = [int(v) for v in np.array(config.LEAD_TIMES)]
     anchor_dates = [str(t)[:10] for t in forecast_ds.anchor_time.values]
 
+    text_forecast = """
+        **Forecasting skill**
+        
+        - **Tropical band**: Across almost all lead times, the model captures SST dynamics most reliably in the ENSO region.
+            Skill remains positive up to t = 28 days, reflecting the slow, large-scale nature of ENSO-driven anomalies.
+        
+        - **High latitudes**: The model underperforms persistence in the Arctic and Southern Ocean, increasingly with time.
+            High-latitude SST is driven by fast, chaotic processes (storms, sea ice dynamics, turbulent mixing), where small
+            initial errors are carried forward and amplified at each rollout step.
+        
+        - **Weddell Sea**: The persistently deep blue spot in the Southern Ocean is the worst-performing
+            region across all lead times, including at t = 1. This area is called the **Weddell Sea**, which is governed
+            by sea ice melt and freeze cycles that are fundamentally different from open ocean dynamics.
+    """
+
+    text_RMSE = """
+        **RMSE Maps (Model and Persistence)**
+        
+        - Both the model and persistence share a very similar spatial error structure: highest RMSE along strong ocean
+            currents (Gulf Stream, Kuroshio Extension), in high-latitude regions, and near coastlines.
+        
+        - This confirms that 1) the model has learned a level of predictability comparable to persistence at short lead times and
+            2) the regions that are hardest to forecast are the same for both methods. These areas are known to have high SST variability.
+        
+        - By lead time 21, the model's RMSE deteriorates significantly in the most dynamically active regions,
+            while the tropical Pacific and Indian Ocean remain comparatively well-forecasted.
+            This is a direct consequence of the rollout error accumulation in high-variability areas.
+    """
+
+    text_ACC = """
+        **ACC Maps (Model and Persistence)**
+        
+        - Both methods maintain high ACC (deep red, close to 1) across most of the global ocean at all lead times. However, 
+        this is expected: ACC measures correlation, and SST anomalies change slowly, making them easier to predict over short 
+        to medium horizons, and therefore easier to correlate with observations.
+        
+        - The most informative regions are where the maps fade from red toward yellow/white: strong currents and high-latitude areas 
+        associated with high and fast SST variability. By t = 28 days, the model appears to achieve slightly better performance 
+        in these regions, but the difference is very subtle. 
+        
+        - This is why the ACC difference maps are more informative than these absolute ACC maps alone.
+    
+    """
+
+    text_diff_ACC = """
+        **ACC Difference Map**
+
+        - Up to t = 10 days: The ACC difference is mostly neutral globally, with a clear positive band along the
+            equatorial Pacific confirming that the model outperforms persistence in the ENSO region.
+            High latitudes show a mild negative signal but remain close to zero.
+        
+        - t = 14 to t = 28 days: The spatial structure degrades rapidly. The Arctic and Southern Ocean turn strongly blue,
+            with the model losing up to 0.4 ACC points relative to persistence.
+        
+        - At t = 28 days: The model adds very little value over persistence at the global scale, with meaningful positive skill
+            confined almost entirely to the tropical Pacific.
+    """
+
+
+    metric_description = """
+        **Metrics**
+        
+        - **Anomaly Correlation Coefficient (ACC)**: Spatial Pearson correlation between predicted and observed SSTA per timestep,
+            averaged over the test period.
+        
+        - **Root Mean Square Error (RMSE)**: Per-pixel error between predicted and observed SSTA.
+        
+        - **Forecasting Skill Score**: Measures improvement over the persistence baseline.
+            A score of 0 means the model performs no better than persistence; 1 means a perfect forecast; a negative score means persistence wins.
+            blue regions indicate where persistence is more informative.
+
+        **Overall**: The model has genuinely learned useful structure in the tropics, where slow ENSO-driven signals provide a learnable target.
+        However, the autoregressive rollout strategy is too fragile for high-latitude regions, where errors compound fastest.
+        A direct model (n_out = 28) would likely address much of this degradation without requiring a more complex architecture.
+
+        You can use the select option to dive into model performances and comparisons:
+        
+        - Select a metric and lead time to display the corresponding spatial map, accompanied by an analysis.
+        
+        - Select a time period and click anywhere on the map to visualize the predicted SSTA at that location.
+    """
+    metric_description_note = pn.pane.Markdown(metric_description)
 
     metric_options = {
         f"{model_name} ACC": "model_acc",
@@ -503,12 +585,7 @@ def build_forecast_view():
     anchor_slider = pn.widgets.DiscreteSlider(name="Forecast start date", options=anchor_dates, value=anchor_dates[len(anchor_dates) // 2], width=280)
 
     note = pn.pane.Markdown(
-        f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n"
-        "- **ACC** (Anomaly Correlation Coefficient): spatial Pearson correlation between predicted "
-        "and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.\n"
-        "- **RMSE**: per-pixel Root Mean Square Error between predicted and observed SSTA; lower is better. \n The RMSE map shows where the model struggles and identify high-error regions. \n"
-        "- **Difference** maps show where and how much the model and persistence disagre; 0 being no difference between their ACC an RMSE scores.\n\n"
-        "**Click anywhere on the map** to see the forecast trajectory and skill profile at that location.",
+        f"**Input window:** {input_window} days  | **Test period:** " + str(config.DL_TEST_RANGE) + "\n\n",
         sizing_mode="stretch_width",
     )
 
@@ -617,11 +694,30 @@ def build_forecast_view():
         )
 
 
+    _metric_to_analysis = {
+        "model_acc":       text_ACC,
+        "persistence_acc": text_ACC,
+        "model_rmse":      text_RMSE,
+        "persistence_rmse":text_RMSE,
+        "acc_diff":        text_diff_ACC,
+        "forecast_skill":  text_forecast,
+    }
+
+    def _analysis_text(metric_key):
+        return pn.pane.Markdown(_metric_to_analysis[metric_key], sizing_mode="stretch_width")
+
+    analysis_panel = pn.bind(_analysis_text, metric_key=metric_selector)
+
     map_panel = pn.bind(_plot, metric_key=metric_selector, lead=lead_slider)
     forecast_panel = pn.bind(_forecast_chart, x=tap_stream.param.x, y=tap_stream.param.y, anchor_date=anchor_slider)
     
     centered_slider = pn.Row(pn.HSpacer(), anchor_slider, pn.HSpacer())
-    controls = pn.Column(metric_selector, lead_slider, note, width=config.RIGHT_PANEL_WIDTH)
+    controls = pn.Column(note, 
+                         pn.Row(metric_selector, lead_slider),
+                         metric_description_note, 
+                         analysis_panel, 
+                         width=config.RIGHT_PANEL_WIDTH)
+
     return pn.Row(controls, pn.Column(map_panel, forecast_panel,centered_slider, sizing_mode="stretch_width"), sizing_mode="stretch_width")
 
 
