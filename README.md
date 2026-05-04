@@ -75,7 +75,7 @@ A spatial-to-temporal click-to-inspect workflow:
 
 Below an example of the Anomaly Explorer Tab
 
-<img src="assets/images/dashboard_ssta_analysis.png">
+<img src="assets/images/dashboard_anomaly.png">
 
 ### Tab 3 — Marine HeatWave Visualization
 
@@ -87,9 +87,29 @@ Below an example of the Anomaly Explorer Tab
 
 Below an example of the Marine HeatWave Tab
 
-<img src="assets/images/mhw_analysis.png">
+<img src="assets/images/dashboard_mhw.png">
 
 
+
+### Tab 4 — SST Forecasting
+
+> **Note:** This tab will display data only after following the steps described in the [SST Forecasting](#sst-forecasting) section below.
+
+This panel let you explore model performance spatially and at individual locations.
+
+- **Metric selector**: choose from six maps based on the following metrics:
+  - ACC: spatial Pearson correlation between predicted and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.
+  - RMSE: per-pixel Root Mean Square Error in °C; lower is better.
+  - Forecasting Skill: improvement over persistence defined as `1 − RMSE_model / RMSE_persistence`. 
+- **Lead time slider**: step through lead times from 1 to 28 days.
+
+**Spatial metric maps**: a world map of the selected metric at a chosen lead time.
+
+**Forecast trajectory chart**: clicking any point on the map draws a time series showing the observed input window, the model forecast, the ground truth, and the persistence baseline from a chosen start date. Use the **Forecast start date slider** to pick the anchor date.
+
+Below an example of the SST Forecasting Tab
+
+<img src="assets/images/dashboard_forecast.png">
 
 ## SST Forecasting
 
@@ -135,17 +155,6 @@ Outputs a CSV (`eval_results.csv`) with RMSE and ACC for each method × lead tim
 - **ACC** (Anomaly Correlation Coefficient): Measures the spatial or temporal correlation between predicted and observed anomalies. Ranges from −1 to 1, where 1 indicates a perfect forecast and values above 0.6 are generally considered skillful in climate forecasting.
 - Forecasting **Skill Score**: Measures improvement over the persistence baseline. A score of 0 means the model performs no better than persistence; a score of 1 means perfect forecasting; a negative score means the model performs worse than persistence.
 
-An analysis of model architectures, lead times, and input window lengths is available in `results_analysis.ipynb`. 
-
-Below is a summary of RMSE and ACC across lead times for an input window of `n_in=14` days:
-
-<img src="assets/performances/fig1_rmse_acc_vs_lead.png">
-
-As expected, all methods degrade with increasing lead time due to the ocean state becomes less predictable:
-  * At `lead_time=1`, all four methods have almost the same performances since the signal from the previous day still dominates. 
-  * By `lead_time=14` or `lead_time=10`, the persistence and ridge baselines match or slightly outperform the learned models on both metrics.  This observed degradation curve is driven primarily by the autoregressive nature of the models but can be also due to model’s size and training strategies. 
-  * All methods nonetheless maintain ACC > 0.6 at 28 days, which is generally considered the lower bound of a skillful forecast in climate applications.
-
 ### Export Spatial Maps
 After training, you can export per-pixel predicted STTA, RMSE, and ACC maps for visualization:
  
@@ -155,7 +164,7 @@ After training, you can export per-pixel predicted STTA, RMSE, and ACC maps for 
 python forecast/export_to_dataset.py --checkpoint forecast/checkpoints/conv_lstm_best.pt --forecast 1 --metrics 1 --out data/cache
 ```
 
-This generates `{model_name}_{n_in}_ACC_RMSE.zarr` and `{model_name}_{n_in}_forecast.zarr`, containing per-pixel ACC and RMSE world maps for every lead time, for both the trained model and the persistence baseline. Once the output paths are set via the `FORECAST_ACC_PATH` and `FORECAST_CHART_PATH` variables in the config file, it is loaded automatically by the SST Forecasting tab of the dashboard.
+This generates `{model_name}_{n_in}_ACC_RMSE.zarr` and `{model_name}_{n_in}_forecast.zarr`, containing per-pixel ACC and RMSE world maps for every lead time, for both the trained model and the persistence baseline. Once the output paths are set via the `FORECAST_ACC_PATH` and `FORECAST_CHART_PATH` variables in the config file, it is loaded automatically by the SST ForecastinFORECAST_DIFF_ACC_CAPTIONg tab of the dashboard.
 
 
 ## References
