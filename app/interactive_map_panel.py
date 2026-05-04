@@ -308,19 +308,24 @@ def build_anomaly_view():
 
         **Analysis**:
         Areas showing strong variability independently of seasonality are:
+        
         - **El Niño-Southern Oscillation (ENSO):** Recurring climate pattern (3 to 7 years) 
             warming (El Niño) or cooling (La Niña) the water by ~1 to 3 C compared to normal SST.
             ENSO is one of the most important climate phenomena on Eart as it changes temperatures, 
             precipitation around the globe.
+        
         - **Gulf Stream (GS):** A strong ocean current bringing warm water from the Gulf of Mexico 
             into the Atlantic ocean. Hence this location has more variability than normal. 
             The cold water from the Labrador current goes down and the warmer than normal SSTs stick around. 
             Anomalies are computed relative to the mean, a small displacement of the current can 
             produces a larger deviation from the mean.
+        
         - **Kuroshio Extension (KE):** Similar to the GS, the KE is a powerful current in the Pacific 
             from the East Coast of the Japan and meanders east towards North America. 
+        
         - **Agulhas current (AC):** Strong ocean current bringing also warm water from the southeast 
             coast of Mozambique to South Africa and then meanders east toward Australia.
+        
         - **Brazil-Malvinas (or Falkland) Confluence (BMC):** Confluence of 2 currents off the coast of 
             Argentina and Uruguay where the warm Brazil Current and the cold Falkland current converge.
 
@@ -368,18 +373,23 @@ def build_mhw_view():
 
 
         **Analysis**: 
+
         Several recurring patterns emerge across the maps, intensifying from the 1980s to the 2020s:
+        
         - **1983, 1997-1998, 2015-2016, and 2023-2024** correspond to major El Niño events and appear as the brightest, 
             most spatially extensive maps. El Niño also indirectly warms the Indian and Atlantic Oceans later by 
             reorganizing global wind patterns. 2016 combines a strong El Niño with the long-term warming trend, 
             making it the most intense map in the series. 
+        
         - **Long-term background warming:** Comparing **1987** and  **2022** two quiet years without any ENSO 
             phenomenon reveals a critical shift: the 2022 map is considerably brighter almost everywhere. 
             This illustrates the human impact on ocean warming, gradually raising the baseline temperature of the ocean. 
             As a result, even ordinary years now produce more MHW days (2022) than exceptional years did 40 ago (1983).
+        
         - **1992**: A localized MHW signal appears in the Southern Ocean between Australia and South America. 
             The 1992 anomaly is likely linked to the **1991 Mount Pinatubo volcanic eruption**, which disrupted 
             global wind patterns and may have caused regional warming in this area.
+        
         - **2005, 2011-2012**: The Arctic is the fastest-warming region on the planet because melting white ice 
             (reflective) is replaced with dark, heat-absorbing ocean water, which accelerates further melting. 
             This makes the Arctic particularly sensitive to MHW conditions. Whether these specific years were 
