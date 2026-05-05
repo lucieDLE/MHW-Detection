@@ -1,6 +1,6 @@
 ## SST Anomaly Forecasting
 
-A deep-learning forecasting pipeline (`forecast/`) predicts daily SST anomalies up to 28 days ahead (referred to as *lead times*). The pipeline is trained on 1982–2014, validated on 2015–2019, and evaluated on the held-out test period 2020–2025. We call `n_in` the input window length — for example, with `n_in=14` the model observes the past 14 days of SSTA to predict the next day (`n_out=1`).
+A deep-learning forecasting pipeline predicts daily SST anomalies up to 28 days ahead (referred to as *lead times*). The pipeline is trained on 1982–2014, validated on 2015–2019, and evaluated on the held-out test period 2020–2025. We call `n_in` the input window length, for example, with `n_in=14` the model observes the past 14 days of SSTA to predict the next day (`n_out=1`).
 
 ### Models and Baselines
 
