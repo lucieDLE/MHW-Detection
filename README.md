@@ -98,7 +98,7 @@ Below an example of the Marine HeatWave Tab
 This panel let you explore model performance spatially and at individual locations.
 
 - **Metric selector**: choose from six maps based on the following metrics:
-  - ACC: spatial Pearson correlation between predicted and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.
+  - Anomaly Correlation Coefficient (ACC): spatial Pearson correlation between predicted and observed SSTA per timestep, averaged over the test period. Range −1 to 1; higher is better.
   - RMSE: per-pixel Root Mean Square Error in °C; lower is better.
   - Forecasting Skill: improvement over persistence defined as `1 − RMSE_model / RMSE_persistence`. 
 - **Lead time slider**: step through lead times from 1 to 28 days.
@@ -141,7 +141,7 @@ python forecast/evaluate.py --checkpoint forecast/checkpoints/conv_lstm_best.pt 
 Outputs a CSV (`eval_results.csv`) with RMSE and ACC for each method × lead time, ranks models by composite skill score relative to the persistence baseline.
 
 ### Export Spatial Maps
-After training, you can export per-pixel predicted STTA, RMSE, and ACC maps for visualization:
+After training, you can export per-pixel predicted SSTA, RMSE, and ACC maps for visualization:
  
 ```bash
 # --metrics will export the RMSE and ACC
