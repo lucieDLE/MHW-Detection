@@ -114,19 +114,7 @@ Below an example of the SST Forecasting Tab
 ## SST Forecasting
 
 A deep-learning forecasting pipeline (`forecast/`) predicts daily SST anomalies up to 28 days ahead (called `lead times`). The pipeline is trained on 1982–2014 data, validated on 2015–2019, and evaluated on 2020–2025.
-
-### Models and Baselines
-
-
-| Method | Baseline | Description |
-|---|---|---|
-| Baseline | `Persistence` | Assumes today's SST anomaly persists unchanged across all future lead times. Considered a hard-to-beat baseline for short-term ocean forecasting. |
-| Baseline | `Ridge` | One Ridge regression model trained independently per lead time, pooled across over all ocean pixels |
-| Model | `PixelLSTM` | simple LSTM model applied independently to each pixel using a temporal input window of `n_in` days. Captures temporal dynamics but ignores spatial context. |
-| Model | `ConvLSTMForecast` | Extends PixelLSTM with convolutional layers to incorporate neighboring spatial information.  Combines temporal and spatial modeling. |
-
-Both `PixelLSTM` and `ConvLSTMForecast` models are **autoregressive models trained with a rollout strategy**: they are trained to predict a single day ahead (`n_out=1`), and then predictions are fed back as inputs to forecast the next step, repeating up to 28 times. This means **errors accumulate** at each step: a small mistake at day 2 becomes an input for day 3, and continue up to day 28.
-Future models should be trained to be **Direct Models** and predict directly `n_out=28` days for example.
+You can visit the [Forecast page](forecast/ANALYSIS.md) for more details of the different models, parameters, lead time and performances.
 
 ### Training a Model
 
