@@ -139,9 +139,6 @@ python forecast/evaluate.py --checkpoint forecast/checkpoints/conv_lstm_best.pt 
 ```
 
 Outputs a CSV (`eval_results.csv`) with RMSE and ACC for each method × lead time, ranks models by composite skill score relative to the persistence baseline.
-- **RMSE** (Root Mean Square Error): Measures the average magnitude of forecast errors, in the same unit as the anomaly (°C). Lower is better.
-- **ACC** (Anomaly Correlation Coefficient): Measures the spatial or temporal correlation between predicted and observed anomalies. Ranges from −1 to 1, where 1 indicates a perfect forecast and values above 0.6 are generally considered skillful in climate forecasting.
-- Forecasting **Skill Score**: Measures improvement over the persistence baseline. A score of 0 means the model performs no better than persistence; a score of 1 means perfect forecasting; a negative score means the model performs worse than persistence.
 
 ### Export Spatial Maps
 After training, you can export per-pixel predicted STTA, RMSE, and ACC maps for visualization:
