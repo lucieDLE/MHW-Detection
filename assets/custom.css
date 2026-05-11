@@ -1,0 +1,150 @@
+/* ── Page ────────────────────────────────────────────────────────────────── */
+body {
+    background-color: #f4f7f9;
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* ── App header ──────────────────────────────────────────────────────────── */
+.app-header {
+    background: #006494;
+    color: white;
+    padding: 14px 20px;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+/* ── Tab content wrapper ─────────────────────────────────────────────────── */
+.tab-content {
+    padding: 20px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+    margin-top: 12px;
+    border: 1px solid #d0dce4;
+    border-radius: 6px;
+}
+
+.card-header {
+    background-color: #006494 !important;
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 7px 14px;
+    border-radius: 5px 5px 0 0 !important;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.card-body {
+    background-color: #deebf7;
+    font-size: 0.82rem;
+    padding: 12px 14px;
+    color: #2d3e4e;
+}
+
+.card-body p,
+.card-body li {
+    margin-bottom: 0.4rem;
+}
+
+/* ── Labels ──────────────────────────────────────────────────────────────── */
+label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    color: #2d3e4e;
+}
+
+/* ── Info text (small metadata line above controls) ──────────────────────── */
+.info-text p {
+    font-size: 0.9rem;
+    color: #2d3e4e;
+    margin-bottom: 8px;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.tab {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4a6070;
+    padding: 20px 18px !important;
+}
+
+.tab--selected {
+    color: #006494 !important;
+    font-weight: 700;
+    border-top: 3px solid #006494 !important;
+    background-color: #deebf7 !important;
+
+}
+
+/* ── Dropdowns ───────────────────────────────────────────────────────────── */
+/* .Select-control {
+    border-color: #a2147a !important;
+    border-radius: 5px !important;
+} */
+
+/* ── Forecast dynamic analysis container ─────────────────────────────────── */
+#forecast-analysis {
+    margin-top: 12px;
+}
+
+
+
+/* Border of the closed dropdown */
+/* .Select-control {
+    border-color: #006494 !important;
+    border-radius: 5px !important;
+} */
+
+/* Hovered option in the open list */
+/* .Select-option.is-focused {
+    background-color: #deebf7 !important;
+    color: #2d3e4e !important;
+} */
+
+/* Currently selected option in the list */
+/* .Select-option.is-selected {
+    background-color: #006494 !important;
+    color: white !important;
+} */
+
+/* The selected value displayed in the box */
+/* .Select-value-label {
+    color: #006494 !important;
+} */
+
+/* 
+/* dcc.Slider (uses rc-slider internally): */
+/* Filled track (left of the handle) */
+.dash-slider-range {
+    background-color: #006494 !important;
+}
+.dash-slider-track {
+    background-color: #deebf7 !important;
+}
+.dash-slider-mark::before {
+    background-color: #deebf7 !important;
+}
+
+/* The draggable handle */
+.dash-slider-thumb {
+    border-color: white !important;
+    background-color: #006494 !important;
+}
+/* 
+.dash-slider-handle:hover,
+.dash-slider-handle:focus,
+.dash-slider-handle-dragging {
+    border-color: #247ba0 !important;
+    box-shadow: 0 0 0 4px rgba(0, 100, 148, 0.2) !important;
+} */
+
+/* Active step dots */
+/* .dash-slider-dot-active {
+    border-color: #006494 !important;
+}  */
