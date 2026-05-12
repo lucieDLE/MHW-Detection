@@ -82,12 +82,6 @@ label {
 
 }
 
-/* ── Dropdowns ───────────────────────────────────────────────────────────── */
-/* .Select-control {
-    border-color: #a2147a !important;
-    border-radius: 5px !important;
-} */
-
 /* ── Forecast dynamic analysis container ─────────────────────────────────── */
 #forecast-analysis {
     margin-top: 12px;
@@ -95,58 +89,8 @@ label {
 
 
 
-/* Border of the closed dropdown */
-/* .Select-control {
-    border-color: #006494 !important;
-    border-radius: 5px !important;
-} */
-
-/* Hovered option in the open list */
-/* .Select-option.is-focused {
-    background-color: #deebf7 !important;
-    color: #2d3e4e !important;
-} */
-
-/* Currently selected option in the list */
-/* .Select-option.is-selected {
-    background-color: #006494 !important;
-    color: white !important;
-} */
-
-/* The selected value displayed in the box */
-/* .Select-value-label {
-    color: #006494 !important;
-} */
-
-/* 
-/* dcc.Slider (uses rc-slider internally): */
-/* Filled track (left of the handle) */
-.dash-slider-range {
-    background-color: #006494 !important;
+:root {
+    --Dash-Fill-Interactive-Strong: #006494 ;
+    --Dash-Fill-Interactive-Weak: #deebf7 ;
+    --Dash-Fill-Inverse-Strong: #fff;
 }
-.dash-slider-track {
-    background-color: #deebf7 !important;
-}
-.dash-slider-mark::before {
-    background-color: #deebf7 !important;
-}
-
-/* The draggable handle */
-.dash-slider-thumb {
-    border-color: white !important;
-    background-color: #006494 !important;
-}
-
-.dash-slider-thumb:focus {
-    outline: 2px solid #006494 !important;
-
-}
-.dash-slider-thumb-dragging {
-    border-color: #deebf7 !important;
-    box-shadow: 0 0 0 4px rgba(222, 235, 247, 0.2) !important; 
-}
-
-/* Active step dots */
-.dash-slider-dot-active {
-    border-color: #006494 !important;
-} 
