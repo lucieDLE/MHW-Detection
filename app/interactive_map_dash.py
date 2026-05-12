@@ -601,4 +601,4 @@ def update_forecast_ts(click_data, anchor_date, meta):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8050, dev_tools_hot_reload=True)
+    app.run(debug=True, port=8050)
