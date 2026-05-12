@@ -17,7 +17,7 @@ The dashboard enables intuitive spatial-to-temporal climate exploration: users c
 | Data & computation | `xarray`, `numpy`, `pandas`, `dask`, `scipy` |
 | Storage | `zarr`, `netCDF4` |
 | Visualisation | `hvPlot`, `HoloViews`, `Bokeh` |
-| Dashboard | `Panel` |
+| Dashboard | `Panel`, `Dash` |
 | ML/DL | `scikit-learn` , `pytorch` |
 
 ## Dataset
@@ -46,8 +46,10 @@ python preprocess.py
 
 #### 2. Launch the Dashboard
 
+The dashboard is currently being changed to use `Dash` instead, both should be working and can be launched with the following
 ```
 panel serve app/interactive_map_panel.py --show
+python app/interactive_map_dash.py
 ```
 
 ## Features
