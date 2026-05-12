@@ -136,15 +136,17 @@ label {
     border-color: white !important;
     background-color: #006494 !important;
 }
-/* 
-.dash-slider-handle:hover,
-.dash-slider-handle:focus,
-.dash-slider-handle-dragging {
-    border-color: #247ba0 !important;
-    box-shadow: 0 0 0 4px rgba(0, 100, 148, 0.2) !important;
-} */
+
+.dash-slider-thumb:focus {
+    outline: 2px solid #006494 !important;
+
+}
+.dash-slider-thumb-dragging {
+    border-color: #deebf7 !important;
+    box-shadow: 0 0 0 4px rgba(222, 235, 247, 0.2) !important; 
+}
 
 /* Active step dots */
-/* .dash-slider-dot-active {
+.dash-slider-dot-active {
     border-color: #006494 !important;
-}  */
+} 
