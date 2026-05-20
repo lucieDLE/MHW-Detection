@@ -38,16 +38,15 @@ _MAP_LAYOUT = dict(
 
 _PLOT_LAYOUT = dict(
     height=config.RIGHT_PLOT_HEIGHT,
-    margin=dict(l=60, r=20, t=50, b=50),
+    margin=dict(l=60, r=20, t=70, b=50),
     showlegend=True,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
-                font=dict(size=10)),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     xaxis=dict(showgrid=True),
     yaxis=dict(showgrid=True),
 )
 
 # ============================================================================
-#  DATA LOADING
+#  HELPERS: LOADING AND MAP BUILDING
 # ============================================================================
 
 @functools.lru_cache(maxsize=None)
@@ -103,9 +102,7 @@ def anomaly_figs(lon, lat):
     reg = LinearRegression().fit(X, y)
     trend = np.round(reg.coef_[0, 0] * 10, 3)
     df_clean["pred_ols"] = reg.predict(X)[:, 0]
-    rolling_avg = da.rolling(
-        time=int(config.FREQ_PER_YEAR_MIN) * config.ROLLING_YEARS, center=True
-    ).mean()
+    rolling_avg = da.rolling(time=int(config.FREQ_PER_YEAR_MIN) * config.ROLLING_YEARS, center=True).mean()
 
     fig_trend = go.Figure([
         go.Scatter(x=df["time"], y=df["anomalies"], mode="lines", name="Anomaly",
@@ -119,6 +116,7 @@ def anomaly_figs(lon, lat):
     fig_trend.update_layout(
         title=f"Anomaly at ({actual_lon:.2f}°, {actual_lat:.2f}°) | Trend: {trend:.3f} °C/decade",
         yaxis_title="SST anomaly (°C)", xaxis_title="Time",
+        hovermode='x unified',
         **_PLOT_LAYOUT,
     )
 
@@ -302,10 +300,22 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
     fig.update_layout(
         title=f"Forecast at ({actual_lon:.1f}°, {actual_lat:.1f}°) — start: {anchor_date}",
         xaxis_title="Date", yaxis_title="SSTA (°C)",
+        hovermode='x unified',
         **_PLOT_LAYOUT,
     )
     return fig
 
+# ============================================================================
+#  LAYOUT FUNCTIONS
+# ============================================================================
+
+def textCard(title="TITLE", text='some text'):
+    return html.Div(
+        dbc.Card([
+            dbc.CardHeader(title),
+            dbc.CardBody(dcc.Markdown(text)),
+        ]),
+    )
 
 # ============================================================================
 #  APP LAYOUT
@@ -340,7 +350,7 @@ def build_layout():
     # ── Tab 1: Video ──────────────────────────────────────────────────────────
     tab_video = dcc.Tab(label="SST Anomalies (Video)", value="tab-video", children=[
         dbc.Container(fluid=True, className="tab-content", children=[
-            dbc.Card(dbc.CardBody(dcc.Markdown(dash_analysis.TIMESERIE_CAPTION))),
+            textCard("Video Description", dash_analysis.TIMESERIE_CAPTION),
             html.Video(
                 src="/assets/videos/sst_weekly_combined.mp4",
                 controls=True, loop=True,
@@ -355,14 +365,8 @@ def build_layout():
             dbc.Row([
                 dbc.Col([
                     dcc.Graph(id="anomaly-map", figure=initial_map_fig()),
-                    dbc.Card([
-                        dbc.CardHeader("Description"),
-                        dbc.CardBody(dcc.Markdown(dash_analysis.ANOMALY_CAPTION)),
-                    ]),
-                    dbc.Card([
-                        dbc.CardHeader("Analysis"),
-                        dbc.CardBody(dcc.Markdown(dash_analysis.ANOMALY_ANALYSIS)),
-                    ]),
+                    textCard("Description", dash_analysis.ANOMALY_CAPTION),
+                    textCard("Analysis",dash_analysis.ANOMALY_ANALYSIS),
                 ], width=7),
                 dbc.Col([
                     dcc.Loading(dcc.Graph(id="anomaly-trend")),
@@ -394,14 +398,8 @@ def build_layout():
                         step=None, marks=mhw_marks, value=mhw_years[0],
                         tooltip={"placement": "bottom", "always_visible": False},
                     ),
-                    dbc.Card([
-                        dbc.CardHeader("Description"),
-                        dbc.CardBody(dcc.Markdown(dash_analysis.MHW_CAPTION)),
-                    ]),
-                    dbc.Card([
-                        dbc.CardHeader("Analysis"),
-                        dbc.CardBody(dcc.Markdown(dash_analysis.MHW_ANALYSIS)),
-                    ]),
+                    textCard("Description", dash_analysis.MHW_CAPTION),
+                    textCard("Analysis", dash_analysis.MHW_ANALYSIS),
                 ], width=5),
                 dbc.Col([
                     dcc.Loading(dcc.Graph(id="mhw-map")),
@@ -415,12 +413,7 @@ def build_layout():
     if not has_forecast:
         tab_forecast = dcc.Tab(label="SST Forecasting", value="tab-forecast", children=[
             dbc.Container(fluid=True, className="tab-content", children=[
-                dbc.Card([
-                    dbc.CardHeader("Forecast dataset not found"),
-                    dbc.CardBody(dcc.Markdown(
-                        "Please see the README for instructions on generating this file."
-                    )),
-                ]),
+                textCard("Forecast dataset not found", "Please see the README for instructions on generating this file."),
             ]),
         ])
     else:
@@ -460,10 +453,7 @@ def build_layout():
                             clearable=False,
                             className="mb-2",
                         ),
-                        dbc.Card([
-                            dbc.CardHeader("Metric choices"),
-                            dbc.CardBody(dcc.Markdown(dash_analysis.FORECAST_METRIC_CAPTION)),
-                        ]),
+                        textCard("Metric choices", dash_analysis.FORECAST_METRIC_CAPTION),
                         html.Div(id="forecast-analysis"),
                     ], width=5),
                     dbc.Col([
@@ -549,7 +539,7 @@ def update_forecast_map(metric_key, lead, meta):
     if meta is None:
         return go.Figure(), ""
     fig = forecast_map_fig(metric_key, lead, meta["metric_options"], meta["rmse_max"])
-    card = dbc.Card(dbc.CardBody(dcc.Markdown(METRIC_TO_ANALYSIS.get(metric_key, ""))))
+    card = textCard("ANALYSIS", METRIC_TO_ANALYSIS.get(metric_key, "")),
     return fig, card
 
 
