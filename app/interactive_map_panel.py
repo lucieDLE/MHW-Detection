@@ -19,6 +19,7 @@ if str(SRC_DIR) not in sys.path:
 
 import config
 import analysis
+import theme
 
 pn.extension()
 hv.extension("bokeh")
@@ -99,8 +100,8 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
             f"({lon:.2f}, {lat:.2f}) "
             f"| Trend: {trend:.3f} ˚C/decade"
         ),
-        width=config.RIGHT_PANEL_WIDTH,
-        height=config.RIGHT_PLOT_HEIGHT,
+        width=theme.RIGHT_PANEL_WIDTH,
+        height=theme.RIGHT_PLOT_HEIGHT,
         color="#2b8cbe",
         line_width=1.8,
         label="Anomaly",
@@ -112,8 +113,8 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
         x="time",
         y="pred_ols",
         color="#ff8c00",
-        width=config.RIGHT_PANEL_WIDTH,
-        height=config.RIGHT_PLOT_HEIGHT,
+        width=theme.RIGHT_PANEL_WIDTH,
+        height=theme.RIGHT_PLOT_HEIGHT,
         line_width=2.3,
         label="OLS trend",
     )
@@ -122,8 +123,8 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
         x="rolled_time",
         y="anomalies_rolled_avg",
         color="#d7301f",
-        width=config.RIGHT_PANEL_WIDTH,
-        height=config.RIGHT_PLOT_HEIGHT,
+        width=theme.RIGHT_PANEL_WIDTH,
+        height=theme.RIGHT_PLOT_HEIGHT,
         line_width=2.6,
         label=f"{rolling_year_num}-year rolling mean",
     ).opts(active_tools=["pan"])
@@ -145,8 +146,8 @@ def compute_extreme_events_plot(df: pd.DataFrame):
         y="anomalies",
         color="gray",
         alpha=0.6,
-        width=config.RIGHT_PANEL_WIDTH,
-        height=config.RIGHT_PLOT_HEIGHT,
+        width=theme.RIGHT_PANEL_WIDTH,
+        height=theme.RIGHT_PLOT_HEIGHT,
         ylabel="SST anomaly (˚C)",
         xlabel="Time (months)",
         title=f"Extreme events above {int(quantile_val * 100)}th percentile threshold",
@@ -191,9 +192,9 @@ def compute_barplot(df: pd.DataFrame):
         line_alpha=0.5,
         bar_width=0.8,
         title="Number of Extreme Events",
-        width=config.RIGHT_PANEL_WIDTH,
-        height=config.RIGHT_PLOT_HEIGHT,
-        color="#74a9cf",
+        width=theme.RIGHT_PANEL_WIDTH,
+        height=theme.RIGHT_PLOT_HEIGHT,
+        color=theme.C_BAR,
         xlabel="Time (years)",
         ylabel="Number of extreme events",
     ).opts(active_tools=["pan"], show_grid=True)
@@ -214,7 +215,7 @@ def compute_barplot(df: pd.DataFrame):
             "year", 
             "kde_scaled",
             label='kde').opts(
-            color="#74a9cf", line_width=2.5
+            color=theme.C_BAR, line_width=2.5
         )
         bar_plot *= kde_curve
 
@@ -227,10 +228,10 @@ def build_raw_timeseries_view():
     video = pn.pane.Video(
         str(video_path),
         loop=True,
-        height=config.TIME_SERIE_HEIGHT,
+        height=theme.TIME_SERIE_HEIGHT,
     )
 
-    note = pn.pane.Markdown(analysis.TIMESERIE_CAPTION, width=config.TIME_SERIE_WIDTH)
+    note = pn.pane.Markdown(analysis.TIMESERIE_CAPTION, width=theme.TIME_SERIE_WIDTH)
     video_panel = pn.Column(video, note)
     centered_panel = pn.Row(pn.HSpacer(), video_panel, pn.HSpacer())
 
@@ -246,8 +247,8 @@ def build_anomaly_view():
         y="lat",
         cmap="OrRd",
         title="Sea Surface Temperature Variability across years",
-        width=config.MAP_WIDTH,
-        height=config.MAP_HEIGHT,
+        width=theme.MAP_WIDTH,
+        height=theme.MAP_HEIGHT,
         xlabel="Longitude (degrees_east)",
         ylabel="Latitude (degrees_north)",
     ).opts(active_tools=["pan"], show_grid=False)
@@ -283,7 +284,7 @@ def build_anomaly_view():
             extreme_event_plot,
             bar_plot,
             sizing_mode="stretch_width",
-            width=config.RIGHT_PANEL_WIDTH,
+            width=theme.RIGHT_PANEL_WIDTH,
         )
 
     caption_text = pn.pane.Markdown(analysis.ANOMALY_CAPTION)
@@ -307,7 +308,7 @@ def build_mhw_view():
         name="Metric",
         options={"Days per year": "day_per_year", "Events per year": "event_per_year"},
         value="day_per_year",
-        width=config.MHW_SLIDER_WIDTH,
+        width=theme.MHW_SLIDER_WIDTH,
     )
     allowed_values = [int(y) for y in ds.year.values]
 
@@ -315,10 +316,10 @@ def build_mhw_view():
         name="Year",
         options=allowed_values,
         value=allowed_values[0],
-        width=config.MHW_SLIDER_WIDTH,
+        width=theme.MHW_SLIDER_WIDTH,
     )
 
-    note = pn.pane.Markdown(analysis.MHW_CAPTION, sizing_mode="stretch_width", width=config.MHW_SLIDER_WIDTH)
+    note = pn.pane.Markdown(analysis.MHW_CAPTION, sizing_mode="stretch_width", width=theme.MHW_SLIDER_WIDTH)
 
     # Reactive store for the Tap stream — updated whenever the map redraws
     tap_stream = hv.streams.Tap(x=config.DEFAULT_TAP_LON, y=config.DEFAULT_TAP_LAT)
@@ -329,8 +330,8 @@ def build_mhw_view():
         plot = da.hvplot(
             x="lon",
             y="lat",
-            width=config.MAP_WIDTH,
-            height=config.MAP_HEIGHT,
+            width=theme.MAP_WIDTH,
+            height=theme.MAP_HEIGHT,
             clim=(0, max_val),
             cmap="afmhot",
             title=f"MHW {metric.replace('_', ' ')} ({year})",
@@ -357,8 +358,8 @@ def build_mhw_view():
             line_alpha=0.5,
             bar_width=0.8,
             title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
-            width=config.MAP_WIDTH,
-            height=config.RIGHT_PLOT_HEIGHT,
+            width=theme.MAP_WIDTH,
+            height=theme.RIGHT_PLOT_HEIGHT,
             color="#74a9cf",
             xlabel="Year",
             ylabel=ylabel,
@@ -383,7 +384,7 @@ def build_mhw_view():
     map_panel = pn.bind(_map, metric=selector, year=year_slider)
     ts_panel = pn.bind(_timeseries, metric=selector, x=tap_stream.param.x, y=tap_stream.param.y)
 
-    controls = pn.Column( pn.Row(selector, year_slider), note, width=config.RIGHT_PANEL_WIDTH)
+    controls = pn.Column( pn.Row(selector, year_slider), note, width=theme.RIGHT_PANEL_WIDTH)
     return pn.Row(
         controls,
         pn.Column(map_panel, ts_panel, sizing_mode="stretch_width"),
@@ -463,8 +464,8 @@ def build_forecast_view():
         plot = da.hvplot(
             x="lon", y="lat",
             cmap=cmap,clim=clim,
-            width=config.MAP_WIDTH,
-            height=config.MAP_HEIGHT,
+            width=theme.MAP_WIDTH,
+            height=theme.MAP_HEIGHT,
             title=f"{label}  —  lead time = {lead} days",
             xlabel="Longitude", ylabel="Latitude",
         ).opts(active_tools=["pan"])
@@ -522,8 +523,8 @@ def build_forecast_view():
                     color=color_map[label],
                     line_dash=dash_map[label],
                     line_width=2.2,
-                    width=config.MAP_WIDTH,
-                    height=config.RIGHT_PLOT_HEIGHT,
+                    width=theme.MAP_WIDTH,
+                    height=theme.RIGHT_PLOT_HEIGHT,
                 )
             )
 
@@ -560,7 +561,7 @@ def build_forecast_view():
                          pn.Row(metric_selector, lead_slider),
                          metric_description_note, 
                          analysis_panel, 
-                         width=config.RIGHT_PANEL_WIDTH)
+                         width=theme.RIGHT_PANEL_WIDTH)
 
     return pn.Row(controls, pn.Column(map_panel, forecast_panel,centered_slider, sizing_mode="stretch_width"), sizing_mode="stretch_width")
 
