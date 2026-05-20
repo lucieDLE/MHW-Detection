@@ -102,7 +102,7 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
         ),
         width=theme.RIGHT_PANEL_WIDTH,
         height=theme.RIGHT_PLOT_HEIGHT,
-        color="#2b8cbe",
+        color=theme.BLUE,
         line_width=1.8,
         label="Anomaly",
         ylabel="SST anomaly (˚C)",
@@ -112,7 +112,7 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
     trend_plot = df_clean.hvplot.line(
         x="time",
         y="pred_ols",
-        color="#ff8c00",
+        color=theme.YELLOW,
         width=theme.RIGHT_PANEL_WIDTH,
         height=theme.RIGHT_PLOT_HEIGHT,
         line_width=2.3,
@@ -122,7 +122,7 @@ def compute_anomaly_plot(df: pd.DataFrame, tos_anom_selected: xr.DataArray, lon:
     rolling_avg_plot = resampled_df.hvplot.line(
         x="rolled_time",
         y="anomalies_rolled_avg",
-        color="#d7301f",
+        color=theme.RED,
         width=theme.RIGHT_PANEL_WIDTH,
         height=theme.RIGHT_PLOT_HEIGHT,
         line_width=2.6,
@@ -144,7 +144,7 @@ def compute_extreme_events_plot(df: pd.DataFrame):
     anomaly_curve = df.hvplot.line(
         x="time",
         y="anomalies",
-        color="gray",
+        color=theme.GRAY,
         alpha=0.6,
         width=theme.RIGHT_PANEL_WIDTH,
         height=theme.RIGHT_PLOT_HEIGHT,
@@ -155,7 +155,7 @@ def compute_extreme_events_plot(df: pd.DataFrame):
     )
 
     thr_line = hv.HLine(thr_value).opts(
-        color="red",
+        color=theme.RED,
         line_dash="dashed",
         line_width=2,
     ).relabel(f"q{int(quantile_val * 100)}")
@@ -163,7 +163,7 @@ def compute_extreme_events_plot(df: pd.DataFrame):
     extreme_event = df_extreme.hvplot.scatter(
         x="time",
         y="anomalies",
-        color="red",
+        color=theme.RED,
         size=45,
         alpha=0.9,
         label="Extreme events",
@@ -194,7 +194,7 @@ def compute_barplot(df: pd.DataFrame):
         title="Number of Extreme Events",
         width=theme.RIGHT_PANEL_WIDTH,
         height=theme.RIGHT_PLOT_HEIGHT,
-        color=theme.C_BAR,
+        color=theme.RED,
         xlabel="Time (years)",
         ylabel="Number of extreme events",
     ).opts(active_tools=["pan"], show_grid=True)
@@ -215,7 +215,7 @@ def compute_barplot(df: pd.DataFrame):
             "year", 
             "kde_scaled",
             label='kde').opts(
-            color=theme.C_BAR, line_width=2.5
+            color=theme.RED, line_width=2.5
         )
         bar_plot *= kde_curve
 
@@ -360,7 +360,7 @@ def build_mhw_view():
             title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
             width=theme.MAP_WIDTH,
             height=theme.RIGHT_PLOT_HEIGHT,
-            color="#74a9cf",
+            color=theme.RED_LIGHT,
             xlabel="Year",
             ylabel=ylabel,
         ).opts(active_tools=["pan"], show_grid=True)
@@ -373,7 +373,7 @@ def build_mhw_view():
             y_kde_scaled = y_kde * (df_ts[ylabel].max() / y_kde.max())
             kde_curve = hv.Curve(
                 (x_grid, y_kde_scaled), "year", "kde_scaled", label="kde",
-            ).opts(color="#74a9cf", line_width=2.5)
+            ).opts(color=theme.RED, line_width=2.5)
             bar_plot *= kde_curve
 
         return bar_plot.opts(
@@ -499,10 +499,10 @@ def build_forecast_view():
         df = pd.concat([df_obs, df_truth, df_model, df_pers], ignore_index=True)
 
         color_map = {
-            "observed (input)":       "#2b8cbe",
-            "observed (truth)":       "#2b8cbe",
-            f"{model_name} forecast": "#d7301f",
-            "persistence":            "#ff8c00",
+            "observed (input)":       theme.BLUE,
+            "observed (truth)":       theme.BLUE,
+            f"{model_name} forecast": theme.RED,
+            "persistence":            theme.YELLOW,
         }
         dash_map = {
             "observed (input)":       "solid",
@@ -528,7 +528,7 @@ def build_forecast_view():
                 )
             )
 
-        anchor_line = hv.VLine(anchor_t).opts(color="gray", line_dash="dashed", line_width=1.2)
+        anchor_line = hv.VLine(anchor_t).opts(color=theme.GRAY, line_dash="dashed", line_width=1.2)
 
         return (hv.Overlay(plots) * anchor_line).opts(
             title=f"Forecast trajectories at ({actual_lon:.1f}°, {actual_lat:.1f}°)  —  start: {anchor_date}",
@@ -580,8 +580,8 @@ def build_app():
     return pn.template.FastListTemplate(
         title="SST Dashboard",
         main=[tabs],
-        accent_base_color="#0d6e6e",
-        header_background="#0d6e6e",
+        accent_base_color=theme.PANEL_ACCENT,
+        header_background=theme.PANEL_ACCENT,
     )
 
 
