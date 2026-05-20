@@ -1,96 +1,100 @@
+:root {
+
+    --bg-page:          #deebf7;
+    --bg-header:        #006494;
+    --bg-tab-selected:  #deebf7;
+    --bg-tab:           #7ea5cb9c;
+    --bg-card:          white;
+    --bg-card-header:   #006494;
+    --bg-card-body:     #1590dc57;
+
+    --text-header:      white;
+    --text-tab:         #2d3e4e;
+    --text-tab-selected:#006494;
+    --text-card-header: white;
+    --text-card-body:   #2d3e4e;
+    --text-main:        #2d3e4e;
+
+    --accent:           #016694;
+    --border-color:     #d0dce4;
+    --shadow:           rgba(0, 73, 133, 0.12);
+
+
+    --Dash-Fill-Interactive-Strong: #006494 ;
+    --Dash-Fill-Interactive-Weak: #deebf7 ;
+    --Dash-Fill-Inverse-Strong: #ffff;
+}
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 body {
-    background-color: #f4f7f9;
+    background-color: #d0dce4;
     font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 /* ── App header ──────────────────────────────────────────────────────────── */
 .app-header {
-    background: #006494;
-    color: white;
-    padding: 14px 20px;
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-header);
+    padding: 14px 24px;
+    color: var(--text-header);
+    font-size: 20px;
     font-weight: 600;
-    letter-spacing: 0.03em;
-}
-
-/* ── Tab content wrapper ─────────────────────────────────────────────────── */
-.tab-content {
-    padding: 20px;
-}
-
-/* ── Cards ───────────────────────────────────────────────────────────────── */
-.card {
-    margin-top: 12px;
-    border: 1px solid #d0dce4;
-    border-radius: 6px;
-}
-
-.card-header {
-    background-color: #006494 !important;
-    color: white !important;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 7px 14px;
-    border-radius: 5px 5px 0 0 !important;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
-
-.card-body {
-    background-color: #deebf7;
-    font-size: 0.82rem;
-    padding: 12px 14px;
-    color: #2d3e4e;
-}
-
-.card-body p,
-.card-body li {
-    margin-bottom: 0.4rem;
-}
-
-/* ── Labels ──────────────────────────────────────────────────────────────── */
-label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-top: 12px;
-    margin-bottom: 5px;
-    color: #2d3e4e;
-}
-
-/* ── Info text (small metadata line above controls) ──────────────────────── */
-.info-text p {
-    font-size: 0.9rem;
-    color: #2d3e4e;
-    margin-bottom: 8px;
+    letter-spacing: 0.5px;
 }
 
 /* ── Tabs ────────────────────────────────────────────────────────────────── */
 .tab {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #4a6070;
-    padding: 20px 18px !important;
+    color: var(--text-tab);
+    background-color: var(--bg-tab);
+    padding: 20px 18px ;
+    border: none;
 }
 
 .tab--selected {
-    color: #006494 !important;
+    background-color: var(--bg-page) !important;
+    color: var(--text-tab-selected);
     font-weight: 700;
-    border-top: 3px solid #006494 !important;
-    background-color: #deebf7 !important;
+    border-top: 5px solid var(--border-color);
 
+}
+/* ── Tab content wrapper ─────────────────────────────────────────────────── */
+.tab-content {
+    padding: 20px;
+    background-color: var(--bg-page);
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+    margin-top: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 16px;
+
+}
+
+.card-header {
+    background-color: var(--bg-card-header);
+    color: var(--text-card-header);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 7px 14px;
+    border-radius: 5px 5px 0 0 ;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.card-body {
+    background-color: var(--bg-card-body);
+    color: var(--text-card-body);
+    font-size: 0.82rem;
+    padding: 12px 14px;
 }
 
 /* ── Forecast dynamic analysis container ─────────────────────────────────── */
 #forecast-analysis {
     margin-top: 12px;
-}
-
-
-
-:root {
-    --Dash-Fill-Interactive-Strong: #006494 ;
-    --Dash-Fill-Interactive-Weak: #deebf7 ;
-    --Dash-Fill-Inverse-Strong: #fff;
 }
