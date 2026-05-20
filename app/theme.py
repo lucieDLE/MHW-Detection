@@ -9,6 +9,15 @@ MHW_SLIDER_WIDTH  = 200
 WIDTH_PLOT        = 500
 HEIGHT_RIGHT_PLOT = WIDTH_PLOT // 3
 
+# ── Chart color palette ───────────────────────────────────────────────────────
+PANEL_ACCENT = "#0d6e6e"    # Panel app accent / header background
+
+BLUE  = "#006494"           # observed / main series
+YELLOW = "#e3bb2a"          # OLS trend / persistence baseline
+RED = "#e40e0e"             # rolling mean / model forecast / extreme event
+RED_LIGHT = "#e85555"       # rolling mean / model forecast / extreme event
+GRAY = "#6e6e6e"            # secondary / background lines
+
 # ── Colorscales ───────────────────────────────────────────────────────────────
 # Asymmetric diverging scale for skill score (range -5 to 1, midpoint at 0)
 SKILL_COLORSCALE = [

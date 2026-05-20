@@ -82,12 +82,12 @@ def anomaly_figs(lon, lat):
 
     fig_trend = go.Figure([
         go.Scatter(x=df["time"], y=df["anomalies"], mode="lines", name="Anomaly",
-                   line=dict(color="#2b8cbe", width=1.5)),
+                   line=dict(color=theme.BLUE, width=1.5)),
         go.Scatter(x=df_clean["time"], y=df_clean["pred_ols"], mode="lines", name="OLS trend",
-                   line=dict(color="#ff8c00", width=2.3)),
+                   line=dict(color=theme.YELLOW, width=2.3)),
         go.Scatter(x=da.time.values, y=rolling_avg.values, mode="lines",
                    name=f"{config.ROLLING_YEARS}-year rolling mean",
-                   line=dict(color="#d7301f", width=2.5)),
+                   line=dict(color=theme.RED, width=2.5)),
     ])
     fig_trend.update_layout(
         title=f"Anomaly at ({actual_lon:.2f}°, {actual_lat:.2f}°) | Trend: {trend:.3f} °C/decade",
@@ -100,12 +100,12 @@ def anomaly_figs(lon, lat):
     df_ext = df.loc[df["q95"] == 1]
     fig_extreme = go.Figure([
         go.Scatter(x=df["time"], y=df["anomalies"], mode="lines", name="Anomaly",
-                   line=dict(color="gray", width=1), opacity=0.6),
+                   line=dict(color=theme.GRAY, width=1), opacity=0.6),
         go.Scatter(x=df_ext["time"], y=df_ext["anomalies"], mode="markers",
-                   name="Extreme events", marker=dict(color="red", size=6, opacity=0.9)),
+                   name="Extreme events", marker=dict(color=theme.RED, size=6, opacity=0.9)),
     ])
     fig_extreme.add_hline(
-        y=q95_thr, line_dash="dash", line_color="red", line_width=2,
+        y=q95_thr, line_dash="dash", line_color=theme.RED, line_width=2,
         annotation_text=f"q{int(config.EXTREME_QUANTILE * 100)}",
     )
     fig_extreme.update_layout(
@@ -122,7 +122,7 @@ def anomaly_figs(lon, lat):
 
     fig_bar = go.Figure([
         go.Bar(x=df_bar["year"], y=df_bar["count"], name="Extreme events",
-               marker_color="#74a9cf", opacity=0.5),
+               marker_color=theme.RED, opacity=0.5),
     ])
     expanded = np.repeat(df_bar["year"].values, df_bar["count"].values)
     if expanded.size >= 2:
@@ -131,7 +131,7 @@ def anomaly_figs(lon, lat):
         y_kde = kde(x_grid)
         fig_bar.add_trace(go.Scatter(
             x=x_grid, y=y_kde * (df_bar["count"].max() / y_kde.max()),
-            mode="lines", name="KDE", line=dict(color="#74a9cf", width=2.5),
+            mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
         ))
     fig_bar.update_layout(
         title="Number of Extreme Events per Year",
@@ -169,7 +169,7 @@ def mhw_ts_fig(metric, lon, lat):
     }).dropna()
 
     fig = go.Figure([
-        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color="#74a9cf", opacity=0.5),
+        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color=theme.RED, opacity=0.5),
     ])
     expanded = np.repeat(df_ts["year"].values, df_ts[ylabel].values.astype(int).clip(0))
     if expanded.size >= 2:
@@ -178,7 +178,7 @@ def mhw_ts_fig(metric, lon, lat):
         y_kde = kde(x_grid)
         fig.add_trace(go.Scatter(
             x=x_grid, y=y_kde * (df_ts[ylabel].max() / y_kde.max()),
-            mode="lines", name="KDE", line=dict(color="#74a9cf", width=2.5),
+            mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
         ))
     fig.update_layout(
         title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
@@ -255,15 +255,15 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
 
     fig = go.Figure([
         go.Scatter(x=input_dates,    y=ctx,         mode="lines", name="observed (input)",
-                   line=dict(color="#2b8cbe", dash="solid", width=2.2)),
+                   line=dict(color=theme.BLUE,  dash="solid", width=2.2)),
         go.Scatter(x=forecast_dates, y=truth,        mode="lines", name="observed (truth)",
-                   line=dict(color="#2b8cbe", dash="dash",  width=2.2)),
+                   line=dict(color=theme.BLUE,  dash="dash",  width=2.2)),
         go.Scatter(x=forecast_dates, y=pred,         mode="lines", name=f"{model_name} forecast",
-                   line=dict(color="#d7301f", dash="dash",  width=2.2)),
+                   line=dict(color=theme.RED, dash="dash",  width=2.2)),
         go.Scatter(x=forecast_dates, y=persistence,  mode="lines", name="persistence",
-                   line=dict(color="#ff8c00", dash="dot",   width=2.2)),
+                   line=dict(color=theme.YELLOW,   dash="dot",   width=2.2)),
     ])
-    fig.add_vline(x=anchor_date, line_dash="dash", line_color="gray", line_width=1.2)
+    fig.add_vline(x=anchor_date, line_dash="dash", line_color=theme.GRAY, line_width=1.2)
     fig.update_layout(
         title=f"Forecast at ({actual_lon:.1f}°, {actual_lat:.1f}°) — start: {anchor_date}",
         xaxis_title="Date", yaxis_title="SSTA (°C)",
@@ -321,7 +321,7 @@ def build_layout():
             html.Video(
                 src="/assets/videos/sst_weekly_combined.mp4",
                 controls=True, loop=True,
-                style={"width": "100%", "maxHeight": f"{config.TIME_SERIE_HEIGHT}px"},
+                style={"width": "100%", "maxHeight": f"{theme.TIME_SERIE_HEIGHT}px"},
             ),
         ]),
     ])
@@ -436,7 +436,7 @@ def build_layout():
         dcc.Tabs(
             id="main-tabs", value="tab-video",
             children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
-            colors={"border": "#cfd8dc", "primary": ACCENT, "background": "#eef3f5"},
+            # colors={"border": theme.TABS_BORDER, "primary": theme.ACCENT, "background": theme.TABS_BG},
         ),
     ])
 
