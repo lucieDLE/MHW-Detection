@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 import functools
-
+import os 
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -13,66 +13,18 @@ import dash_bootstrap_components as dbc
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 APP_DIR = Path(__file__).resolve().parent
-for _p in (str(ROOT_DIR), str(APP_DIR)):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+for p in (str(ROOT_DIR), str(APP_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 import config
 import dash_analysis
 
-# ── Color palette ─────────────────────────────────────────────────────────────
-_HEADER_BG = "#006494"   # deep blue  — top header bar
-_ACCENT    = "#247ba0"   # ocean blue — active tab, primary highlight
-
-
-# ── Data loading ──────────────────────────────────────────────────────────────
-
-def _resolve(rel_path):
-    return (ROOT_DIR / rel_path).resolve()
-
-
-@functools.lru_cache(maxsize=None)
-def _open_dataset(path_str, engine):
-    return xr.open_dataset(path_str, engine=engine, chunks=config.CHUNKS)
-
-
-@functools.lru_cache(maxsize=None)
-def _open_zarr(path_str):
-    return xr.open_zarr(path_str)
-
-
-@functools.lru_cache(maxsize=None)
-def load_initial_map():
-    cache = _resolve(config.INITIAL_MAP_CACHE)
-    if cache.exists():
-        try:
-            return xr.open_dataarray(str(cache))
-        except Exception:
-            pass
-    ds = _open_dataset(str(_resolve(config.DATA_PATH)), "netcdf4")
-    ds["time"] = xr.decode_cf(ds).time
-    sst = ds.sst.sel(time=slice(config.MIN_DATE, config.MAX_DATE))
-    if config.MAP_COARSEN and config.MAP_COARSEN > 1:
-        sst = sst[::config.TIME_COARSEN, ::config.MAP_COARSEN, ::config.MAP_COARSEN]
-    return sst.groupby("time.month").std(dim="time").mean(dim="month")
-
-
-def load_ssta():
-    return _open_zarr(str(_resolve(config.ANOMALY_MAP_PATH)))
-
-
-def load_mhw():
-    return _open_zarr(str(_resolve(config.MHW_MAP_PATH)))
-
-
-def load_forecast_metrics():
-    p = _resolve(config.FORECAST_ACC_PATH)
-    return _open_zarr(str(p)) if p.exists() else None
-
-
-def load_forecast_chart():
-    p = _resolve(config.FORECAST_CHART_PATH)
-    return _open_zarr(str(p)) if p.exists() else None
+# ============================================================================
+#  COLORS AND FIGURES OPTION
+# ============================================================================
+HEADER_BG = "#006494"   # deep blue  — top header bar
+ACCENT    = "#247ba0"   # ocean blue — active tab, primary highlight
 
 
 # ── Shared figure options ─────────────────────────────────────────────────────
@@ -94,8 +46,16 @@ _PLOT_LAYOUT = dict(
     yaxis=dict(showgrid=True),
 )
 
+# ============================================================================
+#  DATA LOADING
+# ============================================================================
 
-def _heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
+@functools.lru_cache(maxsize=None)
+def open_zarr(path_str):
+    return xr.open_zarr(path_str)
+
+
+def heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
     fig = go.Figure(go.Heatmap(
         z=z, x=lons, y=lats,
         colorscale=colorscale,
@@ -107,19 +67,22 @@ def _heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
     return fig
 
 
-# ── Anomaly Explorer figures ──────────────────────────────────────────────────
+# ============================================================================
+#  ANOMALY FIGURES
+# ============================================================================
 
-def _initial_map_fig():
-    da = load_initial_map()
-    return _heatmap_fig(
+def initial_map_fig():
+    ds= open_zarr(config.INITIAL_MAP_CACHE)
+    da = ds.sst
+    return heatmap_fig(
         z=da.values, lons=da.lon.values, lats=da.lat.values,
         colorscale="OrRd",
         title="Sea Surface Temperature Variability across years",
     )
 
 
-def _anomaly_figs(lon, lat):
-    ds_ssta = load_ssta()
+def anomaly_figs(lon, lat):
+    ds_ssta = open_zarr(config.ANOMALY_MAP_PATH)
     da = ds_ssta.sst.sel(lon=lon, lat=lat, method="nearest")
     actual_lon = float(da.lon)
     actual_lat = float(da.lat)
@@ -205,12 +168,14 @@ def _anomaly_figs(lon, lat):
     return fig_trend, fig_extreme, fig_bar
 
 
-# ── MHW figures ───────────────────────────────────────────────────────────────
+# ============================================================================
+#  MARINE HEAT WAVES FIGURES
+# ============================================================================
 
-def _mhw_map_fig(metric, year):
-    ds = load_mhw()
+def mhw_map_fig(metric, year):
+    ds = open_zarr(config.MHW_MAP_PATH)
     da = ds[metric].sel(year=year)
-    return _heatmap_fig(
+    return heatmap_fig(
         z=da.values, lons=da.lon.values, lats=da.lat.values,
         colorscale="Hot",
         title=f"MHW {metric.replace('_', ' ')} ({year})",
@@ -218,8 +183,8 @@ def _mhw_map_fig(metric, year):
     )
 
 
-def _mhw_ts_fig(metric, lon, lat):
-    ds = load_mhw()
+def mhw_ts_fig(metric, lon, lat):
+    ds = open_zarr(config.MHW_MAP_PATH)
     ylabel = "Days per year" if metric == "day_per_year" else "Events per year"
     da = ds[metric].sel(lon=lon, lat=lat, method="nearest")
     actual_lon, actual_lat = float(da.lon), float(da.lat)
@@ -228,16 +193,14 @@ def _mhw_ts_fig(metric, lon, lat):
         "year": [int(y) for y in da.year.values],
         ylabel: da.values,
     }).dropna()
-    year_min, year_max = df_ts["year"].min(), df_ts["year"].max()
 
     fig = go.Figure([
-        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel,
-               marker_color="#74a9cf", opacity=0.5),
+        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color="#74a9cf", opacity=0.5),
     ])
     expanded = np.repeat(df_ts["year"].values, df_ts[ylabel].values.astype(int).clip(0))
     if expanded.size >= 2:
         kde = gaussian_kde(expanded, bw_method=0.35)
-        x_grid = np.linspace(year_min, year_max, 400)
+        x_grid = np.linspace(df_ts["year"].min(), df_ts["year"].max(), 400)
         y_kde = kde(x_grid)
         fig.add_trace(go.Scatter(
             x=x_grid, y=y_kde * (df_ts[ylabel].max() / y_kde.max()),
@@ -251,9 +214,11 @@ def _mhw_ts_fig(metric, lon, lat):
     return fig
 
 
-# ── Forecast figures ──────────────────────────────────────────────────────────
+# ============================================================================
+#  FORECASTING FIGURES
+# ============================================================================
 
-_METRIC_TO_ANALYSIS = {
+METRIC_TO_ANALYSIS = {
     "model_acc":        dash_analysis.FORECAST_ACC_CAPTION,
     "persistence_acc":  dash_analysis.FORECAST_ACC_CAPTION,
     "acc_diff":         dash_analysis.FORECAST_DIFF_ACC_CAPTION,
@@ -263,7 +228,7 @@ _METRIC_TO_ANALYSIS = {
 }
 
 # Asymmetric diverging colorscale for skill score (range -5 to 1, midpoint at 0)
-_SKILL_COLORSCALE = [
+SKILL_COLORSCALE = [
     [0.000, "rgb(8,48,107)"],
     [0.700, "rgb(158,202,225)"],
     [0.833, "rgb(255,255,255)"],
@@ -271,8 +236,8 @@ _SKILL_COLORSCALE = [
     [1.000, "rgb(165,15,21)"],
 ]
 
-def _forecast_map_fig(metric_key, lead, metric_options, rmse_max):
-    metric_ds = load_forecast_metrics()
+def forecast_map_fig(metric_key, lead, metric_options, rmse_max):
+    metric_ds = open_zarr(config.FORECAST_ACC_PATH)
     if metric_ds is None:
         return go.Figure()
 
@@ -291,11 +256,11 @@ def _forecast_map_fig(metric_key, lead, metric_options, rmse_max):
         colorscale = "RdBu_r" if is_diff else "YlOrRd"
         zmin, zmax = (-rmse_max / 2, rmse_max / 2) if is_diff else (0, rmse_max)
     else:
-        colorscale = _SKILL_COLORSCALE
+        colorscale = SKILL_COLORSCALE
         zmin, zmax = -5, 1
 
     label = next(k for k, v in metric_options.items() if v == metric_key)
-    return _heatmap_fig(
+    return heatmap_fig(
         z=da.values, lons=da.lon.values, lats=da.lat.values,
         colorscale=colorscale,
         title=f"{label}  —  lead time = {lead} days",
@@ -303,8 +268,8 @@ def _forecast_map_fig(metric_key, lead, metric_options, rmse_max):
     )
 
 
-def _forecast_ts_fig(lon, lat, anchor_date, model_name):
-    forecast_ds = load_forecast_chart()
+def forecast_ts_fig(lon, lat, anchor_date, model_name):
+    forecast_ds = open_zarr(config.FORECAST_CHART_PATH)
     if forecast_ds is None:
         return go.Figure()
 
@@ -342,18 +307,21 @@ def _forecast_ts_fig(lon, lat, anchor_date, model_name):
     return fig
 
 
-# ── Layout ────────────────────────────────────────────────────────────────────
+# ============================================================================
+#  APP LAYOUT
+# ============================================================================
 
-def _build_layout():
-    ds_mhw = load_mhw()
+def build_layout():
+    ds_mhw = open_zarr(config.MHW_MAP_PATH)
     mhw_years = [int(y) for y in ds_mhw.year.values]
     mhw_marks = {y: (str(y) if y % 5 == 0 else "") for y in mhw_years}
 
-    metric_ds  = load_forecast_metrics()
-    has_forecast = metric_ds is not None
+    has_forecast = False
+    if os.path.exists(config.FORECAST_ACC_PATH):
+        has_forecast = True
+        metric_ds = open_zarr(config.FORECAST_ACC_PATH)
 
-    if has_forecast:
-        forecast_ds    = load_forecast_chart()
+        forecast_ds    = open_zarr(config.FORECAST_CHART_PATH)
         model_name     = str(metric_ds.model)
         input_window   = str(metric_ds.input_window)
         rmse_max       = float(metric_ds["rmse_range"].values[1]) if "rmse_range" in metric_ds else 2.0
@@ -368,7 +336,7 @@ def _build_layout():
             "Forecasting skill": "forecast_skill",
         }
         lead_marks = {v: str(v) for v in lead_times}
-
+    
     # ── Tab 1: Video ──────────────────────────────────────────────────────────
     tab_video = dcc.Tab(label="SST Anomalies (Video)", value="tab-video", children=[
         dbc.Container(fluid=True, className="tab-content", children=[
@@ -386,7 +354,7 @@ def _build_layout():
         dbc.Container(fluid=True, className="tab-content", children=[
             dbc.Row([
                 dbc.Col([
-                    dcc.Graph(id="anomaly-map", figure=_initial_map_fig()),
+                    dcc.Graph(id="anomaly-map", figure=initial_map_fig()),
                     dbc.Card([
                         dbc.CardHeader("Description"),
                         dbc.CardBody(dcc.Markdown(dash_analysis.ANOMALY_CAPTION)),
@@ -511,7 +479,7 @@ def _build_layout():
         dcc.Tabs(
             id="main-tabs", value="tab-video",
             children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
-            colors={"border": "#cfd8dc", "primary": _ACCENT, "background": "#eef3f5"},
+            colors={"border": "#cfd8dc", "primary": ACCENT, "background": "#eef3f5"},
         ),
     ])
 
@@ -525,10 +493,12 @@ app = Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 server = app.server
-app.layout = _build_layout()
+app.layout = build_layout()
 
 
-# ── Callbacks ─────────────────────────────────────────────────────────────────
+# ============================================================================
+#  APP CALLBACKS
+# ============================================================================
 
 @app.callback(
     Output("anomaly-trend",   "figure"),
@@ -542,7 +512,7 @@ def update_anomaly(click_data):
     else:
         lon = click_data["points"][0]["x"]
         lat = click_data["points"][0]["y"]
-    return _anomaly_figs(lon, lat)
+    return anomaly_figs(lon, lat)
 
 
 @app.callback(
@@ -551,7 +521,7 @@ def update_anomaly(click_data):
     Input("mhw-year",   "value"),
 )
 def update_mhw_map(metric, year):
-    return _mhw_map_fig(metric, year)
+    return mhw_map_fig(metric, year)
 
 
 @app.callback(
@@ -565,7 +535,7 @@ def update_mhw_ts(click_data, metric):
     else:
         lon = click_data["points"][0]["x"]
         lat = click_data["points"][0]["y"]
-    return _mhw_ts_fig(metric, lon, lat)
+    return mhw_ts_fig(metric, lon, lat)
 
 
 @app.callback(
@@ -578,8 +548,8 @@ def update_mhw_ts(click_data, metric):
 def update_forecast_map(metric_key, lead, meta):
     if meta is None:
         return go.Figure(), ""
-    fig = _forecast_map_fig(metric_key, lead, meta["metric_options"], meta["rmse_max"])
-    card = dbc.Card(dbc.CardBody(dcc.Markdown(_METRIC_TO_ANALYSIS.get(metric_key, ""))))
+    fig = forecast_map_fig(metric_key, lead, meta["metric_options"], meta["rmse_max"])
+    card = dbc.Card(dbc.CardBody(dcc.Markdown(METRIC_TO_ANALYSIS.get(metric_key, ""))))
     return fig, card
 
 
@@ -597,7 +567,7 @@ def update_forecast_ts(click_data, anchor_date, meta):
     else:
         lon = click_data["points"][0]["x"]
         lat = click_data["points"][0]["y"]
-    return _forecast_ts_fig(lon, lat, anchor_date, meta["model_name"])
+    return forecast_ts_fig(lon, lat, anchor_date, meta["model_name"])
 
 
 if __name__ == "__main__":
