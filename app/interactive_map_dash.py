@@ -19,31 +19,7 @@ for p in (str(ROOT_DIR), str(APP_DIR)):
 
 import config
 import dash_analysis
-
-# ============================================================================
-#  COLORS AND FIGURES OPTION
-# ============================================================================
-HEADER_BG = "#006494"   # deep blue  — top header bar
-ACCENT    = "#247ba0"   # ocean blue — active tab, primary highlight
-
-
-# ── Shared figure options ─────────────────────────────────────────────────────
-
-_MAP_LAYOUT = dict(
-    height=config.MAP_HEIGHT,
-    margin=dict(l=60, r=20, t=50, b=50),
-    xaxis_title="Longitude",
-    yaxis_title="Latitude",
-)
-
-_PLOT_LAYOUT = dict(
-    height=config.RIGHT_PLOT_HEIGHT,
-    margin=dict(l=60, r=20, t=70, b=50),
-    showlegend=True,
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    xaxis=dict(showgrid=True),
-    yaxis=dict(showgrid=True),
-)
+import theme
 
 # ============================================================================
 #  HELPERS: LOADING AND MAP BUILDING
@@ -62,7 +38,7 @@ def heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
         colorbar=dict(thickness=12, len=0.9),
     ))
         
-    fig.update_layout(title=title, **_MAP_LAYOUT, template='simple_white')
+    fig.update_layout(title=title, **theme.MAP_LAYOUT, template='simple_white')
     return fig
 
 
@@ -117,7 +93,7 @@ def anomaly_figs(lon, lat):
         title=f"Anomaly at ({actual_lon:.2f}°, {actual_lat:.2f}°) | Trend: {trend:.3f} °C/decade",
         yaxis_title="SST anomaly (°C)", xaxis_title="Time",
         hovermode='x unified',
-        **_PLOT_LAYOUT,
+        **theme.PLOT_LAYOUT,
     )
 
     # Extreme events
@@ -135,7 +111,7 @@ def anomaly_figs(lon, lat):
     fig_extreme.update_layout(
         title=f"Extreme events above {int(config.EXTREME_QUANTILE * 100)}th percentile",
         yaxis_title="SST anomaly (°C)", xaxis_title="Time",
-        **_PLOT_LAYOUT,
+        **theme.PLOT_LAYOUT,
     )
 
     # Bar + KDE
@@ -160,7 +136,7 @@ def anomaly_figs(lon, lat):
     fig_bar.update_layout(
         title="Number of Extreme Events per Year",
         xaxis_title="Year", yaxis_title="Number of extreme events",
-        **_PLOT_LAYOUT,
+        **theme.PLOT_LAYOUT,
     )
 
     return fig_trend, fig_extreme, fig_bar
@@ -207,7 +183,7 @@ def mhw_ts_fig(metric, lon, lat):
     fig.update_layout(
         title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
         xaxis_title="Year", yaxis_title=ylabel,
-        **_PLOT_LAYOUT,
+        **theme.PLOT_LAYOUT,
     )
     return fig
 
@@ -224,15 +200,6 @@ METRIC_TO_ANALYSIS = {
     "persistence_rmse": dash_analysis.FORECAST_RMSE_CAPTION,
     "forecast_skill":   dash_analysis.FORECAST_SKILL_CAPTION,
 }
-
-# Asymmetric diverging colorscale for skill score (range -5 to 1, midpoint at 0)
-SKILL_COLORSCALE = [
-    [0.000, "rgb(8,48,107)"],
-    [0.700, "rgb(158,202,225)"],
-    [0.833, "rgb(255,255,255)"],
-    [0.917, "rgb(252,146,114)"],
-    [1.000, "rgb(165,15,21)"],
-]
 
 def forecast_map_fig(metric_key, lead, metric_options, rmse_max):
     metric_ds = open_zarr(config.FORECAST_ACC_PATH)
@@ -254,7 +221,7 @@ def forecast_map_fig(metric_key, lead, metric_options, rmse_max):
         colorscale = "RdBu_r" if is_diff else "YlOrRd"
         zmin, zmax = (-rmse_max / 2, rmse_max / 2) if is_diff else (0, rmse_max)
     else:
-        colorscale = SKILL_COLORSCALE
+        colorscale = theme.SKILL_COLORSCALE
         zmin, zmax = -5, 1
 
     label = next(k for k, v in metric_options.items() if v == metric_key)
@@ -301,7 +268,7 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
         title=f"Forecast at ({actual_lon:.1f}°, {actual_lat:.1f}°) — start: {anchor_date}",
         xaxis_title="Date", yaxis_title="SSTA (°C)",
         hovermode='x unified',
-        **_PLOT_LAYOUT,
+        **theme.PLOT_LAYOUT,
     )
     return fig
 
