@@ -1,3 +1,14 @@
+# ── Display dimensions ────────────────────────────────────────────────────────
+MAP_HEIGHT        = 560
+RIGHT_PLOT_HEIGHT = 335
+TIME_SERIE_HEIGHT = 760
+MAP_WIDTH         = 980
+RIGHT_PANEL_WIDTH = 660
+TIME_SERIE_WIDTH  = 1440
+MHW_SLIDER_WIDTH  = 200
+WIDTH_PLOT        = 500
+HEIGHT_RIGHT_PLOT = WIDTH_PLOT // 3
+
 # ── Colorscales ───────────────────────────────────────────────────────────────
 # Asymmetric diverging scale for skill score (range -5 to 1, midpoint at 0)
 SKILL_COLORSCALE = [
