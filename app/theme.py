@@ -2,16 +2,8 @@
 MAP_HEIGHT        = 560
 RIGHT_PLOT_HEIGHT = 335
 TIME_SERIE_HEIGHT = 760
-MAP_WIDTH         = 980
-RIGHT_PANEL_WIDTH = 660
-TIME_SERIE_WIDTH  = 1440
-MHW_SLIDER_WIDTH  = 200
-WIDTH_PLOT        = 500
-HEIGHT_RIGHT_PLOT = WIDTH_PLOT // 3
 
 # ── Chart color palette ───────────────────────────────────────────────────────
-PANEL_ACCENT = "#0d6e6e"    # Panel app accent / header background
-
 BLUE  = "#006494"           # observed / main series
 YELLOW = "#e3bb2a"          # OLS trend / persistence baseline
 RED = "#e40e0e"             # rolling mean / model forecast / extreme event
