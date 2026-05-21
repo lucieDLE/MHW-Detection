@@ -284,6 +284,21 @@ def textCard(title="TITLE", text='some text'):
         ]),
     )
 
+def loadingGraphCard(fig_id, figure, height='400px'):
+    # loading allows to display a loading widget while the figure is being updated
+    # useful when it takes ~5 seconds
+    if figure : 
+        return dcc.Loading(
+            html.Div(
+                dcc.Graph(id=fig_id, figure=figure),
+                className="chart-card"
+            ) )
+    else: 
+        return dcc.Loading(
+            html.Div( 
+                dcc.Graph(id=fig_id),
+                className="chart-card")
+        )
 # ============================================================================
 #  APP LAYOUT
 # ============================================================================
@@ -331,15 +346,15 @@ def build_layout():
         dbc.Container(fluid=True, className="tab-content", children=[
             dbc.Row([
                 dbc.Col([
-                    dcc.Graph(id="anomaly-map", figure=initial_map_fig()),
+                    loadingGraphCard(fig_id="anomaly-map", figure=initial_map_fig(), height='500px'),
                     textCard("Description", dash_analysis.ANOMALY_CAPTION),
                     textCard("Analysis",dash_analysis.ANOMALY_ANALYSIS),
-                ], width=7),
+                ], ),
                 dbc.Col([
-                    dcc.Loading(dcc.Graph(id="anomaly-trend")),
-                    dcc.Loading(dcc.Graph(id="anomaly-extreme")),
-                    dcc.Loading(dcc.Graph(id="anomaly-bar")),
-                ], width=5),
+                        loadingGraphCard(fig_id="anomaly-trend",figure=None,),
+                        loadingGraphCard(fig_id="anomaly-extreme",figure=None),
+                        loadingGraphCard(fig_id="anomaly-bar",figure=None),
+                ], ),
             ]),
         ]),
     ])
@@ -367,11 +382,11 @@ def build_layout():
                     ),
                     textCard("Description", dash_analysis.MHW_CAPTION),
                     textCard("Analysis", dash_analysis.MHW_ANALYSIS),
-                ], width=5),
+                ], ),
                 dbc.Col([
-                    dcc.Loading(dcc.Graph(id="mhw-map")),
-                    dcc.Loading(dcc.Graph(id="mhw-ts")),
-                ], width=7),
+                    loadingGraphCard(fig_id="mhw-map",figure=None),
+                    loadingGraphCard(fig_id="mhw-ts",figure=None),
+                ], ),
             ]),
         ]),
     ])
@@ -409,7 +424,7 @@ def build_layout():
                         dcc.Slider(
                             id="forecast-lead",
                             min=lead_times[0], max=lead_times[-1],
-                            step=None, marks=lead_marks, value=lead_times[0],
+                            step=None, marks=lead_marks, value=lead_times[-2],
                             tooltip={"placement": "bottom", "always_visible": False},
                         ),
                         html.Label("Forecast start date"),
@@ -422,11 +437,11 @@ def build_layout():
                         ),
                         textCard("Metric choices", dash_analysis.FORECAST_METRIC_CAPTION),
                         html.Div(id="forecast-analysis"),
-                    ], width=5),
+                    ], ),
                     dbc.Col([
-                        dcc.Loading(dcc.Graph(id="forecast-map")),
-                        dcc.Loading(dcc.Graph(id="forecast-ts")),
-                    ], width=7),
+                        loadingGraphCard(fig_id="forecast-map",figure=None),
+                        loadingGraphCard(fig_id="forecast-ts",figure=None),
+                    ], ),
                 ]),
             ]),
         ])
@@ -436,7 +451,6 @@ def build_layout():
         dcc.Tabs(
             id="main-tabs", value="tab-video",
             children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
-            # colors={"border": theme.TABS_BORDER, "primary": theme.ACCENT, "background": theme.TABS_BG},
         ),
     ])
 
