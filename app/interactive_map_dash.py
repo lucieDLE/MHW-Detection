@@ -241,7 +241,8 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
     anchor_t = pd.Timestamp(anchor_date)
     sel = dict(anchor_time=np.datetime64(anchor_date), lon=lon, lat=lat)
     ctx   = forecast_ds.input_context.sel(**sel, method="nearest").values
-    pred  = forecast_ds.model_pred.sel(**sel, method="nearest").values
+    pred_da  = forecast_ds.model_pred.sel(**sel, method="nearest")
+    pred = pred_da.values
     truth = forecast_ds.truth.sel(**sel, method="nearest").values
     n_in    = int(forecast_ds.input_window)
     horizon = int(forecast_ds.horizon)
@@ -250,8 +251,8 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
     forecast_dates = [anchor_t + pd.Timedelta(days=d) for d in range(1, horizon + 1)]
     persistence    = np.full(horizon, float(ctx[-1]))
 
-    actual_lon = float(forecast_ds.model_pred.sel(**sel, method="nearest").lon)
-    actual_lat = float(forecast_ds.model_pred.sel(**sel, method="nearest").lat)
+    actual_lon = float(pred_da.lon)
+    actual_lat = float(pred_da.lat)
 
     fig = go.Figure([
         go.Scatter(x=input_dates,    y=ctx,         mode="lines", name="observed (input)",
