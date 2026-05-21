@@ -8,12 +8,12 @@ BLUE  = "#006494"           # observed / main series
 YELLOW = "#e3bb2a"          # OLS trend / persistence baseline
 RED = "#e40e0e"             # rolling mean / model forecast / extreme event
 RED_LIGHT = "#e85555"       # rolling mean / model forecast / extreme event
-GRAY = "#6e6e6e"            # secondary / background lines
+GRAY = "#013f5c"            # secondary / background lines
 
 # ── COLOR PALETTE ───────────────────────────────────────────────────────
 
-dark_inside_plot = "#E5E5E5"
-dark_outer_plot = "#182d40"
+dark_inside_plot = "#98a0a3"
+dark_outer_plot = "#011431"
 
 light_outer_plot = "#96c6e8"
 
