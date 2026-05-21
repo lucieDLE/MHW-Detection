@@ -98,3 +98,12 @@ body {
 #forecast-analysis {
     margin-top: 12px;
 }
+
+/* ── Cards ────────────────────────────────────────────────── */
+.chart-card {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: 0 1px 6px var(--shadow);
+    padding: 8px;
+    margin-bottom: 16px;
+}
