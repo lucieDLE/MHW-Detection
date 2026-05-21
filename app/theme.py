@@ -8,14 +8,14 @@ BLUE  = "#006494"           # observed / main series
 YELLOW = "#e3bb2a"          # OLS trend / persistence baseline
 RED = "#e40e0e"             # rolling mean / model forecast / extreme event
 RED_LIGHT = "#e85555"       # rolling mean / model forecast / extreme event
-GRAY = "#013f5c"            # secondary / background lines
+GRAY = "#5c5c5c"            # secondary / background lines
 
 # ── COLOR PALETTE ───────────────────────────────────────────────────────
 
-dark_inside_plot = "#98a0a3"
-dark_outer_plot = "#011431"
+dark_inside_plot = "#ededed"
 
-light_outer_plot = "#96c6e8"
+dark_outer_plot = "#041c30"
+light_outer_plot = "#f5fbff"
 
 # ── Colorscales ───────────────────────────────────────────────────────────────
 # Asymmetric diverging scale for skill score (range -5 to 1, midpoint at 0)
@@ -33,8 +33,8 @@ MAP_LAYOUT = dict(
     margin=dict(l=20, r=10, t=50, b=20),
     xaxis_title="Longitude",
     yaxis_title="Latitude",
-    xaxis=dict(showgrid=False, visible=False),
-    yaxis=dict(showgrid=False, visible=False),
+    xaxis=dict(showgrid=True, zeroline=False, gridcolor='gray', griddash='dash', minor_griddash="dot"),
+    yaxis=dict(showgrid=True, zeroline=False, gridcolor='gray', griddash='dash', minor_griddash="dot"),
 )
 
 PLOT_LAYOUT = dict(
@@ -42,8 +42,8 @@ PLOT_LAYOUT = dict(
     margin=dict(l=60, r=20, t=70, b=50),
     showlegend=True,
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    xaxis=dict(showgrid=True),
-    yaxis=dict(showgrid=True),
+    xaxis=dict(showgrid=True, zeroline=False, gridcolor='white', griddash='dash'),
+    yaxis=dict(showgrid=True, zeroline=False, gridcolor='white', griddash='dash'),
 )
 
 def apply_theme(fig, dark: bool):
@@ -52,8 +52,6 @@ def apply_theme(fig, dark: bool):
             template="plotly_dark",
             plot_bgcolor=dark_inside_plot,
             paper_bgcolor=dark_outer_plot,
-            xaxis=dict(gridcolor="white"),
-            yaxis=dict(gridcolor="white"),
         )
     else:
         fig.update_layout(
