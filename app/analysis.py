@@ -10,6 +10,7 @@ TIMESERIE_CAPTION = """
     - Speed can also be adjusted.
 """
 
+
 ANOMALY_CAPTION = """
     The above **worldmap** highlights where Sea Surface Temperature (SST) fluctuates most from year 
     to year (red). Clicking on a location generates several analyses: 
@@ -20,10 +21,9 @@ ANOMALY_CAPTION = """
     - **Histogram of the number of extreme event** with Kernel Density Estimation (KDE): detects if 
         warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves 
         over time.
+"""
 
-    **Analysis**:
-    Areas showing strong variability independently of seasonality are:
-    
+ANOMALY_ANALYSIS = """
     - **El Niño-Southern Oscillation (ENSO):** Recurring climate pattern (3 to 7 years) warming 
         (El Niño) or cooling (La Niña) the water by ~1 to 3 C compared to normal SST. ENSO is one 
         of the most important climate phenomena on Earth as it changes temperatures, precipitation 
@@ -52,10 +52,10 @@ MHW_CAPTION = """
 
     - Click anywhere on the map to see the full time series per year at that location.
     - Use the metric selector and year slider to explore spatial patterns.
+"""
 
 
-    **Analysis**: 
-
+MHW_ANALYSIS = """
     Several recurring patterns emerge across the maps, intensifying from the 1980s to the 2020s:
 
     - **1983, 1997-1998, 2015-2016, and 2023-2024** correspond to major El Niño events and appear 
@@ -86,9 +86,9 @@ MHW_CAPTION = """
 
     **This highlights an ongoing and accelerating warming of the global ocean.**
 """
-FORECAST_METRIC_CAPTION = """
-    **Metrics**
 
+
+FORECAST_METRIC_CAPTION = """
     - **Anomaly Correlation Coefficient (ACC)**: Spatial Pearson correlation between predicted and 
         observed SSTA per timestep, averaged over the test period.
 
