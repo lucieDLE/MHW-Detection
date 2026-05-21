@@ -17,8 +17,17 @@ The dashboard enables intuitive spatial-to-temporal climate exploration: users c
 | Data & computation | `xarray`, `numpy`, `pandas`, `dask`, `scipy` |
 | Storage | `zarr`, `netCDF4` |
 | Visualisation | `hvPlot`, `HoloViews`, `Bokeh` |
-| Dashboard | `Panel`, `Dash` |
+| Dashboard | `Dash` |
 | ML/DL | `scikit-learn` , `pytorch` |
+
+
+## Code Updates
+
+
+| Date | Description |
+|---|---|
+| **2026-05-21** | The app is now using Dash<br> Added Dark/Light Mode<br> Release Model Chekpoint to skip training<br> |
+
 
 ## Dataset
 The project uses the NOAA Optimum Interpolation (OI) SST V2 High Resolution [dataset](https://www.psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html). The dataset covers Sea Surface Temperature from 1881 to 2026 with weekly and biweekly resolution.
@@ -46,10 +55,9 @@ python preprocess.py
 
 #### 2. Launch the Dashboard
 
-The dashboard is currently being changed to use `Dash` instead, both should be working and can be launched with the following
+The dashboard has been changed to use `Dash` and can be run with
 ```
-panel serve app/interactive_map_panel.py --show
-python app/interactive_map_dash.py
+python app/app.py
 ```
 
 ## Features
@@ -117,6 +125,12 @@ Below an example of the SST Forecasting Tab
 
 A deep-learning forecasting pipeline (`forecast/`) predicts daily SST anomalies up to 28 days ahead (called `lead times`). The pipeline is trained on 1982–2014 data, validated on 2015–2019, and evaluated on 2020–2025.
 You can visit the [Forecast page](forecast/ANALYSIS.md) for more details of the different models, parameters, lead time and performances.
+
+### Checkpoint Release
+
+A pre-trained checkpoint is available in [here](https://github.com/lucieDLE/MHW-Detection/releases/tag/v0) if you want to skip training and go straight to evaluation or visualization:
+
+Download the checkpoint and place it in `forecast/checkpoints/`, then jump directly to [Evaluating Performance](#evaluating-performance).
 
 ### Training a Model
 
