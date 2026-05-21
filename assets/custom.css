@@ -6,7 +6,7 @@
     --bg-tab:           #7ea5cb9c;
     --bg-card:          white;
     --bg-card-header:   #006494;
-    --bg-card-body:     #1590dc57;
+    --bg-card-body:     #96c6e8;
 
     --text-header:      white;
     --text-tab:         #2d3e4e;
@@ -25,12 +25,43 @@
     --Dash-Fill-Inverse-Strong: #ffff;
 }
 
+.dark {
+
+    --bg-page:          #002231;
+    --bg-header:        #013758;
+    --bg-tab-selected:  #deebf7;
+    --bg-tab:           #111111;
+    --bg-card:          #111111;
+    --bg-card-header:   #013758;
+    --bg-card-body:     #182d40;
+
+    --text-header:      white;
+    --text-tab:         #deebf7;
+    --text-tab-selected:#deebf7;
+    --text-card-header: white;
+    --text-card-body:   #deebf7;
+    --text-main:        #deebf7;
+
+    --accent:           #016694;
+    --border-color:     #111111;
+    --shadow:           rgba(3, 3, 3, 0.12);
+
+
+    --Dash-Fill-Interactive-Strong: #35ace2 ;
+    --Dash-Fill-Interactive-Weak: #deebf7 ;
+    --Dash-Fill-Inverse-Strong: #ffff;
+}
 /* ── Page ────────────────────────────────────────────────────────────────── */
 body {
     background-color: #d0dce4;
     font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+#page-wrapper {
+    min-height: 100vh;
+    background-color: var(--bg-page);
+
+}
 /* ── App header ──────────────────────────────────────────────────────────── */
 .app-header {
     display: flex;
@@ -82,7 +113,7 @@ body {
     font-weight: 600;
     font-size: 0.85rem;
     padding: 7px 14px;
-    border-radius: 5px 5px 0 0 ;
+    border-radius: 8px 8px 0 0 ;
     letter-spacing: 0.03em;
     text-transform: uppercase;
 }
@@ -101,9 +132,9 @@ body {
 
 /* ── Cards ────────────────────────────────────────────────── */
 .chart-card {
-    background-color: var(--bg-card);
+    background-color: var(--bg-card-body);
     border-radius: 8px;
     box-shadow: 0 1px 6px var(--shadow);
-    padding: 8px;
+    padding: 3px;
     margin-bottom: 16px;
 }
