@@ -28,21 +28,15 @@ def textCard(title="TITLE", text='some text'):
         ]),
     )
 
-def loadingGraphCard(fig_id, figure, height='400px'):
+def loadingGraphCard(fig_id, height='400px'):
     # loading allows to display a loading widget while the figure is being updated
     # useful when it takes ~5 seconds
-    if figure : 
-        return dcc.Loading(
-            html.Div(
-                dcc.Graph(id=fig_id, figure=figure),
-                className="chart-card"
-            ) )
-    else: 
-        return dcc.Loading(
-            html.Div( 
-                dcc.Graph(id=fig_id),
-                className="chart-card")
-        )
+
+    return dcc.Loading(
+        html.Div( 
+            dcc.Graph(id=fig_id),
+            className="chart-card")
+    )
 
 def build_layout():
     ds_mhw = figures.open_zarr(config.MHW_MAP_PATH)
@@ -87,14 +81,14 @@ def build_layout():
         dbc.Container(fluid=True, className="tab-content", children=[
             dbc.Row([
                 dbc.Col([
-                    loadingGraphCard(fig_id="anomaly-map", figure=figures.initial_map_fig(), height='500px'),
+                    loadingGraphCard(fig_id="anomaly-map", height='500px'),
                     textCard("Description", analysis.ANOMALY_CAPTION),
                     textCard("Analysis",analysis.ANOMALY_ANALYSIS),
                 ], ),
                 dbc.Col([
-                        loadingGraphCard(fig_id="anomaly-trend",figure=None,),
-                        loadingGraphCard(fig_id="anomaly-extreme",figure=None),
-                        loadingGraphCard(fig_id="anomaly-bar",figure=None),
+                        loadingGraphCard(fig_id="anomaly-trend",),
+                        loadingGraphCard(fig_id="anomaly-extreme"),
+                        loadingGraphCard(fig_id="anomaly-bar"),
                 ], ),
             ]),
         ]),
@@ -125,8 +119,8 @@ def build_layout():
                     textCard("Analysis", analysis.MHW_ANALYSIS),
                 ], ),
                 dbc.Col([
-                    loadingGraphCard(fig_id="mhw-map",figure=None),
-                    loadingGraphCard(fig_id="mhw-ts",figure=None),
+                    loadingGraphCard(fig_id="mhw-map"),
+                    loadingGraphCard(fig_id="mhw-ts"),
                 ], ),
             ]),
         ]),
@@ -180,8 +174,8 @@ def build_layout():
                         html.Div(id="forecast-analysis"),
                     ], ),
                     dbc.Col([
-                        loadingGraphCard(fig_id="forecast-map",figure=None),
-                        loadingGraphCard(fig_id="forecast-ts",figure=None),
+                        loadingGraphCard(fig_id="forecast-map"),
+                        loadingGraphCard(fig_id="forecast-ts"),
                     ], ),
                 ]),
             ]),
