@@ -1,60 +1,55 @@
 :root {
 
     --bg-page:          #deebf7;
-    --bg-header:        #006494;
+    --bg-header:        #96c6e8;
     --bg-tab-selected:  #deebf7;
-    --bg-tab:           #7ea5cb9c;
-    --bg-card:          white;
     --bg-card-header:   #006494;
     --bg-card-body:     #96c6e8;
 
-    --text-header:      white;
-    --text-tab:         #2d3e4e;
-    --text-tab-selected:#006494;
-    --text-card-header: white;
-    --text-card-body:   #2d3e4e;
-    --text-main:        #2d3e4e;
+    --text-header:      #deebf7;
+    --text:             #0a3775;
 
     --accent:           #016694;
-    --border-color:     #d0dce4;
+    --border-color:     #006494;
     --shadow:           rgba(0, 73, 133, 0.12);
 
+    --Dash-Text-Primary: #35ace2; /*redo */
+    --Dash-Text-Strong: #006494; /*redo */
 
-    --Dash-Fill-Interactive-Strong: #006494 ;
-    --Dash-Fill-Interactive-Weak: #deebf7 ;
-    --Dash-Fill-Inverse-Strong: #ffff;
+    --Dash-Fill-Interactive-Strong: #0a3775 ;
+    --Dash-Fill-Interactive-Weak: #006494 ;
+
+    --Dash-Fill-Inverse-Strong: #96c6e8;
 }
 
 .dark {
 
-    --bg-page:          #002231;
-    --bg-header:        #013758;
+    --bg-page:          #040212;
+    --bg-header:        #011431;
     --bg-tab-selected:  #deebf7;
-    --bg-tab:           #111111;
-    --bg-card:          #111111;
-    --bg-card-header:   #013758;
-    --bg-card-body:     #182d40;
+    --bg-card-header:   #35ace2;
+    --bg-card-body:     #011431;
 
-    --text-header:      white;
-    --text-tab:         #deebf7;
-    --text-tab-selected:#deebf7;
-    --text-card-header: white;
-    --text-card-body:   #deebf7;
-    --text-main:        #deebf7;
+    --text:          #deebf7;
+    --text-header:      #deebf7;
 
-    --accent:           #016694;
+    --accent:           #35ace2;
     --border-color:     #111111;
     --shadow:           rgba(3, 3, 3, 0.12);
 
+    --Dash-Text-Primary: #35ace2;
+    --Dash-Text-Strong:  #deebf7;
+    --Dash-Text-Disabled:#deebf7;
 
     --Dash-Fill-Interactive-Strong: #35ace2 ;
-    --Dash-Fill-Interactive-Weak: #deebf7 ;
-    --Dash-Fill-Inverse-Strong: #ffff;
+    --Dash-Fill-Interactive-Weak: #f7e1de ;
+    --Dash-Fill-Inverse-Strong: #011431;
 }
 /* ── Page ────────────────────────────────────────────────────────────────── */
 body {
     background-color: #d0dce4;
     font-family: "Inter", "Segoe UI", sans-serif;
+    color: var(--text);
 }
 
 #page-wrapper {
@@ -69,27 +64,28 @@ body {
     justify-content: space-between;
     background-color: var(--bg-header);
     padding: 14px 24px;
-    color: var(--text-header);
+    color: var(--text);
     font-size: 20px;
     font-weight: 600;
     letter-spacing: 0.5px;
+    border-top:5px solid var(--accent);
 }
 
 /* ── Tabs ────────────────────────────────────────────────────────────────── */
 .tab {
     font-size: 0.9rem;
     font-weight: 500;
-    color: var(--text-tab);
-    background-color: var(--bg-tab);
+    color: var(--text);
+    background-color: var(--bg-page);
     padding: 20px 18px ;
     border: none;
 }
 
 .tab--selected {
     background-color: var(--bg-page) !important;
-    color: var(--text-tab-selected);
+    color: var(--accent);
     font-weight: 700;
-    border-top: 5px solid var(--border-color);
+    border-top: 7px solid var(--accent);
 
 }
 /* ── Tab content wrapper ─────────────────────────────────────────────────── */
@@ -109,7 +105,7 @@ body {
 
 .card-header {
     background-color: var(--bg-card-header);
-    color: var(--text-card-header);
+    color: var(--text-header);
     font-weight: 600;
     font-size: 0.85rem;
     padding: 7px 14px;
@@ -120,7 +116,7 @@ body {
 
 .card-body {
     background-color: var(--bg-card-body);
-    color: var(--text-card-body);
+    color: var(--text);
     font-size: 0.82rem;
     padding: 12px 14px;
 }
@@ -137,4 +133,23 @@ body {
     box-shadow: 0 1px 6px var(--shadow);
     padding: 3px;
     margin-bottom: 16px;
+}
+
+.label{
+    color: var(--accent);
+}
+
+.info-text p {
+    font-size: 0.9rem;
+    color: var(--Dash-Fill-Interactive-Strong);
+    margin-bottom: 8px;
+}
+
+.dash-dropdown,
+.dash-dropdown-content {
+    color: var(--Dash-Text-Strong);
+    text-align: left;
+    font-weight:100;
+    font-size: 0.85rem;
+
 }
