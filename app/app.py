@@ -19,7 +19,7 @@ app = Dash(
     __name__,
     assets_folder=str(ROOT_DIR / "assets"),
     suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME],
 )
 server = app.server
 app.layout = build_layout()
