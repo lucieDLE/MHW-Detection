@@ -187,11 +187,25 @@ def build_layout():
             ]),
         ])
 
-    return html.Div([
-        html.Div("Sea Surface Temperature Explorer Dashboard", className="app-header"),
-        dcc.Tabs(
-            id="main-tabs", value="tab-video",
-            children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
-        ),
+    dark_mode_switch =  html.Span([
+        dbc.Label(className="fa fa-sun", html_for="switch"),
+        dbc.Switch(id="switch-theme", value=True, className="d-inline-block ms-1", persistence=True),
+        dbc.Label(className="fa fa-moon", html_for="switch"),
+    ])
+
+
+    return dbc.Container( 
+        fluid=True,
+        id="page-wrapper",
+        children=[ 
+            html.Div([
+                html.H4("Sea Surface Temperature Explorer Dashboard"),
+                dark_mode_switch,],
+                className='app-header'
+                ),
+            dcc.Tabs(
+                id="main-tabs", value="tab-video",
+                children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
+            ),
     ])
 

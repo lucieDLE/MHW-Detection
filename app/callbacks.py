@@ -8,6 +8,9 @@ from layout import textCard
 # ============================================================================
 #  APP CALLBACKS
 # ============================================================================
+@callback(Output("page-wrapper", "className"), Input("switch-theme", "value"))
+def change_theme(value):
+    return "dark" if value else ""
 
 @callback(
     Output("anomaly-trend",   "figure"),
