@@ -10,6 +10,10 @@ An interactive dashboard for exploring **Sea Surface Temperature (SST)** anomali
 
 The dashboard enables intuitive spatial-to-temporal climate exploration: users can scan global SST anomaly maps through time, detect long-term warming trends and extreme events at any location, and visualise MHW frequency and intensity year by year.
 
+
+<img src="assets/images/dahsboard_overview.png">
+
+
 ### Tools
 
 | Layer | Libraries |
