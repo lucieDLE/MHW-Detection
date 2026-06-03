@@ -190,3 +190,188 @@ label {
     border-color: var(--accent);
     background-color: var(--accent);
 }
+
+/* ── Overview tab ────────────────────────────────────────────────────────── */
+.overview-tab {
+    padding-top: 0 !important;
+    padding-left: 10% !important;
+    padding-right: 10% !important;
+}
+
+.overview-hero {
+    text-align: center;
+    padding: 52px 20px 40px;
+}
+.overview-hero-title {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text, #fff);
+    line-height: 1.25;
+    margin-bottom: 16px;
+}
+.dark .overview-hero-title { color: #e8f4fd; }
+.overview-hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+.overview-badges {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.overview-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    background-color: var(--bg-card-body);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Stat cards */
+.overview-stat-card {
+    background-color: var(--bg-card-body);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px 22px 16px;
+    box-shadow: 0 2px 8px var(--shadow);
+    height: 100%;
+}
+.stat-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+.stat-big {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+}
+.stat-unit {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+.stat-desc {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 6px;
+}
+.stat-divider {
+    border-color: var(--border-color);
+    margin: 12px 0 8px;
+}
+.stat-source {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.stat-red    { color: #e85555; }
+.stat-orange { color: #e3bb2a; }
+.stat-blue   { color: #00b4d8; }
+.stat-teal   { color: #2dd4bf; }
+.stat-pink   { color: #c084fc; }
+.stat-green  { color: #4ade80; }
+
+/* Key findings */
+.overview-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+    margin-bottom: 14px;
+}
+.overview-finding-card {
+    background-color: var(--bg-card-body);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px var(--shadow);
+    height: 100%;
+}
+.finding-icon {
+    margin-bottom: 12px;
+}
+.finding-icon-red    { color: #e85555; }
+.finding-icon-orange { color: #e3bb2a; }
+.finding-icon-teal   { color: #2dd4bf; }
+.finding-title {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+.finding-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Nav cards */
+.overview-nav-card {
+    background-color: var(--bg-card-body);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px var(--shadow);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.overview-nav-card:hover {
+    box-shadow: 0 4px 16px var(--shadow);
+    border-color: var(--accent);
+}
+.overview-nav-icon { margin-bottom: 4px; }
+.overview-nav-icon-blue   { color: #00b4d8; }
+.overview-nav-icon-green  { color: #4ade80; }
+.overview-nav-icon-orange { color: #e3bb2a; }
+.overview-nav-icon-purple { color: #c084fc; }
+
+.overview-nav-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.overview-nav-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    flex-grow: 1;
+    margin: 0;
+}
+.overview-nav-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    margin-top: 4px;
+}
+.overview-nav-link-blue   { color: #00b4d8; }
+.overview-nav-link-green  { color: #4ade80; }
+.overview-nav-link-orange { color: #e3bb2a; }
+.overview-nav-link-purple { color: #c084fc; }
+.overview-nav-link:hover { text-decoration: underline; }
+
+/* Footer */
+.overview-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 24px 0 8px;
+    border-top: 1px solid var(--border-color);
+}

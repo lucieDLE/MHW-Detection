@@ -28,6 +28,18 @@ def textCard(title="TITLE", text='some text'):
         ]),
     )
 
+def statCard(icon, label, values, units, descs, source, color_class, border_color):
+    return html.Div([
+        html.Div([html.I(className=f"fas {icon} fa-2x me-2 {color_class}"), label], className="stat-label"),
+        html.Div([html.Span(values[0], className=f"stat-big {color_class}"), html.Span(units[0], className="stat-unit")]),
+        html.Div(descs[0], className="stat-desc"),
+        html.Hr(className="stat-divider"),
+        html.Div([html.Span(values[1], className=f"stat-big {color_class}"), html.Span(units[1], className="stat-unit")]),
+        html.Div(descs[1], className="stat-desc"),
+        html.Hr(className="stat-divider"),
+        html.Div(source, className="stat-source"),
+    ], className="overview-stat-card", style={"borderTop": f"3px solid {border_color}"})
+
 def loadingGraphCard(fig_id, height='400px'):
     # loading allows to display a loading widget while the figure is being updated
     # useful when it takes ~5 seconds
@@ -64,6 +76,121 @@ def build_layout():
         }
         lead_marks = {v: str(v) for v in lead_times}
     
+    # ── Tab 0: Overview ──────────────────────────────────────────────────────
+    tab_overview = dcc.Tab(label="Overview", value="tab-overview", children=[
+        dbc.Container(fluid=True, className="tab-content overview-tab", children=[
+
+            # Hero
+            html.Div([
+                html.H1(
+                    "Global ocean temperatures are changing. Explore 144 years of data.",
+                    className="overview-hero-title",
+                ),
+                html.P(
+                    "From weekly SST anomaly animations to machine-learning forecasts. "
+                    "Track warming trends, marine heatwaves, and extreme events across the global ocean.",
+                    className="overview-hero-sub",
+                ),
+                html.Div([
+                    html.Span([html.I(className="fas fa-calendar-alt me-1"), "1882–2025"],  className="overview-badge"),
+                    html.Span([html.I(className="fas fa-globe me-1"),        "Global coverage"], className="overview-badge"),
+                    html.Span([html.I(className="fas fa-satellite me-1"),    "Satellite"], className="overview-badge"),
+                ], className="overview-badges"),
+            ], className="overview-hero"),
+
+            # Stat cards 1×4
+            dbc.Row([
+                dbc.Col(statCard(
+                    "fa-chart-line",
+                    "SST Warming Rate",
+                    ["+0.88°C", "2025"],
+                    [" ", " "],
+                    ["since pre-industrial era", "ranked 3rd in NOAA's global temperature record"],
+                    "Source: NOAA · IPCC 6th Assessment Report (2021)",
+                    "stat-red",    "#e85555"), md=4),
+                dbc.Col(statCard(
+                    "fa-fire",
+                    "Marine Heatwave Days",
+                    ["+54%", "90%"],
+                    [" ", " "],
+                    ["annual MHWD days (1987-2016 vs. 1925-1954)", "of all MHWs linked to human-caused warming"],
+                    "Source: IPCC 6th Assessment Report (2021)",
+                    "stat-orange", "#e3bb2a"), md=4),
+                dbc.Col(statCard(
+                    "fa-water",
+                    "Ocean Heat",
+                    ["90%", "+0.396"],
+                    [" ", " Yottajoule"],
+                    ["of Earth's excess heat is stored in the oceans", "ocean heat gain (1971-2018)"],
+                    "Source: IPCC 6th Assessment Report (2021)",
+                    "stat-blue",   "#00b4d8"), md=4),
+            ], className="mb-4"),
+
+            dbc.Row([
+                dbc.Col(statCard(
+                    "fa-person-swimming",
+                    "Sea Level",
+                    ["3.7 mm/yr", "60-82%"],
+                    [" ", " "],
+                    ["current rise rate (2006-2018), up 60% since 1971", "of tide gauges will see once-per-century floods annually by 2100"],
+                    "Source: NOAA · IPCC 6th Assessment Report (2021)",
+                    "stat-teal",   "#2dd4bf"), md=4),
+                dbc.Col(statCard(
+                    "fa-snowflake",
+                    "Artic Level",
+                    ["2nd", "2050"],
+                    [" lowest on record", " "],
+                    ["3.93M miles square ice in 2025", "Arctic Ocean will be sea-ice free in summer"],
+                    "Source: NOAA · IPCC 6th Assessment Report (2021)",
+                    "stat-pink",   "#c084fc"), md=4),
+                dbc.Col(statCard(
+                    "fa-tornado",
+                    "Tropical Cyclones",
+                    ["101", "24"],
+                    [" ", " "],
+                    ["named storms occurred globally in 2025", "reached major intensity (winds≥111 mph)"],
+                    "Source: NOAA",
+                    "stat-green",  "#4ade80"), md=4),
+            ], className="mb-4"),
+
+
+            # Explore the dashboard
+            html.H5("Explore the dashboard", className="overview-section-title"),
+            dbc.Row([
+                dbc.Col(html.Div([
+                    html.I(className="fas fa-regular fa-video fa-2x overview-nav-icon overview-nav-icon-blue"),
+                    html.Strong("SST anomalies", className="overview-nav-title"),
+                    html.P("40+ years of weekly anomaly animations.", className="overview-nav-text"),
+                    html.Button("Explore →", id="nav-to-video",    n_clicks=0, className="overview-nav-link overview-nav-link-blue"),
+                ], className="overview-nav-card")),
+                dbc.Col(html.Div([
+                    html.I(className="fas fa-regular fa-compass fa-2x overview-nav-icon overview-nav-icon-green"),
+                    html.Strong("Anomaly explorer", className="overview-nav-title"),
+                    html.P("Click any location for trends and extremes.", className="overview-nav-text"),
+                    html.Button("Explore →", id="nav-to-anomaly", n_clicks=0, className="overview-nav-link overview-nav-link-green"),
+                ], className="overview-nav-card")),
+                dbc.Col(html.Div([
+                    html.I(className="fas fa-thermometer-half fa-2x overview-nav-icon overview-nav-icon-orange"),
+                    html.Strong("Marine heatwaves", className="overview-nav-title"),
+                    html.P("Track MHW frequency year by year.", className="overview-nav-text"),
+                    html.Button("Explore →", id="nav-to-mhw",     n_clicks=0, className="overview-nav-link overview-nav-link-orange"),
+                ], className="overview-nav-card")),
+                dbc.Col(html.Div([
+                    html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon overview-nav-icon-purple"),
+                    html.Strong("SST forecasting", className="overview-nav-title"),
+                    html.P("ConvLSTM predictions up to 28 days ahead.", className="overview-nav-text"),
+                    html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link overview-nav-link-purple"),
+                ], className="overview-nav-card")),
+            ], className="mb-4"),
+
+            # Footer
+            html.Footer(
+                "Data: NOAA OISST V2",
+                className="overview-footer",
+            ),
+        ]),
+    ])
+
     # ── Tab 1: Video ──────────────────────────────────────────────────────────
     tab_video = dcc.Tab(label="SST Anomalies (Video)", value="tab-video", children=[
         dbc.Container(fluid=True, className="tab-content", children=[
@@ -198,8 +325,8 @@ def build_layout():
                 className='app-header'
                 ),
             dcc.Tabs(
-                id="main-tabs", value="tab-video",
-                children=[tab_video, tab_anomaly, tab_mhw, tab_forecast],
+                id="main-tabs", value="tab-overview",
+                children=[tab_overview, tab_video, tab_anomaly, tab_mhw, tab_forecast],
             ),
     ])
 

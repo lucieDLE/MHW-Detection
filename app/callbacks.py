@@ -1,5 +1,5 @@
 import plotly.graph_objects as go
-from dash import Input, Output, State, callback
+from dash import Input, Output, State, callback, ctx
 
 import config
 import figures
@@ -8,6 +8,22 @@ import theme
 # ============================================================================
 #  APP CALLBACKS
 # ============================================================================
+@callback(
+    Output("main-tabs", "value"),
+    Input("nav-to-video",    "n_clicks"),
+    Input("nav-to-anomaly",  "n_clicks"),
+    Input("nav-to-mhw",      "n_clicks"),
+    Input("nav-to-forecast", "n_clicks"),
+    prevent_initial_call=True,
+)
+def navigate_from_overview(_v, _a, _m, _f):
+    return {
+        "nav-to-video":    "tab-video",
+        "nav-to-anomaly":  "tab-anomaly",
+        "nav-to-mhw":      "tab-mhw",
+        "nav-to-forecast": "tab-forecast",
+    }.get(ctx.triggered_id, "tab-overview")
+
 @callback(Output("page-wrapper", "className"), Input("switch-theme", "value"))
 def change_theme(value):
     return "dark" if value else ""
