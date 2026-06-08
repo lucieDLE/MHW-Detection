@@ -1,12 +1,4 @@
-from pathlib import Path
-import sys
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-APP_DIR = Path(__file__).resolve().parent
-for p in (str(ROOT_DIR), str(APP_DIR)):
-    if p not in sys.path:
-        sys.path.insert(0, p)
-
+from path_setup import ROOT_DIR  # sets up sys.path; import first
 
 import dash_bootstrap_components as dbc
 from dash import Dash

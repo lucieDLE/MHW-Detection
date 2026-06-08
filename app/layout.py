@@ -1,15 +1,9 @@
-from pathlib import Path
-import sys
-import os 
+import path_setup  # noqa: F401  sets up sys.path; import first
+
+import os
 import numpy as np
 from dash import Dash, dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-APP_DIR = Path(__file__).resolve().parent
-for p in (str(ROOT_DIR), str(APP_DIR)):
-    if p not in sys.path:
-        sys.path.insert(0, p)
 
 import config
 import analysis

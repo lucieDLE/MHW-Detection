@@ -1,5 +1,5 @@
-from pathlib import Path
-import sys
+import path_setup  # noqa: F401  sets up sys.path; import first
+
 import functools
 
 import config
@@ -8,16 +8,10 @@ import analysis
 import xarray as xr
 
 import numpy as np
-import pandas as pd 
+import pandas as pd
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 from sklearn.linear_model import LinearRegression
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
-APP_DIR = Path(__file__).resolve().parent
-for p in (str(ROOT_DIR), str(APP_DIR)):
-    if p not in sys.path:
-        sys.path.insert(0, p)
 
 
 METRIC_TO_ANALYSIS = {
