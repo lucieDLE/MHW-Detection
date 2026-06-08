@@ -133,7 +133,7 @@ def build_layout():
                     "stat-teal",   "#2dd4bf"), md=4),
                 dbc.Col(statCard(
                     "fa-snowflake",
-                    "Artic Level",
+                    "Artic",
                     ["2nd", "2050"],
                     [" lowest on record", " "],
                     ["3.93M miles square ice in 2025", "Arctic Ocean will be sea-ice free in summer"],
