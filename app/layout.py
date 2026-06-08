@@ -45,9 +45,11 @@ def loadingGraphCard(fig_id, height='400px'):
     )
 
 def build_layout():
-    ds_mhw = figures.open_zarr(config.MHW_MAP_PATH)
-    mhw_years = [int(y) for y in ds_mhw.year.values]
-    mhw_marks = {y: (str(y) if y % 5 == 0 else "") for y in mhw_years}
+    has_mhw = os.path.exists(config.MHW_MAP_PATH)
+    if has_mhw:
+        ds_mhw = figures.open_zarr(config.MHW_MAP_PATH)
+        mhw_years = [int(y) for y in ds_mhw.year.values]
+        mhw_marks = {y: (str(y) if y % 5 == 0 else "") for y in mhw_years}
 
     has_forecast = False
     if os.path.exists(config.FORECAST_ACC_PATH):
@@ -216,36 +218,43 @@ def build_layout():
     ])
 
     # ── Tab 3: MHW ───────────────────────────────────────────────────────────
-    tab_mhw = dcc.Tab(label="Marine HeatWave Visualization", value="tab-mhw", children=[
-        dbc.Container(fluid=True, className="tab-content", children=[
-            dbc.Row([
-                dbc.Col([
-                    dcc.Dropdown(
-                        id="mhw-metric",
-                        options=[
-                            {"label": "Days per year",   "value": "day_per_year"},
-                            {"label": "Events per year", "value": "event_per_year"},
-                        ],
-                        value="day_per_year", clearable=False,
-                        className="mb-2",
-                    ),
-                    html.Label("Year"),
-                    dcc.Slider(
-                        id="mhw-year",
-                        min=mhw_years[0], max=mhw_years[-1],
-                        step=None, marks=mhw_marks, value=mhw_years[0],
-                        tooltip={"placement": "bottom", "always_visible": False},
-                    ),
-                    textCard("Description", analysis.MHW_CAPTION),
-                    textCard("Analysis", analysis.MHW_ANALYSIS),
-                ], ),
-                dbc.Col([
-                    loadingGraphCard(fig_id="mhw-map"),
-                    loadingGraphCard(fig_id="mhw-ts"),
-                ], ),
+    if not has_mhw:
+        tab_mhw = dcc.Tab(label="Marine HeatWave Visualization", value="tab-mhw", children=[
+            dbc.Container(fluid=True, className="tab-content", children=[
+                textCard("MHW dataset not found", "Please see the README for instructions on generating this file."),
             ]),
-        ]),
-    ])
+        ])
+    else:
+        tab_mhw = dcc.Tab(label="Marine HeatWave Visualization", value="tab-mhw", children=[
+            dbc.Container(fluid=True, className="tab-content", children=[
+                dbc.Row([
+                    dbc.Col([
+                        dcc.Dropdown(
+                            id="mhw-metric",
+                            options=[
+                                {"label": "Days per year",   "value": "day_per_year"},
+                                {"label": "Events per year", "value": "event_per_year"},
+                            ],
+                            value="day_per_year", clearable=False,
+                            className="mb-2",
+                        ),
+                        html.Label("Year"),
+                        dcc.Slider(
+                            id="mhw-year",
+                            min=mhw_years[0], max=mhw_years[-1],
+                            step=None, marks=mhw_marks, value=mhw_years[0],
+                            tooltip={"placement": "bottom", "always_visible": False},
+                        ),
+                        textCard("Description", analysis.MHW_CAPTION),
+                        textCard("Analysis", analysis.MHW_ANALYSIS),
+                    ], ),
+                    dbc.Col([
+                        loadingGraphCard(fig_id="mhw-map"),
+                        loadingGraphCard(fig_id="mhw-ts"),
+                    ], ),
+                ]),
+            ]),
+        ])
 
     # ── Tab 4: Forecast ───────────────────────────────────────────────────────
     if not has_forecast:
