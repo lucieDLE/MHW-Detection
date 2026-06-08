@@ -79,7 +79,7 @@ def build_layout():
             # Hero
             html.Div([
                 html.H1(
-                    "Global ocean temperatures are changing. Explore 144 years of data.",
+                    "Global ocean temperatures are changing. Explore 44 years of data.",
                     className="overview-hero-title",
                 ),
                 html.P(
@@ -88,7 +88,7 @@ def build_layout():
                     className="overview-hero-sub",
                 ),
                 html.Div([
-                    html.Span([html.I(className="fas fa-calendar-alt me-1"), "1882–2025"],  className="overview-badge"),
+                    html.Span([html.I(className="fas fa-calendar-alt me-1"), "1982–2025"],  className="overview-badge"),
                     html.Span([html.I(className="fas fa-globe me-1"),        "Global coverage"], className="overview-badge"),
                     html.Span([html.I(className="fas fa-satellite me-1"),    "Satellite"], className="overview-badge"),
                 ], className="overview-badges"),
