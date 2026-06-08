@@ -12,7 +12,10 @@ GRAY = "#5c5c5c"            # secondary / background lines
 
 # ── COLOR PALETTE ───────────────────────────────────────────────────────
 
+# Plot interior (plot_bgcolor) — kept light in both themes so a single gray
+# gridcolor stays visible. The page (paper_bgcolor) is what switches dark/light.
 dark_inside_plot = "#ededed"
+light_inside_plot = "#ffffff"
 
 dark_outer_plot = "#041c30"
 light_outer_plot = "#f5fbff"
@@ -42,11 +45,17 @@ PLOT_LAYOUT = dict(
     margin=dict(l=60, r=20, t=70, b=50),
     showlegend=True,
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    xaxis=dict(showgrid=True, zeroline=False, gridcolor='white', griddash='dash'),
-    yaxis=dict(showgrid=True, zeroline=False, gridcolor='white', griddash='dash'),
+    xaxis=dict(showgrid=True, zeroline=False, gridcolor='gray', griddash='dash'),
+    yaxis=dict(showgrid=True, zeroline=False, gridcolor='gray', griddash='dash'),
 )
 
 def apply_theme(fig, dark: bool):
+    """Single owner of the figure template and background colors.
+
+    Figure builders set only structure (traces, titles, margins, grids); the
+    template and plot/paper backgrounds are applied here so they stay
+    consistent across every figure and don't get set in two places.
+    """
     if dark:
         fig.update_layout(
             template="plotly_dark",
@@ -56,7 +65,7 @@ def apply_theme(fig, dark: bool):
     else:
         fig.update_layout(
             template="ggplot2",
+            plot_bgcolor=light_inside_plot,
             paper_bgcolor=light_outer_plot,
-
         )
     return fig

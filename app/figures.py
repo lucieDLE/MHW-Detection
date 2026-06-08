@@ -30,7 +30,8 @@ def heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
         colorbar=dict(thickness=12, len=0.9),
     ))
         
-    fig.update_layout(title=title, **theme.MAP_LAYOUT, template='simple_white')
+    # Template + backgrounds are owned by theme.apply_theme (called per callback).
+    fig.update_layout(title=title, **theme.MAP_LAYOUT)
     return fig
 
 
