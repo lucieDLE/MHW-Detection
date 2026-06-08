@@ -9,6 +9,14 @@ import theme
 # ============================================================================
 #  APP CALLBACKS
 # ============================================================================
+
+def parse_click(click_data):
+    """Return the (lon, lat) of a map click, or the default tap location."""
+    if click_data is None:
+        return config.DEFAULT_TAP_LON, config.DEFAULT_TAP_LAT
+    point = click_data["points"][0]
+    return point["x"], point["y"]
+
 @callback(
     Output("main-tabs", "value"),
     Input("nav-to-video",    "n_clicks"),
@@ -44,11 +52,7 @@ def update_anomaly_map(dark):
     Input("switch-theme", "value"),
 )
 def update_anomaly(click_data, dark):
-    if click_data is None:
-        lon, lat = config.DEFAULT_TAP_LON, config.DEFAULT_TAP_LAT
-    else:
-        lon = click_data["points"][0]["x"]
-        lat = click_data["points"][0]["y"]
+    lon, lat = parse_click(click_data)
     trend, extreme, bar = figures.anomaly_figs(lon, lat)
     return theme.apply_theme(trend, dark), theme.apply_theme(extreme, dark), theme.apply_theme(bar, dark)
 
@@ -70,11 +74,7 @@ def update_mhw_map(metric, year, dark):
     Input("switch-theme", "value"),
 )
 def update_mhw_ts(click_data, metric, dark):
-    if click_data is None:
-        lon, lat = config.DEFAULT_TAP_LON, config.DEFAULT_TAP_LAT
-    else:
-        lon = click_data["points"][0]["x"]
-        lat = click_data["points"][0]["y"]
+    lon, lat = parse_click(click_data)
     return theme.apply_theme(figures.mhw_ts_fig(metric, lon, lat),dark)
 
 
@@ -104,9 +104,5 @@ def update_forecast_map(metric_key, lead, dark, meta):
 def update_forecast_ts(click_data, anchor_date, dark, meta):
     if meta is None or anchor_date is None:
         return go.Figure()
-    if click_data is None:
-        lon, lat = config.DEFAULT_TAP_LON, config.DEFAULT_TAP_LAT
-    else:
-        lon = click_data["points"][0]["x"]
-        lat = click_data["points"][0]["y"]
+    lon, lat = parse_click(click_data)
     return theme.apply_theme(figures.forecast_ts_fig(lon, lat, anchor_date, meta["model_name"]), dark)
