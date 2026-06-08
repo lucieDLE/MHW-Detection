@@ -34,6 +34,25 @@ def heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
     return fig
 
 
+def add_kde_overlay(fig, expanded, x_min, x_max, peak, bw_method=0.35, n_points=400):
+    """Overlay a KDE curve on a yearly-count bar chart.
+
+    ``expanded`` is the count-weighted sample (years repeated by their count).
+    The curve is rescaled so its peak matches ``peak`` (the tallest bar), so it
+    sits sensibly on the bar axis. No-op if there are fewer than 2 samples.
+    """
+    if expanded.size < 2:
+        return fig
+    kde = gaussian_kde(expanded, bw_method=bw_method)
+    x_grid = np.linspace(x_min, x_max, n_points)
+    y_kde = kde(x_grid)
+    fig.add_trace(go.Scatter(
+        x=x_grid, y=y_kde * (peak / y_kde.max()),
+        mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
+    ))
+    return fig
+
+
 # ============================================================================
 #  ANOMALIES FIGURES
 # ============================================================================
@@ -116,14 +135,7 @@ def anomaly_figs(lon, lat):
                marker_color=theme.RED, opacity=0.5),
     ])
     expanded = np.repeat(df_bar["year"].values, df_bar["count"].values)
-    if expanded.size >= 2:
-        kde = gaussian_kde(expanded, bw_method=0.35)
-        x_grid = np.linspace(year_min, year_max, 400)
-        y_kde = kde(x_grid)
-        fig_bar.add_trace(go.Scatter(
-            x=x_grid, y=y_kde * (df_bar["count"].max() / y_kde.max()),
-            mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
-        ))
+    add_kde_overlay(fig_bar, expanded, year_min, year_max, peak=df_bar["count"].max())
     fig_bar.update_layout(
         title="Number of Extreme Events per Year",
         xaxis_title="Year", yaxis_title="Number of extreme events",
@@ -240,14 +252,7 @@ def mhw_ts_fig(metric, lon, lat):
         go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color=theme.RED, opacity=0.5),
     ])
     expanded = np.repeat(df_ts["year"].values, df_ts[ylabel].values.astype(int).clip(0))
-    if expanded.size >= 2:
-        kde = gaussian_kde(expanded, bw_method=0.35)
-        x_grid = np.linspace(df_ts["year"].min(), df_ts["year"].max(), 400)
-        y_kde = kde(x_grid)
-        fig.add_trace(go.Scatter(
-            x=x_grid, y=y_kde * (df_ts[ylabel].max() / y_kde.max()),
-            mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
-        ))
+    add_kde_overlay(fig, expanded, df_ts["year"].min(), df_ts["year"].max(), peak=df_ts[ylabel].max())
     fig.update_layout(
         title=f"MHW {ylabel} at ({actual_lon:.2f}°, {actual_lat:.2f}°)",
         xaxis_title="Year", yaxis_title=ylabel,
