@@ -171,6 +171,17 @@ FORECAST_DIFF_ACC_CAPTION = """
     - t = 14 to t = 28 days: The spatial structure degrades rapidly. The Arctic and Southern Ocean 
         turn strongly blue, with the model losing up to 0.4 ACC points relative to persistence.
 
-    - At t = 28 days: The model adds very little value over persistence at the global scale, with 
+    - At t = 28 days: The model adds very little value over persistence at the global scale, with
         meaningful positive skill confined almost entirely to the tropical Pacific.
 """
+
+
+# Maps each forecast metric key to its explanatory caption.
+METRIC_TO_ANALYSIS = {
+    "model_acc":        FORECAST_ACC_CAPTION,
+    "persistence_acc":  FORECAST_ACC_CAPTION,
+    "acc_diff":         FORECAST_DIFF_ACC_CAPTION,
+    "model_rmse":       FORECAST_RMSE_CAPTION,
+    "persistence_rmse": FORECAST_RMSE_CAPTION,
+    "forecast_skill":   FORECAST_SKILL_CAPTION,
+}

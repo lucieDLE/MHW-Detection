@@ -3,6 +3,7 @@ from dash import Input, Output, State, callback, ctx
 
 import config
 import figures
+import analysis
 from layout import textCard
 import theme
 # ============================================================================
@@ -89,7 +90,7 @@ def update_forecast_map(metric_key, lead, dark, meta):
     if meta is None:
         return go.Figure(), ""
     fig = figures.forecast_map_fig(metric_key, lead, meta["metric_options"], meta["rmse_max"])
-    card = textCard("ANALYSIS", figures.METRIC_TO_ANALYSIS.get(metric_key, ""))
+    card = textCard("ANALYSIS", analysis.METRIC_TO_ANALYSIS.get(metric_key, ""))
     return theme.apply_theme(fig, dark), card
 
 

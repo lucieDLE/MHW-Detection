@@ -4,7 +4,6 @@ import functools
 
 import config
 import theme
-import analysis
 import xarray as xr
 
 import numpy as np
@@ -12,16 +11,6 @@ import pandas as pd
 import plotly.graph_objects as go
 from scipy.stats import gaussian_kde
 from sklearn.linear_model import LinearRegression
-
-
-METRIC_TO_ANALYSIS = {
-    "model_acc":        analysis.FORECAST_ACC_CAPTION,
-    "persistence_acc":  analysis.FORECAST_ACC_CAPTION,
-    "acc_diff":         analysis.FORECAST_DIFF_ACC_CAPTION,
-    "model_rmse":       analysis.FORECAST_RMSE_CAPTION,
-    "persistence_rmse": analysis.FORECAST_RMSE_CAPTION,
-    "forecast_skill":   analysis.FORECAST_SKILL_CAPTION,
-}
 
 
 # ============================================================================
