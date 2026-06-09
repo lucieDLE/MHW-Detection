@@ -126,32 +126,30 @@ body {
 .card {
     margin-top: 12px;
     margin-bottom: 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px var(--shadow);
+    background-color: var(--bg-page);
+    border: 0px;
 
 }
 
 .card-header {
-    background-color: var(--bg-card-header);
-    color: var(--text-header);
-    font-weight: 600;
+    color: var(--text-muted);
+    background-color: var(--bg-page);
+    font-weight: 700;
     font-size: 0.85rem;
-    padding: 8px 16px;
     letter-spacing: 0.06em;
-    border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
-}
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    }
 
 .card-body {
-    background-color: var(--bg-card-body);
     color: var(--text);
     font-size: 0.82rem;
-    padding: 12px 14px;
+    text-align: justify;
+    margin-bottom: 16px;
     line-height: 1.6;
-
-}
+}    
 
 /* ── Forecast dynamic analysis container ─────────────────────────────────── */
 #forecast-analysis {
@@ -373,3 +371,10 @@ label {
     padding: 24px 0 8px;
     border-top: 1px solid var(--border-color);
 }
+
+
+/* ============================================================
+   Flat text block — lightened text_card that sits on the page
+   background (no border/fill), so charts and the solid "Overview"
+   cards keep the visual emphasis.
+   ============================================================ */

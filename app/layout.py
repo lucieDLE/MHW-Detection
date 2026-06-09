@@ -15,12 +15,11 @@ import figures
 # ============================================================================
 
 def textCard(title="TITLE", text='some text'):
-    return html.Div(
-        dbc.Card([
-            dbc.CardHeader(title),
-            dbc.CardBody(dcc.Markdown(text)),
-        ]),
-    )
+    return html.Div([
+        html.Div(title, className="card-header"),
+        dcc.Markdown(text, className="card-body"),
+    ], className="card")
+
 
 def statCard(icon, label, values, units, descs, source, color_class, border_color):
     return html.Div([
@@ -172,10 +171,10 @@ def build_layout():
                     html.Button("Explore →", id="nav-to-mhw",     n_clicks=0, className="overview-nav-link cat-amber"),
                 ], className="overview-nav-card")),
                 dbc.Col(html.Div([
-                    html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon cat-sky"),
+                    html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon overview-nav-icon-purple"),
                     html.Strong("SST forecasting", className="overview-nav-title"),
                     html.P("ConvLSTM predictions up to 28 days ahead.", className="overview-nav-text"),
-                    html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link cat-sky"),
+                    html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link overview-nav-link-purple"),
                 ], className="overview-nav-card")),
             ], className="mb-4"),
 
