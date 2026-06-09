@@ -156,8 +156,6 @@ def anomaly_figs(lon, lat):
 
 def forecast_map_fig(metric_key, lead, metric_options, rmse_max):
     metric_ds = open_zarr(config.FORECAST_ACC_PATH)
-    if metric_ds is None:
-        return go.Figure()
 
     if metric_key == "acc_diff":
         da = metric_ds["model_acc"].sel(lead_time=lead) - metric_ds["persistence_acc"].sel(lead_time=lead)
@@ -187,8 +185,6 @@ def forecast_map_fig(metric_key, lead, metric_options, rmse_max):
 
 def forecast_ts_fig(lon, lat, anchor_date, model_name):
     forecast_ds = open_zarr(config.FORECAST_CHART_PATH)
-    if forecast_ds is None:
-        return go.Figure()
 
     anchor_t = pd.Timestamp(anchor_date)
     sel = dict(anchor_time=np.datetime64(anchor_date), lon=lon, lat=lat)
