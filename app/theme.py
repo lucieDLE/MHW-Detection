@@ -3,12 +3,14 @@ MAP_HEIGHT        = 600
 RIGHT_PLOT_HEIGHT = 335
 TIME_SERIE_HEIGHT = 760
 
-# ── Chart color palette ───────────────────────────────────────────────────────
-BLUE  = "#006494"           # observed / main series
-YELLOW = "#e3bb2a"          # OLS trend / persistence baseline
-RED = "#e40e0e"             # rolling mean / model forecast / extreme event
-RED_LIGHT = "#e85555"       # rolling mean / model forecast / extreme event
-GRAY = "#5c5c5c"            # secondary / background lines
+# ── Chart color palette ──────────────────────────────────────────────────────
+# valurd based on the --cat  assets/custom.css so charts and UI have same colors.
+OBSERVED = "#0096c7"        # observed / input / main series        (= --cat-ocean)
+TREND    = "#e9a23b"        # OLS linear trend / smoothed-trend KDE (= --cat-amber)
+ROLLING  = "#e5604d"        # multi-year rolling mean (warming line)(= --cat-warm)
+FORECAST = "#e5604d"        # model forecast line                   (= --cat-warm)
+EXTREME  = "#e5604d"        # extreme events / bars / threshold     (= --cat-warm)
+BASELINE = "#5c7a8a"        # persistence / secondary / background lines
 
 # ── COLOR PALETTE ───────────────────────────────────────────────────────
 

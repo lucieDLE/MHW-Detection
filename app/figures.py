@@ -52,7 +52,7 @@ def add_kde_overlay(fig, expanded, x_min, x_max, peak, bw_method=0.35, n_points=
     y_kde = kde(x_grid)
     fig.add_trace(go.Scatter(
         x=x_grid, y=y_kde * (peak / y_kde.max()),
-        mode="lines", name="Smoothed trend", line=dict(color=theme.RED_LIGHT, width=2.5),
+        mode="lines", name="Smoothed trend", line=dict(color=theme.TREND, width=2.5),
     ))
     return fig
 
@@ -96,12 +96,12 @@ def anomaly_figs(lon, lat):
 
     fig_trend = go.Figure([
         go.Scatter(x=df["time"], y=df["anomalies"], mode="lines", name="Anomaly",
-                   line=dict(color=theme.BLUE, width=1.5)),
+                   line=dict(color=theme.OBSERVED, width=1.5)),
         go.Scatter(x=df_clean["time"], y=df_clean["pred_ols"], mode="lines", name="OLS trend",
-                   line=dict(color=theme.YELLOW, width=2.3)),
+                   line=dict(color=theme.TREND, width=2.3)),
         go.Scatter(x=da.time.values, y=rolling_avg.values, mode="lines",
                    name=f"{config.ROLLING_YEARS}-year rolling mean",
-                   line=dict(color=theme.RED, width=2.5)),
+                   line=dict(color=theme.ROLLING, width=2.5)),
     ])
     fig_trend.update_layout(
         title=f"Anomaly at ({actual_lon:.2f}°, {actual_lat:.2f}°) | Trend: {trend:.3f} °C/decade",
@@ -114,12 +114,12 @@ def anomaly_figs(lon, lat):
     df_ext = df.loc[df["q95"] == 1]
     fig_extreme = go.Figure([
         go.Scatter(x=df["time"], y=df["anomalies"], mode="lines", name="Anomaly",
-                   line=dict(color=theme.GRAY, width=1), opacity=0.6),
+                   line=dict(color=theme.BASELINE, width=1), opacity=0.8),
         go.Scatter(x=df_ext["time"], y=df_ext["anomalies"], mode="markers",
-                   name="Extreme events", marker=dict(color=theme.RED, size=6, opacity=0.9)),
+                   name="Extreme events", marker=dict(color=theme.EXTREME, size=6, opacity=0.9)),
     ])
     fig_extreme.add_hline(
-        y=q95_thr, line_dash="dash", line_color=theme.RED, line_width=2,
+        y=q95_thr, line_dash="dash", line_color=theme.EXTREME, line_width=2,
         annotation_text=f"q{int(config.EXTREME_QUANTILE * 100)}",
     )
     fig_extreme.update_layout(
@@ -136,7 +136,7 @@ def anomaly_figs(lon, lat):
 
     fig_bar = go.Figure([
         go.Bar(x=df_bar["year"], y=df_bar["count"], name="Extreme events",
-               marker_color=theme.RED, opacity=0.5),
+               marker_color=theme.EXTREME, opacity=0.8),
     ])
     expanded = np.repeat(df_bar["year"].values, df_bar["count"].values)
     add_kde_overlay(fig_bar, expanded, year_min, year_max, peak=df_bar["count"].max())
@@ -204,15 +204,15 @@ def forecast_ts_fig(lon, lat, anchor_date, model_name):
 
     fig = go.Figure([
         go.Scatter(x=input_dates,    y=ctx,         mode="lines", name="observed (input)",
-                   line=dict(color=theme.BLUE,  dash="solid", width=2.2)),
+                   line=dict(color=theme.OBSERVED, dash="solid", width=2.2)),
         go.Scatter(x=forecast_dates, y=truth,        mode="lines", name="observed (truth)",
-                   line=dict(color=theme.BLUE,  dash="dash",  width=2.2)),
+                   line=dict(color=theme.OBSERVED, dash="dash",  width=2.2)),
         go.Scatter(x=forecast_dates, y=pred,         mode="lines", name=f"{model_name} forecast",
-                   line=dict(color=theme.RED, dash="dash",  width=2.2)),
+                   line=dict(color=theme.FORECAST, dash="dash",  width=2.2)),
         go.Scatter(x=forecast_dates, y=persistence,  mode="lines", name="persistence",
-                   line=dict(color=theme.YELLOW,   dash="dot",   width=2.2)),
+                   line=dict(color=theme.BASELINE, dash="dot",   width=2.2)),
     ])
-    fig.add_vline(x=anchor_date, line_dash="dash", line_color=theme.GRAY, line_width=1.2)
+    fig.add_vline(x=anchor_date, line_dash="dash", line_color=theme.BASELINE, line_width=1.2)
     fig.update_layout(
         title=f"Forecast at ({actual_lon:.1f}°, {actual_lat:.1f}°) — start: {anchor_date}",
         xaxis_title="Date", yaxis_title="SSTA (°C)",
@@ -249,7 +249,7 @@ def mhw_ts_fig(metric, lon, lat):
     }).dropna()
 
     fig = go.Figure([
-        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color=theme.RED, opacity=0.5),
+        go.Bar(x=df_ts["year"], y=df_ts[ylabel], name=ylabel, marker_color=theme.EXTREME, opacity=0.8),
     ])
     expanded = np.repeat(df_ts["year"].values, df_ts[ylabel].values.astype(int).clip(0))
     add_kde_overlay(fig, expanded, df_ts["year"].min(), df_ts["year"].max(), peak=df_ts[ylabel].max())
