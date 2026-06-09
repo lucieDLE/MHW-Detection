@@ -24,6 +24,14 @@
     --Dash-Fill-Interactive-Weak:     #0096c7;
     --Dash-Fill-Inverse-Strong:       #d0eaf6;
 
+    /* Categorical accents for stat / nav card colors.
+       Ocean-harmonized; shared across light and dark (large bold elements). */
+    --cat-warm:   #e5604d;   /* warming / coral red */
+    --cat-amber:  #e9a23b;   /* heatwaves / trend   */
+    --cat-ocean:  #0096c7;   /* ocean heat (= accent) */
+    --cat-teal:   #2a9d8f;   /* sea level */
+    --cat-sky:    #5fa8d3;   /* arctic */
+    --cat-green:  #52b788;   /* cyclones / seafoam */
 }
 
 .dark {
@@ -274,12 +282,13 @@ label {
     font-size: 0.75rem;
     color: var(--text-muted);
 }
-.stat-red    { color: #e85555; }
-.stat-orange { color: #e3bb2a; }
-.stat-blue   { color: #00b4d8; }
-.stat-teal   { color: #2dd4bf; }
-.stat-pink   { color: #c084fc; }
-.stat-green  { color: #4ade80; }
+/* Categorical accent classes used by stat/nav cards. */
+.cat-warm  { color: var(--cat-warm); }
+.cat-amber { color: var(--cat-amber); }
+.cat-ocean { color: var(--cat-ocean); }
+.cat-teal  { color: var(--cat-teal); }
+.cat-sky   { color: var(--cat-sky); }
+.cat-green { color: var(--cat-green); }
 
 /* Key findings */
 .overview-section-title {
@@ -300,9 +309,6 @@ label {
 .finding-icon {
     margin-bottom: 12px;
 }
-.finding-icon-red    { color: #e85555; }
-.finding-icon-orange { color: #e3bb2a; }
-.finding-icon-teal   { color: #2dd4bf; }
 .finding-title {
     display: block;
     font-size: 1rem;
@@ -335,10 +341,6 @@ label {
     border-color: var(--accent);
 }
 .overview-nav-icon { margin-bottom: 4px; }
-.overview-nav-icon-blue   { color: #00b4d8; }
-.overview-nav-icon-green  { color: #4ade80; }
-.overview-nav-icon-orange { color: #e3bb2a; }
-.overview-nav-icon-purple { color: #c084fc; }
 
 .overview-nav-title {
     font-size: 1rem;
@@ -361,10 +363,6 @@ label {
     text-align: left;
     margin-top: 4px;
 }
-.overview-nav-link-blue   { color: #00b4d8; }
-.overview-nav-link-green  { color: #4ade80; }
-.overview-nav-link-orange { color: #e3bb2a; }
-.overview-nav-link-purple { color: #c084fc; }
 .overview-nav-link:hover { text-decoration: underline; }
 
 /* Footer */
