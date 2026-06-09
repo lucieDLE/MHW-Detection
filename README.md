@@ -30,6 +30,7 @@ The dashboard enables intuitive spatial-to-temporal climate exploration: users c
 
 | Date | Description |
 |---|---|
+| **2026-06-03** | Added an Overview Panel to introduce project |
 | **2026-05-21** | The app is now using Dash<br> Added Dark/Light Mode<br> Release Model Chekpoint to skip training<br> |
 
 
