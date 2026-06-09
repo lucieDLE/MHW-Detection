@@ -34,7 +34,7 @@ def statCard(icon, label, values, units, descs, source, color_class, border_colo
         html.Div(source, className="stat-source"),
     ], className="overview-stat-card", style={"borderTop": f"3px solid {border_color}"})
 
-def loadingGraphCard(fig_id, height='400px'):
+def loadingGraphCard(fig_id):
     # loading allows to display a loading widget while the figure is being updated
     # useful when it takes ~5 seconds
 
@@ -204,7 +204,7 @@ def build_layout():
         dbc.Container(fluid=True, className="tab-content", children=[
             dbc.Row([
                 dbc.Col([
-                    loadingGraphCard(fig_id="anomaly-map", height='500px'),
+                    loadingGraphCard(fig_id="anomaly-map"),
                     textCard("Description", analysis.ANOMALY_CAPTION),
                     textCard("Analysis",analysis.ANOMALY_ANALYSIS),
                 ], ),
