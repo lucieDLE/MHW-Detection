@@ -1,4 +1,7 @@
 :root {
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
     /* Surface ocean — light mode */
 
     --bg-page:          #eaf4fb;   /* sky reflection on calm water */
@@ -65,7 +68,6 @@
 /* ── Page ────────────────────────────────────────────────────────────────── */
 body {
     background-color: var(--bg-page);
-    font-family: "Inter", "Segoe UI", sans-serif;
     color: var(--text);
 }
 
@@ -252,9 +254,17 @@ label {
     height: 100%;
 }
 .stat-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.82rem;
     color: var(--text-muted);
     margin-bottom: 10px;
+}
+.stat-label i,
+.overview-nav-icon {
+    font-size: 1.6rem;
+    line-height: 1;
 }
 .stat-big {
     font-size: 2.4rem;

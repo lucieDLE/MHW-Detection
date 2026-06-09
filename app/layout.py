@@ -23,7 +23,7 @@ def textCard(title="TITLE", text='some text'):
 
 def statCard(icon, label, values, units, descs, source, color_class, border_color):
     return html.Div([
-        html.Div([html.I(className=f"fas {icon} fa-2x me-2 {color_class}"), label], className="stat-label"),
+        html.Div([html.I(className=f"fas {icon} fa-2x {color_class}"), label], className="stat-label"),
         html.Div([html.Span(values[0], className=f"stat-big {color_class}"), html.Span(units[0], className="stat-unit")]),
         html.Div(descs[0], className="stat-desc"),
         html.Hr(className="stat-divider"),
@@ -123,7 +123,7 @@ def build_layout():
 
             dbc.Row([
                 dbc.Col(statCard(
-                    "fa-person-swimming",
+                    "fa-house-flood-water",
                     "Sea Level",
                     ["3.7 mm/yr", "60-82%"],
                     [" ", " "],
@@ -153,13 +153,13 @@ def build_layout():
             html.H5("Explore the dashboard", className="overview-section-title"),
             dbc.Row([
                 dbc.Col(html.Div([
-                    html.I(className="fas fa-regular fa-video fa-2x overview-nav-icon cat-ocean"),
+                    html.I(className="fas fa-video fa-2x overview-nav-icon cat-ocean"),
                     html.Strong("SST anomalies", className="overview-nav-title"),
                     html.P("40+ years of weekly anomaly animations.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-video",    n_clicks=0, className="overview-nav-link cat-ocean"),
                 ], className="overview-nav-card")),
                 dbc.Col(html.Div([
-                    html.I(className="fas fa-regular fa-compass fa-2x overview-nav-icon cat-green"),
+                    html.I(className="fas fa-compass fa-2x overview-nav-icon cat-green"),
                     html.Strong("Anomaly explorer", className="overview-nav-title"),
                     html.P("Click any location for trends and extremes.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-anomaly", n_clicks=0, className="overview-nav-link cat-green"),
@@ -171,10 +171,10 @@ def build_layout():
                     html.Button("Explore →", id="nav-to-mhw",     n_clicks=0, className="overview-nav-link cat-amber"),
                 ], className="overview-nav-card")),
                 dbc.Col(html.Div([
-                    html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon overview-nav-icon-purple"),
+                    html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon cat-teal"),
                     html.Strong("SST forecasting", className="overview-nav-title"),
                     html.P("ConvLSTM predictions up to 28 days ahead.", className="overview-nav-text"),
-                    html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link overview-nav-link-purple"),
+                    html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link cat-teal"),
                 ], className="overview-nav-card")),
             ], className="mb-4"),
 
