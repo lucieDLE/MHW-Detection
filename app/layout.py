@@ -314,7 +314,7 @@ def build_layout():
         dbc.Label(className="fa fa-sun", html_for="switch"),
         dbc.Switch(id="switch-theme", value=True, className="d-inline-block ms-1", persistence=True),
         dbc.Label(className="fa fa-moon", html_for="switch"),
-    ])
+    ], className="theme-switch")
 
 
     return dbc.Container( 

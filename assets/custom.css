@@ -263,8 +263,35 @@ label {
 }
 .stat-label i,
 .overview-nav-icon {
-    font-size: 1.6rem;
+    font-size: 2rem;
     line-height: 1;
+}
+
+/* ── Theme switch (header) ───────────────────────────────────────────────── */
+.theme-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.theme-switch .fa-sun,
+.theme-switch .fa-moon {
+    font-size: 1.15rem;
+    line-height: 1;
+    margin: 0;
+    color: var(--text-header);
+}
+.theme-switch .form-check {
+    display: flex;
+    align-items: center;
+    min-height: 0;
+    margin: 0;
+    padding-left: 0;
+}
+.theme-switch .form-check-input {
+    height: 1.25rem;
+    width: 3rem;
+    margin: 0;
+    cursor: pointer;
 }
 .stat-big {
     font-size: 2.4rem;
