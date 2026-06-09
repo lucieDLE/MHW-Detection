@@ -36,11 +36,14 @@ def heatmap_fig(z, lons, lats, colorscale, title, zmin=None, zmax=None):
 
 
 def add_kde_overlay(fig, expanded, x_min, x_max, peak, bw_method=0.35, n_points=400):
-    """Overlay a KDE curve on a yearly-count bar chart.
+    """Overlay a smoothed-trend curve on a yearly-count bar chart.
 
     ``expanded`` is the count-weighted sample (years repeated by their count).
-    The curve is rescaled so its peak matches ``peak`` (the tallest bar), so it
-    sits sensibly on the bar axis. No-op if there are fewer than 2 samples.
+    A Gaussian KDE of that sample is rescaled so its peak matches ``peak`` (the
+    tallest bar), so it sits on the bar axis. This is a *visual* smoothing to
+    show how events cluster over time — not a calibrated frequency model: the
+    sample is discrete (integer years) and the curve is rescaled, so its height
+    is not a density. No-op if there are fewer than 2 samples.
     """
     if expanded.size < 2:
         return fig
@@ -49,7 +52,7 @@ def add_kde_overlay(fig, expanded, x_min, x_max, peak, bw_method=0.35, n_points=
     y_kde = kde(x_grid)
     fig.add_trace(go.Scatter(
         x=x_grid, y=y_kde * (peak / y_kde.max()),
-        mode="lines", name="KDE", line=dict(color=theme.RED_LIGHT, width=2.5),
+        mode="lines", name="Smoothed trend", line=dict(color=theme.RED_LIGHT, width=2.5),
     ))
     return fig
 

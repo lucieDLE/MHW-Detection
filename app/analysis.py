@@ -18,9 +18,9 @@ ANOMALY_CAPTION = """
     - **Linear trend estimation**: An Ordinary Least Squares (OLS) regression is applied to estimate
         the long-term SST anomaly trend.
     - **Extreme event detection**: defined as SST anomalies exceeding a 95th percentile threshold
-    - **Histogram of the number of extreme event** with Kernel Density Estimation (KDE): detects if 
-        warm anomalies are becoming more frequent and how the distribution of SST anomalies evolves 
-        over time.
+    - **Histogram of the number of extreme events per year**, with a smoothed-trend curve (a Gaussian
+        KDE of the count-weighted years, rescaled to the bar height). The curve is a visual guide to
+        whether warm extremes are clustering toward recent years — not a calibrated frequency model.
 """
 
 ANOMALY_ANALYSIS = """
