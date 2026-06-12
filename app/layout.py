@@ -33,14 +33,16 @@ def statCard(icon, label, values, units, descs, source, color_class, border_colo
         html.Div(source, className="stat-source"),
     ], className="overview-stat-card", style={"borderTop": f"3px solid {border_color}"})
 
-def loadingGraphCard(fig_id):
+def loadingGraphCard(fig_id, ratio='3/2'):
     # loading allows to display a loading widget while the figure is being updated
     # useful when it takes ~5 seconds
 
     return dcc.Loading(
         html.Div( 
             dcc.Graph(id=fig_id,config={"responsive": True}, style={"width": "100%"}),
-            className="chart-card")
+            className="chart-card", 
+            style={"aspectRatio": ratio},
+            )
     )
 
 def build_layout():
@@ -208,9 +210,9 @@ def build_layout():
                     textCard("Analysis",analysis.ANOMALY_ANALYSIS),
                 ],xs=12, lg=6 ),
                 dbc.Col([
-                        loadingGraphCard(fig_id="anomaly-trend",),
-                        loadingGraphCard(fig_id="anomaly-extreme"),
-                        loadingGraphCard(fig_id="anomaly-bar"),
+                        loadingGraphCard(fig_id="anomaly-trend",ratio='2/1'),
+                        loadingGraphCard(fig_id="anomaly-extreme",ratio='2/1'),
+                        loadingGraphCard(fig_id="anomaly-bar",ratio='2/1'),
                 ], xs=12, lg=6),
             ]),
         ]),
@@ -249,7 +251,7 @@ def build_layout():
                     ], xs=12, lg=6),
                     dbc.Col([
                         loadingGraphCard(fig_id="mhw-map"),
-                        loadingGraphCard(fig_id="mhw-ts"),
+                        loadingGraphCard(fig_id="mhw-ts",ratio='2/1'),
                     ],xs=12, lg=6 ),
                 ]),
             ]),
@@ -304,7 +306,7 @@ def build_layout():
                     ], xs=12, lg=6 ),
                     dbc.Col([
                         loadingGraphCard(fig_id="forecast-map"),
-                        loadingGraphCard(fig_id="forecast-ts"),
+                        loadingGraphCard(fig_id="forecast-ts",ratio='2/1'),
                     ], xs=12, lg=6 ),
                 ]),
             ]),
