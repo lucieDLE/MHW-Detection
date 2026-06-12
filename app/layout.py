@@ -102,7 +102,7 @@ def build_layout():
                     [" ", " "],
                     ["since pre-industrial era", "ranked 3rd in NOAA's global temperature record"],
                     "Source: NOAA · IPCC 6th Assessment Report (2021)",
-                    "cat-warm",    "var(--cat-warm)"), md=4),
+                    "cat-warm",    "var(--cat-warm)"), className="mb-4", xs=12, sm=6, md=4),
                 dbc.Col(statCard(
                     "fa-fire",
                     "Marine Heatwave Days",
@@ -110,7 +110,7 @@ def build_layout():
                     [" ", " "],
                     ["annual MHWD days (1987-2016 vs. 1925-1954)", "of all MHWs linked to human-caused warming"],
                     "Source: IPCC 6th Assessment Report (2021)",
-                    "cat-amber",   "var(--cat-amber)"), md=4),
+                    "cat-amber",   "var(--cat-amber)"), className="mb-4", xs=12, sm=6, md=4),
                 dbc.Col(statCard(
                     "fa-water",
                     "Ocean Heat",
@@ -118,7 +118,7 @@ def build_layout():
                     [" ", " Yottajoule"],
                     ["of Earth's excess heat is stored in the oceans", "ocean heat gain (1971-2018)"],
                     "Source: IPCC 6th Assessment Report (2021)",
-                    "cat-ocean",   "var(--cat-ocean)"), md=4),
+                    "cat-ocean",   "var(--cat-ocean)"), className="mb-4", xs=12, sm=6, md=4),
             ], className="mb-4"),
 
             dbc.Row([
@@ -129,7 +129,7 @@ def build_layout():
                     [" ", " "],
                     ["current rise rate (2006-2018), up 60% since 1971", "of tide gauges will see once-per-century floods annually by 2100"],
                     "Source: NOAA · IPCC 6th Assessment Report (2021)",
-                    "cat-teal",    "var(--cat-teal)"), md=4),
+                    "cat-teal",    "var(--cat-teal)"), className="mb-4", xs=12, sm=6, md=4),
                 dbc.Col(statCard(
                     "fa-snowflake",
                     "Artic",
@@ -137,7 +137,7 @@ def build_layout():
                     [" lowest on record", " "],
                     ["3.93M miles square ice in 2025", "Arctic Ocean will be sea-ice free in summer"],
                     "Source: NOAA · IPCC 6th Assessment Report (2021)",
-                    "cat-sky",     "var(--cat-sky)"), md=4),
+                    "cat-sky",     "var(--cat-sky)"), className="mb-4", xs=12, sm=6, md=4),
                 dbc.Col(statCard(
                     "fa-tornado",
                     "Tropical Cyclones",
@@ -145,7 +145,7 @@ def build_layout():
                     [" ", " "],
                     ["named storms occurred globally in 2025", "reached major intensity (winds≥111 mph)"],
                     "Source: NOAA",
-                    "cat-green",   "var(--cat-green)"), md=4),
+                    "cat-green",   "var(--cat-green)"), className="mb-4", xs=12, sm=6, md=4),
             ], className="mb-4"),
 
 
@@ -157,25 +157,25 @@ def build_layout():
                     html.Strong("SST anomalies", className="overview-nav-title"),
                     html.P("40+ years of weekly anomaly animations.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-video",    n_clicks=0, className="overview-nav-link cat-ocean"),
-                ], className="overview-nav-card")),
+                ], className="overview-nav-card"), xs=12, sm=6, lg=3, className="mb-4"),
                 dbc.Col(html.Div([
                     html.I(className="fas fa-compass fa-2x overview-nav-icon cat-green"),
                     html.Strong("Anomaly explorer", className="overview-nav-title"),
                     html.P("Click any location for trends and extremes.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-anomaly", n_clicks=0, className="overview-nav-link cat-green"),
-                ], className="overview-nav-card")),
+                ], className="overview-nav-card"), xs=12, sm=6, lg=3, className="mb-4"),
                 dbc.Col(html.Div([
                     html.I(className="fas fa-thermometer-half fa-2x overview-nav-icon cat-amber"),
                     html.Strong("Marine heatwaves", className="overview-nav-title"),
                     html.P("Track MHW frequency year by year.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-mhw",     n_clicks=0, className="overview-nav-link cat-amber"),
-                ], className="overview-nav-card")),
+                ], className="overview-nav-card"), xs=12, sm=6, lg=3, className="mb-4"),
                 dbc.Col(html.Div([
                     html.I(className="fas fa-hexagon-nodes fa-2x overview-nav-icon cat-teal"),
                     html.Strong("SST forecasting", className="overview-nav-title"),
                     html.P("ConvLSTM predictions up to 28 days ahead.", className="overview-nav-text"),
                     html.Button("Explore →", id="nav-to-forecast", n_clicks=0, className="overview-nav-link cat-teal"),
-                ], className="overview-nav-card")),
+                ], className="overview-nav-card"), xs=12, sm=6, lg=3, className="mb-4"),
             ], className="mb-4"),
 
             # Footer
@@ -206,12 +206,12 @@ def build_layout():
                     loadingGraphCard(fig_id="anomaly-map"),
                     textCard("Description", analysis.ANOMALY_CAPTION),
                     textCard("Analysis",analysis.ANOMALY_ANALYSIS),
-                ], ),
+                ],xs=12, lg=6 ),
                 dbc.Col([
                         loadingGraphCard(fig_id="anomaly-trend",),
                         loadingGraphCard(fig_id="anomaly-extreme"),
                         loadingGraphCard(fig_id="anomaly-bar"),
-                ], ),
+                ], xs=12, lg=6),
             ]),
         ]),
     ])
@@ -246,11 +246,11 @@ def build_layout():
                         ),
                         textCard("Description", analysis.MHW_CAPTION),
                         textCard("Analysis", analysis.MHW_ANALYSIS),
-                    ], ),
+                    ], xs=12, lg=6),
                     dbc.Col([
                         loadingGraphCard(fig_id="mhw-map"),
                         loadingGraphCard(fig_id="mhw-ts"),
-                    ], ),
+                    ],xs=12, lg=6 ),
                 ]),
             ]),
         ])
@@ -301,11 +301,11 @@ def build_layout():
                         ),
                         textCard("Metric choices", analysis.FORECAST_METRIC_CAPTION),
                         html.Div(id="forecast-analysis"),
-                    ], ),
+                    ], xs=12, lg=6 ),
                     dbc.Col([
                         loadingGraphCard(fig_id="forecast-map"),
                         loadingGraphCard(fig_id="forecast-ts"),
-                    ], ),
+                    ], xs=12, lg=6 ),
                 ]),
             ]),
         ])
