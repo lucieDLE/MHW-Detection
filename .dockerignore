@@ -1,0 +1,12 @@
+data/*
+!data/deploy
+
+.git/
+**/__pycache__/
+*.ipynb
+notebook/
+forecast/
+evaluation/
+*.docx
+*.pptx
+.DS_Store
