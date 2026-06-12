@@ -421,7 +421,7 @@ label {
 @media (max-width: 991.98px) {
     /* overview tab: reclaim the hardcoded 10% side padding */
     .overview-tab {
-        padding-left: 104% !important;
+        padding-left: 4% !important;
         padding-right: 4% !important;
         text-align: justify;
 
