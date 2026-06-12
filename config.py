@@ -1,5 +1,8 @@
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent
+
 # Data
-DATA_PATH = "data/sst.week.mean.nc"
+DATA_PATH = ROOT / "data/sst.week.mean.nc"
 
 
 # Performance tuning for high-res data
@@ -26,18 +29,18 @@ DEFAULT_TAP_LAT = 40
 FORECAST_CHART_FREQUENCY = 1
 
 # Cache outputs
-INITIAL_MAP_CACHE = "data/cache/initial_map.zarr"
-ANOMALY_MAP_PATH = 'data/cache/ssta_high_res.zarr'
-MHW_MAP_PATH = 'data/cache/mhw.zarr'
-SSTA_DAILY_PATH = "data/cache/ssta_daily.zarr"        # daily SST anomaly
-CLIM_PATH       = "data/cache/clim_daily.zarr"        # day-of-year climatology
-LANDMASK_PATH   = "data/cache/landmask_daily.zarr"    # land mask (180×180)
+INITIAL_MAP_CACHE = ROOT / "data/cache/initial_map.zarr"
+ANOMALY_MAP_PATH = ROOT / "data/cache/ssta_high_res.zarr"
+MHW_MAP_PATH = ROOT / "data/cache/mhw.zarr"
+SSTA_DAILY_PATH = ROOT / "data/cache/ssta_daily.zarr"        # daily SST anomaly
+CLIM_PATH       = ROOT / "data/cache/clim_daily.zarr"        # day-of-year climatology
+LANDMASK_PATH   = ROOT / "data/cache/landmask_daily.zarr"    # land mask (180×180)
 
-FORECAST_ACC_PATH = "data/cache/conv_lstm_n_in14_ACC_RMSE.zarr"     # best model trained exported
-FORECAST_CHART_PATH = "data/cache/conv_lstm_n_in14_forecast_fan.zarr" # sampled trajectories
+FORECAST_ACC_PATH = ROOT / "data/cache/conv_lstm_n_in14_ACC_RMSE.zarr"     # best model trained exported
+FORECAST_CHART_PATH = ROOT / "data/cache/conv_lstm_n_in14_forecast_fan.zarr" # sampled trajectories
 
 # Video output
-SSTA_VIDEO_PATH = "assets/videos/sst_weekly_combined.mp4"
+SSTA_VIDEO_PATH = ROOT / "assets/videos/sst_weekly_combined.mp4"
 
 # Chronological splits — strict, no shuffling
 DL_TRAIN_RANGE = ("1982-01-01", "2014-12-31")
@@ -53,6 +56,6 @@ BATCH_SIZE    = 8
 LR            = 1e-3
 EPOCHS        = 30
 NUM_WORKERS   = 4
-CHECKPOINT_DIR = "forecast/checkpoints"
-LOG_DIR        = "forecast/runs"
+CHECKPOINT_DIR = ROOT / "forecast/checkpoints"
+LOG_DIR        = ROOT / "forecast/runs"
 LEAD_TIMES = (1, 2, 3, 4, 5, 6, 7, 10, 14, 21, 28)
