@@ -1,6 +1,4 @@
 # ── Display dimensions ────────────────────────────────────────────────────────
-MAP_HEIGHT        = 600
-RIGHT_PLOT_HEIGHT = 335
 TIME_SERIE_HEIGHT = 760
 
 # ── Chart color palette ──────────────────────────────────────────────────────
@@ -34,7 +32,7 @@ SKILL_COLORSCALE = [
 
 # ── Shared Plotly figure layouts ──────────────────────────────────────────────
 MAP_LAYOUT = dict(
-    height=MAP_HEIGHT,
+    autosize=True,
     margin=dict(l=20, r=10, t=50, b=20),
     xaxis_title="Longitude",
     yaxis_title="Latitude",
@@ -43,7 +41,7 @@ MAP_LAYOUT = dict(
 )
 
 PLOT_LAYOUT = dict(
-    height=RIGHT_PLOT_HEIGHT,
+    autosize=True,
     margin=dict(l=60, r=20, t=70, b=50),
     showlegend=True,
     legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
