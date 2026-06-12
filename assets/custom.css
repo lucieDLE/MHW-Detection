@@ -94,6 +94,8 @@ body {
 /* ── Tabs ────────────────────────────────────────────────────────────────── */
   .tab-container {
     background-color: var(--bg-tab-bar);
+    display: flex;
+    justify-content: center;
 }
 .tab {
     font-size: 0.9rem;
@@ -103,6 +105,10 @@ body {
     padding: 12px 20px;
     border: none;
     border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;      /* vertical centering */
+    justify-content: center;
+    text-align: center;
 }
 .tab:hover {
     color: var(--accent);
@@ -410,8 +416,51 @@ label {
 }
 
 
-/* ============================================================
-   Flat text block — lightened text_card that sits on the page
-   background (no border/fill), so charts and the solid "Overview"
-   cards keep the visual emphasis.
-   ============================================================ */
+
+/* ── Responsive: tablet and below ───────────────────────────────── */
+@media (max-width: 991.98px) {
+    /* overview tab: reclaim the hardcoded 10% side padding */
+    .overview-tab {
+        padding-left: 104% !important;
+        padding-right: 4% !important;
+        text-align: justify;
+
+    }
+    .tab-content { 
+        padding: 16px 12px;
+        margin-bottom: auto;
+        padding-top:auto;
+        
+     }
+     
+}
+
+/* ── Responsive: phone ──────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+    .overview-tab {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        
+    }
+    .app-header {
+        text-align: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 16px;
+        font-size: 0.9rem;
+        justify-content: center;
+    }
+    .app-header h4 { font-size: 1.50rem; margin: 0; }
+
+    /* let tab labels scroll instead of overflowing */
+    .tab-container, .dash-tabs { overflow-x: auto; flex-wrap: nowrap; }
+    .tab { padding: 12px 12px; font-size: 0.8rem; white-space: nowrap; }
+
+    .overview-hero { padding: 28px 8px 24px; }
+    .stat-big { font-size: 1.9rem; }
+
+    /* shrink tall plotly charts (esp. the 600px map) on small screens */
+    .chart-card .js-plotly-plot,
+    .chart-card .dash-graph,
+    .chart-card .main-svg { max-height: 60vh; }
+}
