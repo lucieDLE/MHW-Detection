@@ -39,7 +39,7 @@ def loadingGraphCard(fig_id):
 
     return dcc.Loading(
         html.Div( 
-            dcc.Graph(id=fig_id),
+            dcc.Graph(id=fig_id,config={"responsive": True}, style={"width": "100%"}),
             className="chart-card")
     )
 
