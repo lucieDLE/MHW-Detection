@@ -1,0 +1,12 @@
+numpy==2.4.3
+pandas==2.3.3
+xarray==2025.12.0
+dask==2025.12.0
+zarr==3.1.6
+netcdf4==1.7.4
+scipy==1.17.1
+scikit-learn==1.8.0
+plotly==6.7.0
+dash==4.1.0
+dash-bootstrap-components==2.0.4
+gunicorn
