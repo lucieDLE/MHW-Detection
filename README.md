@@ -1,3 +1,19 @@
+---
+title: MHW Detection
+emoji: 🌊
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+tags:
+  - dash
+  - plotly
+  - oceanography
+  - marine-heatwave
+  - climate
+---
+  
 # MHW-Detection
 
 ## Overview
