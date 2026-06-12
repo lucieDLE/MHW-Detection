@@ -5,7 +5,8 @@
 evaluation/
 forecast/runs
 forecast/checkpoints
-data/
+data/*
+!data/deploy/
 .DS_Store
 
 # User-specific files
