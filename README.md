@@ -27,9 +27,6 @@ An interactive dashboard for exploring **Sea Surface Temperature (SST)** anomali
 The dashboard enables intuitive spatial-to-temporal climate exploration: users can scan global SST anomaly maps through time, detect long-term warming trends and extreme events at any location, and visualise MHW frequency and intensity year by year.
 
 
-<img src="assets/images/dahsboard_overview.png">
-
-
 ### Tools
 
 | Layer | Libraries |
@@ -46,6 +43,7 @@ The dashboard enables intuitive spatial-to-temporal climate exploration: users c
 
 | Date | Description |
 |---|---|
+| **2026-06-12** | Deploy app with Hugging Face Space |
 | **2026-06-03** | Added an Overview Panel to introduce project |
 | **2026-05-21** | The app is now using Dash<br> Added Dark/Light Mode<br> Release Model Chekpoint to skip training<br> |
 
@@ -89,8 +87,6 @@ The dashboard has three tabs, each providing a different view of SST data.
 
 A video of the changes of SST anomalies in the world across time. The diverging colormap (blue = cooler, red = warmer) is centered on zero and clipped to ±5 °C, making it easy to scan regional warming and cooling events through time.
 
-<img src="assets/images/dashboard_timeserie.png">
-
 ### Tab 2 — Anomaly Explorer
 
 A spatial-to-temporal click-to-inspect workflow:
@@ -104,9 +100,6 @@ A spatial-to-temporal click-to-inspect workflow:
   - **Extreme events**: time series of SST anomalies with points above the 95th-percentile threshold highlighted in red.
   - **Event count histogram + KDE**: number of extreme events per year with a kernel-density curve to reveal multi-decadal shifts in frequency.
 
-Below an example of the Anomaly Explorer Tab
-
-<img src="assets/images/dashboard_anomaly.png">
 
 ### Tab 3 — Marine HeatWave Visualization
 
@@ -115,11 +108,6 @@ Below an example of the Anomaly Explorer Tab
 - **Metric selector**: switch between *days per year* and *events per year*.
 - **Year slider**: pan through annual MHW maps to inspect spatial patterns.
 - **Click-to-inspect**: clicking the map plots a bar chart + KDE of the selected metric at that location across all available years.
-
-Below an example of the Marine HeatWave Tab
-
-<img src="assets/images/dashboard_mhw.png">
-
 
 
 ### Tab 4 — SST Forecasting
@@ -139,8 +127,6 @@ This panel let you explore model performance spatially and at individual locatio
 **Forecast trajectory chart**: clicking any point on the map draws a time series showing the observed input window, the model forecast, the ground truth, and the persistence baseline from a chosen start date. Use the **Forecast start date slider** to pick the anchor date.
 
 Below an example of the SST Forecasting Tab
-
-<img src="assets/images/dashboard_forecast.png">
 
 ## SST Forecasting
 
