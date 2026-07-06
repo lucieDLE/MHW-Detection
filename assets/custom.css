@@ -1,70 +1,124 @@
 :root {
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
+    /* ---- Reference scales ------------------------------------------------- */
+    /* Ocean-tinted "grays" — cool, never neutral (matches the dark theme feel) */
+    --gray-shade-1: hsl(200, 40%, 100%);
+    --gray-shade-2: hsl(200, 40%, 95%);
+    --gray-shade-3: hsl(200, 40%, 90%);
+    --gray-shade-4: hsl(200, 40%, 80%);
+    --gray-shade-5: hsl(200, 40%, 65%);
+    --gray-shade-6: hsl(200, 40%, 50%);
+    --gray-shade-7: hsl(200, 40%, 35%);
+    --gray-shade-8: hsl(200, 40%, 25%);
+    --gray-shade-9: hsl(200, 40%, 23%);
+    --gray-shade-10: hsl(200, 40%, 15%);
 
-    /* Surface ocean — light mode */
+    /* Ocean blue — the primary / brand hue */
+    --ocean-shade-1: hsl(213, 100%, 100%);
+    --ocean-shade-1-1: hsl(213, 100%, 95%);
+    --ocean-shade-2: hsl(213, 100%, 90%);
+    --ocean-shade-3: hsl(213, 100%, 80%);
+    --ocean-shade-4: hsl(213, 100%, 70%);
+    --ocean-shade-5: hsl(213, 100%, 60%);
+    --ocean-shade-6: hsl(213, 100%, 50%);
+    --ocean-shade-7: hsl(213, 100%, 25%);
+    --ocean-shade-8: hsl(213, 100%, 20%);
+    --ocean-shade-9: hsl(213, 100%, 15%);
+    --ocean-shade-10: hsl(213, 100%, 10%);
+    --ocean-shade-11: hsl(213, 100%, 5%);
 
-    --bg-page:          #eaf4fb;   /* sky reflection on calm water */
-    --bg-header:        #0077b6;   /* deep ocean surface */
-    --bg-tab-bar:       #d0eaf6;   /* shallow tide pool */
-    --bg-tab-selected:  #eaf4fb;
-    --bg-card-header:   #0077b6;
-    --bg-card-body:     #f5fbff;   /* seafoam white */
+    /* Warm heat — reserved strictly for the heatwave signal */
+    --heat-shade-1: hsl(25, 100%, 90%);
+    --heat-shade-2: hsl(25, 100%, 90%);
+    --heat-shade-3: hsl(25, 100%, 80%);
+    --heat-shade-4: hsl(25, 100%, 70%);
+    --heat-shade-5: hsl(25, 100%, 60%);
+    --heat-shade-6: hsl(25, 100%, 50%);
+    --heat-shade-7: hsl(25, 100%, 40%);
+    --heat-shade-8: hsl(25, 100%, 30%);
+    --heat-shade-9: hsl(25, 100%, 20%);
+    --heat-shade-10: hsl(25, 100%, 15%);
+    --heat-shade-11: hsl(25, 100%, 10%);
+    --heat-shade-12: hsl(25, 100%, 5%);
 
-    --text-header:      #ffffff;
-    --text:             #012a4a;   /* deep navy */
-    --text-muted:       #2c6e8a;
 
-    --accent:           #0096c7;   /* bright mid-ocean */
-    --accent-hover:     #0077b6;
-    --border-color:     #90c8e0;
-    --shadow:           rgba(0, 100, 148, 0.13);
+    /* ---- Semantic tokens (light mode) ------------------------------------- */
+    --bg-page:          var(--gray-shade-2);   /* sky reflection */
+    --bg-header:        var(--ocean-shade-7);
+    --bg-tab-bar:       var(--gray-shade-3);   /* shallow tide pool */
+    --bg-tab-selected:  var(--gray-shade-1);           /* active tab lifts to seafoam white */
+    --bg-card-header:   var(--ocean-shade-7);
+    --bg-card-body:     var(--gray-shade-1);    /* seafoam white */
+
+    --text-header:      var(--gray-shade-1);
+    --text:             var(--gray-shade-10);   /* deep navy */
+    --text-muted:       var(--gray-shade-7);
+
+    --accent:           var(--ocean-shade-8);  /* interactive text: links, active tab */
+    --accent-hover:     var(--ocean-shade-9);
+    --accent-bright:    var(--ocean-shade-5);  /* vivid cyan on underlines / borders / slider */
+    --accent-glow:      transparent;       /* inert in light; .dark activates it */
+    --border-color:     var(--gray-shade-4);   /* soft ocean hairline */
+    --shadow:           hsla(199, 100%, 29%, 0.13);
+
+    /* Heat signal */
+    --heat:             var(--heat-shade-8);
+    --heat-strong:      var(--heat-shade-7);
+    --heat-bg:          var(--heat-shade-5);
+    --heat-glow:        hsl(25, 100%, 50%);
 
     /* Dash component tokens */
-    --Dash-Text-Primary:              #0096c7;
-    --Dash-Text-Strong:               #012a4a;
-    --Dash-Fill-Interactive-Strong:   #012a4a;
-    --Dash-Fill-Interactive-Weak:     #0096c7;
-    --Dash-Fill-Inverse-Strong:       #d0eaf6;
+    --Dash-Text-Primary:              var(--ocean-shade-8);
+    --Dash-Text-Strong:               var(--gray-shade-10);
+    --Dash-Fill-Interactive-Strong:   var(--gray-shade-10);
+    --Dash-Fill-Interactive-Weak:     var(--ocean-shade-5);
+    --Dash-Fill-Inverse-Strong:       var(--gray-shade-3);
 
-    /* Categorical accents for stat / nav card colors.
-       Ocean-harmonized; shared across light and dark (large bold elements). */
-    --cat-warm:   #e5604d;   /* warming / coral red */
-    --cat-amber:  #e9a23b;   /* heatwaves / trend   */
-    --cat-ocean:  #0096c7;   /* ocean heat (= accent) */
-    --cat-teal:   #2a9d8f;   /* sea level */
-    --cat-sky:    #5fa8d3;   /* arctic */
-    --cat-green:  #52b788;   /* cyclones / seafoam */
+    /* Harmonized categorical accents (general data viz) */
+    --cat-warm:   hsl(10, 60%, 55%);
+    --cat-amber:  hsl(38, 60%, 55%);
+    --cat-ocean:  hsl(213, 60%, 55%);
+    --cat-teal:   hsl(175, 60%, 55%);
+    --cat-sky:    hsl(222, 60%, 55%);
+    --cat-green:  hsl(150, 60%, 55%);
 }
 
 .dark {
 
-      /* Abyssal ocean — dark mode */
-      --bg-page:          #020c18;   /* ocean abyss */
-      --bg-header:        #011424;   /* deep trench */
-      --bg-tab-bar:       #021931;
-      --bg-tab-selected:  #020c18;
-      --bg-card-header:   #013354;   /* dark water column */
-      --bg-card-body:     #041c30;   /* midnight sea */
+    --bg-page:          var(--ocean-shade-11);  
+    --bg-header:        var(--ocean-shade-9);
 
-      --text-header:      #caf0f8;   /* seafoam surface light */
-      --text:             #ade8f4;
-      --text-muted:       #48cae4;
+    --bg-tab-bar:       var(--ocean-shade-10);  
+    --bg-tab-selected:  var(--ocean-shade-11);
+    
+    --bg-card-header:   var(--gray-shade-7);
+    --bg-card-body:     var(--ocean-shade-10);   
 
-      --accent:           #00b4d8;   /* bioluminescent glow */
-      --accent-hover:     #48cae4;
-      --border-color:     #023e6a;
-      --shadow:           rgba(0, 0, 0, 0.45);
+    --text-header:      var(--ocean-shade-1-1);
+    --text:             var(--ocean-shade-2);
+    --text-muted:       hsl(213, 50%, 60%);
 
-      --Dash-Text-Primary:              #00b4d8;
-      --Dash-Text-Strong:               #caf0f8;
-      --Dash-Text-Disabled:             #48cae4;
-      --Dash-Fill-Interactive-Strong:   #00b4d8;
-      --Dash-Fill-Interactive-Weak:     #013354;
-      /* --Dash-Fill-Interactive-Weak:     #80a5bd; */
+    --accent:           var(--ocean-shade-5); 
+    --accent-hover:     var(--ocean-shade-4);
+    --accent-bright:    var(--ocean-shade-5); 
+    --accent-glow:      transparent;      
+    --border-color:     var(--ocean-shade-7);  
+    --shadow:           hsla(0, 100%, 29%, 0.13);
 
-      --Dash-Fill-Inverse-Strong:       #021931;
+    --heat:             var(--heat-shade-7);
+    --heat-strong:      var(--heat-shade-7);
+    --heat-bg:          var(--heat-shade-10);
+    --heat-glow:        hsl(25, 100%, 50%);
+    
+    --Dash-Text-Primary:              var(--ocean-shade-6);
+    --Dash-Text-Strong:               var(--gray-shade-2);
+    --Dash-Text-Disabled:             var(--ocean-shade-3);
+    --Dash-Fill-Interactive-Strong:   var(--ocean-shade-5);
+    --Dash-Fill-Interactive-Weak:     var(--ocean-shade-8);
+    --Dash-Fill-Inverse-Strong:       var(--ocean-shade-10);
 }
+
 /* ── Page ────────────────────────────────────────────────────────────────── */
 body {
     background-color: var(--bg-page);
@@ -74,25 +128,25 @@ body {
 #page-wrapper {
     min-height: 100vh;
     background-color: var(--bg-page);
-
 }
+
 /* ── App header ──────────────────────────────────────────────────────────── */
 .app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(135deg, var(--bg-header) 0%, color-mix(in srgb, var(--bg-header) 75%, var(--accent)) 100%);
+    background: linear-gradient(135deg, var(--bg-header) 0%, color-mix(in srgb, var(--bg-header) 82%, var(--accent-bright)) 100%);
     padding: 14px 24px;
     color: var(--text-header);
     font-size: 1.0rem;
     font-weight: 600;
     letter-spacing: 0.4px;
-    border-bottom: 3px solid var(--accent);
+    border-bottom: 3px solid var(--accent-bright);
     box-shadow: 0 2px 8px var(--shadow);
 }
 
 /* ── Tabs ────────────────────────────────────────────────────────────────── */
-  .tab-container {
+.tab-container {
     background-color: var(--bg-tab-bar);
     display: flex;
     justify-content: center;
@@ -106,7 +160,7 @@ body {
     border: none;
     border-bottom: 3px solid transparent;
     display: flex;
-    align-items: center;      /* vertical centering */
+    align-items: center;
     justify-content: center;
     text-align: center;
 }
@@ -114,16 +168,14 @@ body {
     color: var(--accent);
     background-color: var(--bg-tab-bar);
 }
-
 .tab--selected {
     color: var(--accent) !important;
     background-color: var(--bg-tab-selected) !important;
     font-weight: 700;
     border-bottom: 3px solid var(--accent) !important;
     border-top: none !important;
-  /* border-top: 7px solid var(--accent); */
-
 }
+
 /* ── Tab content wrapper ─────────────────────────────────────────────────── */
 .tab-content {
     padding: 24px 20px;
@@ -136,7 +188,6 @@ body {
     margin-bottom: 16px;
     background-color: var(--bg-page);
     border: 0px;
-
 }
 
 .card-header {
@@ -149,7 +200,7 @@ body {
     padding-bottom: 4px;
     margin-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
-    }
+}
 
 .card-body {
     color: var(--text);
@@ -157,7 +208,7 @@ body {
     text-align: justify;
     margin-bottom: 16px;
     line-height: 1.6;
-}    
+}
 
 /* ── Forecast dynamic analysis container ─────────────────────────────────── */
 #forecast-analysis {
@@ -175,7 +226,7 @@ body {
     overflow: hidden;
 }
 
-  /* ── Labels ──────────────────────────────────────────────────────────────── */
+/* ── Labels ──────────────────────────────────────────────────────────────── */
 label {
     color: var(--text-muted);
     font-size: 0.82rem;
@@ -197,13 +248,53 @@ label {
     font-weight: 400;
 }
 .slider-track {
-    background-color: var(--accent);
+    background-color: var(--accent-bright);
+}
+.slider-handle {
+    border-color: var(--accent-bright);
+    background-color: var(--accent-bright);
 }
 
-.slider-handle {
-    border-color: var(--accent);
-    background-color: var(--accent);
+/* ── Heat signal helpers ─────────────────────────────────────────────────── */
+/* Use for anomaly values, "active events" pills, heat highlights.
+   Dark coral text on a light coral tint — never white on solid coral. */
+.heat-value { color: var(--heat); font-weight: 700; }
+.heat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--heat);
+    background-color: var(--heat-bg);
 }
+
+/* ── Dark-mode neon glow layer (light mode stays flat) ───────────────────── */
+.dark .app-header {
+    box-shadow: 0 2px 14px var(--accent-glow);
+}
+.dark .tab--selected {
+    box-shadow: 0 4px 12px -4px var(--accent-glow);
+}
+.dark .overview-hero-sub-title{ color: var(--text-header)} 
+    
+.dark .chart-card,
+.dark .overview-stat-card,
+.dark .overview-finding-card,
+.dark .overview-nav-card {
+    box-shadow: 0 2px 10px hsla(0, 0%, 0%, 0.5);
+}
+.dark .overview-nav-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
+.dark .slider-handle {
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+.dark .heat-value { text-shadow: 0 0 12px var(--heat-glow); }
+.dark .heat-pill  { box-shadow: 0 0 10px var(--heat-glow); }
 
 /* ── Overview tab ────────────────────────────────────────────────────────── */
 .overview-tab {
@@ -219,11 +310,10 @@ label {
 .overview-hero-title {
     font-size: clamp(1.5rem, 3vw, 2.4rem);
     font-weight: 700;
-    color: var(--text, #fff);
+    color: var(--text);
     line-height: 1.25;
     margin-bottom: 16px;
 }
-.dark .overview-hero-title { color: #e8f4fd; }
 .overview-hero-sub {
     font-size: 1.05rem;
     color: var(--text-muted);
@@ -323,7 +413,8 @@ label {
     font-size: 0.75rem;
     color: var(--text-muted);
 }
-/* Categorical accent classes used by stat/nav cards. */
+
+/* Categorical accent classes used by stat/nav/chart legends. */
 .cat-warm  { color: var(--cat-warm); }
 .cat-amber { color: var(--cat-amber); }
 .cat-ocean { color: var(--cat-ocean); }
@@ -400,6 +491,7 @@ label {
     padding: 0;
     font-size: 0.9rem;
     font-weight: 600;
+    color: var(--accent);
     cursor: pointer;
     text-align: left;
     margin-top: 4px;
@@ -415,24 +507,18 @@ label {
     border-top: 1px solid var(--border-color);
 }
 
-
-
 /* ── Responsive: tablet and below ───────────────────────────────── */
 @media (max-width: 991.98px) {
-    /* overview tab: reclaim the hardcoded 10% side padding */
     .overview-tab {
         padding-left: 4% !important;
         padding-right: 4% !important;
         text-align: justify;
-
     }
-    .tab-content { 
+    .tab-content {
         padding: 16px 12px;
         margin-bottom: auto;
-        padding-top:auto;
-        
-     }
-     
+        padding-top: auto;
+    }
 }
 
 /* ── Responsive: phone ──────────────────────────────────────────── */
@@ -440,7 +526,6 @@ label {
     .overview-tab {
         padding-left: 4px !important;
         padding-right: 4px !important;
-        
     }
     .app-header {
         text-align: center;
@@ -452,14 +537,12 @@ label {
     }
     .app-header h4 { font-size: 1.50rem; margin: 0; }
 
-    /* let tab labels scroll instead of overflowing */
     .tab-container, .dash-tabs { overflow-x: auto; flex-wrap: nowrap; }
     .tab { padding: 12px 12px; font-size: 0.8rem; white-space: nowrap; }
 
     .overview-hero { padding: 28px 8px 24px; }
     .stat-big { font-size: 1.9rem; }
 
-    /* shrink tall plotly charts (esp. the 600px map) on small screens */
     .chart-card .js-plotly-plot,
     .chart-card .dash-graph,
     .chart-card .main-svg { max-height: 60vh; }
